@@ -1,0 +1,16 @@
+=== STARTING PTC BALANCE INQUIRY TEST FOR 101750466 ===
+Step 1: Requesting main page...
+Cookies now: pll_language=ar; PHPSESSID=651405329d90dbf9d3c8822923945f34
+Main page length: 71774
+qb4g_nonce_field: b179795f13
+form_ts: None
+challengeurl: None
+Found 7 inputs:
+  <input required class="form-control"  name="s" id="s" type="text" maxlength="255" size="20"  autocomplete="off" placeholder="بحث .."  style="display: inline;">
+  <input type="hidden" id="qb4g_nonce_field" name="qb4g_nonce_field" value="b179795f13" />
+  <input type="hidden" name="_wp_http_referer" value="/?page_id=9017" />
+  <input type="hidden" name="qb4g_submit" value="YES" />
+  <input type="text" autocomplete="true" style="direction:ltr;text-align:center" class="form-control" name="phone4gidnew" id="phone4gidnew" oninvalid="this.setCustomValidity('يحب ادخال رقم الهاتف')" maxlength="20" oninput="this.setCustomValidity('')" required placeholder="ادخل رقم الهاتف " value="">
+  <input style="display:block" type="text" class="form-control" required style="direction:ltr;text-align:center" oninvalid="this.setCustomValidity('يحب ادخال رمز التحقق')" maxlength="20" oninput="this.setCustomValidity('')" name="captcha_code_q4Gbill" id="captcha_code_q4Gbill" autocomplete="off" />
+  <input type="submit" name="qsubmitnew" id="qsubmitnew" value="استعلام">
+=== PTC BALANCE TEST COMPLETE ===

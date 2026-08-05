@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "977220159318",
+    "project_id": "sam4g-s-settings",
+    "storage_bucket": "sam4g-s-settings.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977220159318:android:fd5c0cf8a6922777cff8f7",
+        "android_client_info": {
+          "package_name": "com.sam4g.app_settings"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWMks4mdobRdMmac5ZXInA6fCsBrfUuG8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

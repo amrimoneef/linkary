@@ -1,0 +1,211 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart';
+import 'package:crypto/crypto.dart';
+
+class YemenBillService {
+  String? phpsessid;
+
+  // ==========================================
+  // 1. جلب PHPSESSID
+  // ==========================================
+  Future<void> getSession() async {
+    final res = await http.get(
+      Uri.parse("https://ptc.gov.ye/?page_id=9017"),
+    );
+
+    String? cookie = res.headers['set-cookie'];
+
+    if (cookie != null) {
+      final match = RegExp(r'PHPSESSID=([^;]+)').firstMatch(cookie);
+      if (match != null) {
+        phpsessid = match.group(1);
+      }
+    }
+  }
+
+  // ==========================================
+  // 2. جلب الصفحة
+  // ==========================================
+  Future<String> getMainPage() async {
+    final res = await http.get(
+      Uri.parse("https://ptc.gov.ye/?page_id=9017"),
+      headers: {
+        "Cookie": "PHPSESSID=$phpsessid; pll_language=ar"
+      },
+    );
+
+    return res.body;
+  }
+
+  // ==========================================
+  // 3. استخراج البيانات
+  // ==========================================
+  Map<String, String?> extractFormData(String html) {
+    final nonce = RegExp(r'qb4g_nonce_field"\s+value="([^"]+)')
+        .firstMatch(html)
+        ?.group(1);
+
+    final formTs = RegExp(r'form_ts"\s+value="([^"]+)')
+        .firstMatch(html)
+        ?.group(1);
+
+    final challengeUrl = RegExp(r'challengeurl="([^"]+)')
+        .firstMatch(html)
+        ?.group(1);
+
+    String? wpnonce;
+
+    if (challengeUrl != null) {
+      final decoded = Uri.decodeFull(challengeUrl);
+      wpnonce = RegExp(r'_wpnonce=([^&]+)')
+          .firstMatch(decoded)
+          ?.group(1);
+    }
+
+    return {
+      "nonce": nonce,
+      "form_ts": formTs,
+      "_wpnonce": wpnonce,
+    };
+  }
+
+  // ==========================================
+  // 4. جلب challenge
+  // ==========================================
+  Future<Map<String, dynamic>> getChallenge(String wpnonce) async {
+    final url =
+        "https://ptc.gov.ye/wp-admin/admin-ajax.php?action=get_altcha_challenge_4gbill&_wpnonce=$wpnonce";
+
+    final res = await http.get(
+      Uri.parse(url),
+      headers: {
+        "Cookie": "PHPSESSID=$phpsessid; pll_language=ar"
+      },
+    );
+
+    return jsonDecode(res.body);
+  }
+
+  // ==========================================
+  // 5. حل Altcha
+  // ==========================================
+  String? solveAltcha(Map<String, dynamic> c) {
+    final algo = c['algorithm'].replaceAll('-', '');
+    final salt = c['salt'];
+    final challenge = c['challenge'];
+
+    for (int i = 0; i <= c['maxnumber']; i++) {
+      final input = utf8.encode(salt + i.toString());
+
+      String hashValue;
+
+      if (algo == "sha256") {
+        hashValue = sha256.convert(input).toString();
+      } else {
+        continue;
+      }
+
+      if (hashValue == challenge) {
+        final result = {
+          "algorithm": c['algorithm'],
+          "challenge": challenge,
+          "number": i,
+          "salt": salt,
+          "signature": c['signature']
+        };
+
+        return base64Encode(utf8.encode(jsonEncode(result)));
+      }
+    }
+
+    return null;
+  }
+
+  // ==========================================
+  // 6. إرسال الطلب
+  // ==========================================
+  Future<String> queryBill({
+    required String phone,
+    required String token,
+    required String nonce,
+    required String formTs,
+  }) async {
+    final res = await http.post(
+      Uri.parse("https://ptc.gov.ye/?page_id=9017"),
+      headers: {
+        "Cookie": "PHPSESSID=$phpsessid; pll_language=ar",
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: {
+        "qb4g_nonce_field": nonce,
+        "_wp_http_referer": "/?page_id=9017",
+        "doqbillnew": "querybillvaluenew",
+        "form_ts": formTs,
+        "qb4g_submit": "YES",
+        "phone4gidnew": phone,
+        "security_token_4gbill": token,
+        "qsubmitnew": "استعلام"
+      },
+    );
+
+    return res.body;
+  }
+
+  // ==========================================
+  // 7. تحليل الجدول
+  // ==========================================
+  Map<String, String> parseHtml(String html) {
+    final document = parse(html);
+    final rows = document.querySelectorAll("table.transdetail tr");
+
+    Map<String, String> data = {};
+
+    for (var row in rows) {
+      final th = row.querySelector("th");
+      final td = row.querySelector("td");
+
+      if (th != null && td != null) {
+        data[th.text.trim()] = td.text.trim();
+      }
+    }
+
+    return data;
+  }
+
+  // ==========================================
+  // 8. الدالة الرئيسية
+  // ==========================================
+  Future<Map<String, dynamic>> fetchBill(String phone) async {
+    try {
+      await getSession();
+
+      final page = await getMainPage();
+
+      final form = extractFormData(page);
+
+      final challenge = await getChallenge(form['_wpnonce']!);
+
+      final token = solveAltcha(challenge);
+
+      final html = await queryBill(
+        phone: phone,
+        token: token!,
+        nonce: form['nonce']!,
+        formTs: form['form_ts']!,
+      );
+
+      final result = parseHtml(html);
+
+      return {
+        "success": true,
+        "data": result
+      };
+    } catch (e) {
+      return {
+        "success": false,
+        "error": e.toString()
+      };
+    }
+  }
+}

@@ -1,0 +1,23 @@
+Analyzing 8 items...                                            
+
+  error - Target of URI doesn't exist: '../infrastructure/models/admin_settings_model.dart' - lib\features\settings\domain\repositories\admin_settings_repository.dart:1:8 - uri_does_not_exist
+  error - The name 'AdminSettingsModel' isn't a type, so it can't be used as a type argument - lib\features\settings\domain\repositories\admin_settings_repository.dart:4:10 - non_type_as_type_argument
+  error - Target of URI doesn't exist: '../../modem_auth/presentation/controllers/auth_controller.dart' - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../infrastructure/data_sources/admin_remote_data_source.dart' - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:3:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../infrastructure/models/admin_settings_model.dart' - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'admin_settings_repository.dart' - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:5:8 - uri_does_not_exist
+  error - Classes and mixins can only implement other classes and mixins - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:7:46 - implements_non_class
+  error - Undefined class 'AdminRemoteDataSource' - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:8:9 - undefined_class
+  error - The name 'AuthController' isn't a type, so it can't be used as a type argument - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:13:21 - non_type_as_type_argument
+  error - The name 'AdminSettingsModel' isn't a type, so it can't be used as a type argument - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:17:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:17:30 - override_on_non_overriding_member
+warning - The method doesn't override an inherited method - lib\features\settings\infrastructure\repositories_impl\admin_settings_repository_impl.dart:24:16 - override_on_non_overriding_member
+  error - Target of URI doesn't exist: '../domain/usecases/get_admin_settings_usecase.dart' - lib\features\settings\presentation\controllers\admin_settings_controller.dart:4:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../domain/usecases/update_admin_settings_usecase.dart' - lib\features\settings\presentation\controllers\admin_settings_controller.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../infrastructure/models/admin_settings_model.dart' - lib\features\settings\presentation\controllers\admin_settings_controller.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'GetAdminSettingsUseCase' - lib\features\settings\presentation\controllers\admin_settings_controller.dart:9:9 - undefined_class
+  error - Undefined class 'UpdateAdminSettingsUseCase' - lib\features\settings\presentation\controllers\admin_settings_controller.dart:10:9 - undefined_class
+  error - The name 'AdminSettingsModel' isn't a type, so it can't be used as a type argument - lib\features\settings\presentation\controllers\admin_settings_controller.dart:19:29 - non_type_as_type_argument
+  error - The argument type 'BorderRadius' can't be assigned to the parameter type 'OutlinedBorder?'.  - lib\features\settings\presentation\pages\admin_settings_page.dart:76:28 - argument_type_not_assignable
+
+19 issues found. (ran in 1.0s)

@@ -1,0 +1,156 @@
+import 'package:flutter/material.dart';
+import 'package:auntitled/services/yemen_bill_service.dart';
+
+class BillScreen extends StatefulWidget {
+  const BillScreen({super.key});
+
+  @override
+  State<BillScreen> createState() => _BillScreenState();
+}
+
+class _BillScreenState extends State<BillScreen> {
+  final TextEditingController phoneController = TextEditingController();
+
+  Map<String, dynamic>? result;
+  bool isLoading = false;
+
+  Future<void> fetchData() async {
+    final phone = phoneController.text.trim();
+
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("أدخل رقم الهاتف")),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+      result = null;
+    });
+
+    final service = YemenBillService();
+    final res = await service.fetchBill(phone);
+
+    setState(() {
+      result = res;
+      isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("استعلام الرصيد"),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // =============================
+            // 🔹 إدخال الرقم
+            // =============================
+            TextField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText: "أدخل رقم الهاتف",
+                prefixIcon: const Icon(Icons.phone),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // =============================
+            // 🔹 زر الاستعلام
+            // =============================
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : fetchData,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("استعلام"),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // =============================
+            // 🔹 عرض النتيجة
+            // =============================
+            Expanded(
+              child: result == null
+                  ? const Center(
+                child: Text(
+                  "أدخل الرقم واضغط استعلام",
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
+                  : result!['success'] == false
+                  ? Center(
+                child: Text(
+                  "خطأ: ${result!['error']}",
+                  style: const TextStyle(color: Colors.red),
+                ),
+              )
+                  : buildResult(result!['data']),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =============================
+  // 🔹 تصميم النتائج
+  // =============================
+  Widget buildResult(Map<String, dynamic> data) {
+    return ListView.builder(
+      itemCount: data.length,
+      itemBuilder: (context, index) {
+        final key = data.keys.elementAt(index);
+        final value = data[key];
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.blue.shade50, Colors.blue.shade100],
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                key,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  value.toString(),
+                  textAlign: TextAlign.end,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
