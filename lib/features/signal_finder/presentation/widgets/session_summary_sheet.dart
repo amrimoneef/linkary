@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entities/signal_point.dart';
 import '../../domain/entities/signal_rank.dart';
-import '../../domain/entities/signal_rank.dart';
 import '../../domain/entities/saved_location.dart';
 import '../controllers/saved_locations_controller.dart';
 import 'signal_rank_badge.dart';

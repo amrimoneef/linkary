@@ -19,7 +19,6 @@ import '../../../../core/widgets/custom_snackbar.dart';
 import '../../../../core/network/network_info.dart' as project_net;
 import 'package:network_info_plus/network_info_plus.dart' as plugin_net;
 import 'dart:async';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/widgets.dart';
 import '../../../../core/utils/formatters.dart';

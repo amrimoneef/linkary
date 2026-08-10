@@ -1,4 +1,3 @@
-import '../entities/app_usage_entity.dart';
 import '../repositories/app_monitor_repository.dart';
 
 class UsageInsight {

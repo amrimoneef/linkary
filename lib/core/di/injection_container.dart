@@ -139,6 +139,8 @@ import '../../features/device_data_limit/infrastructure/data_sources/device_data
 import '../../features/device_data_limit/infrastructure/repositories_impl/device_data_limit_repository_impl.dart';
 import '../../features/device_data_limit/presentation/controllers/device_data_limit_controller.dart';
 
+import '../../features/device_management/presentation/controllers/device_management_controller.dart';
+
 Future<void> initDI() async {
   // 0. التخزين المحلي
   final sharedPrefs = await SharedPreferences.getInstance();
@@ -267,6 +269,7 @@ Future<void> initDI() async {
   Get.lazyPut(() => DeviceDataLimitController(
       Get.find(), Get.find(), Get.find(), Get.find(), Get.find(), Get.find()
   ), fenix: true);
+  Get.lazyPut(() => DeviceManagementController(), fenix: true);
 
   // ==========================================
   // --- ميزة استهلاك البيانات (Data Usage) ---

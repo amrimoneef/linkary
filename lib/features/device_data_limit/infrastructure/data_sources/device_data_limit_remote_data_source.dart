@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
-import '../../../../core/network/session_manager.dart';
 import '../../../../features/modem_auth/presentation/controllers/auth_controller.dart';
 import '../models/device_data_limit_model.dart';
 

@@ -11,13 +11,12 @@ import '../../../banners/presentation/widgets/banners_carousel_widget.dart';
 import '../../../banners/presentation/controllers/banners_controller.dart';
 import '../../../connected_devices/presentation/pages/connected_devices_page.dart';
 import '../../../data_usage/presentation/pages/data_usage_page.dart';
+import '../../../device_management/presentation/pages/device_management_page.dart';
 import '../../../mac_filter/presentation/pages/mac_filter_page.dart';
 import '../../../notifications/presentation/pages/notifications_page.dart';
 import '../../../notifications/presentation/controllers/notifications_controller.dart';
-import '../../../parental_control/presentation/pages/parental_control_page.dart';
 import '../../../settings/presentation/controllers/wifi_settings_controller.dart';
 import '../../../settings/presentation/pages/wifi_settings_page.dart';
-import '../../../speed_limit/presentation/pages/speed_limit_page.dart';
 import '../../../modem_finder/presentation/pages/modem_finder_page.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/signal_bars_widget.dart';
@@ -415,12 +414,11 @@ class DashboardPage extends StatelessWidget {
       child: Row(
         children: [
           _buildActionItem(context, Icons.devices, 'الأجهزة', const Color(0xFF4A90E2), () => Get.to(() => ConnectedDevicesPage())),
+          _buildActionItem(context, Icons.manage_accounts, 'إدارة الأجهزة', const Color(0xFF06B6D4), () => Get.to(() => const DeviceManagementPage())),
           _buildActionItem(context, Icons.radar, 'أين المودم؟', const Color(0xFFFF073A), () => Get.to(() => const ModemFinderPage())),
           _buildActionItem(context, Icons.wifi_password, 'الواي فاي', const Color(0xFF9B51E0), () => Get.to(() => WifiSettingsPage())),
-          _buildActionItem(context, Icons.speed, 'السرعة', const Color(0xFF50E3C2), () => Get.to(() => SpeedLimitPage())),
           _buildActionItem(context, Icons.data_usage, 'الباقة', Colors.orangeAccent, () => Get.to(() => DataUsagePage())),
           _buildActionItem(context, Icons.security, 'حظر الاستخدام', Colors.redAccent, () => Get.to(() => MacFilterPage())),
-          _buildActionItem(context, Icons.child_care, 'التحكم الأبوي', Colors.amber, () => Get.to(() => ParentalControlPage())),
           _buildActionItem(context, Icons.app_settings_alt, 'مراقب التطبيقات', Color(
               0xFF8BEDD7), () => Get.to(() => AppMonitorScreen())),
           _buildActionItem(context, Icons.block, 'تقييد التطبيقات', const Color(

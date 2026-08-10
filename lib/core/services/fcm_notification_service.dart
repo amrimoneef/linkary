@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/notifications/domain/entities/notification_entity.dart';
 import '../../features/notifications/presentation/controllers/notifications_controller.dart';
-import '../widgets/glass_card.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {

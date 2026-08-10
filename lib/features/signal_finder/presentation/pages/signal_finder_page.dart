@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
 
 import '../controllers/signal_finder_controller.dart';
 import '../../domain/entities/signal_rank.dart';

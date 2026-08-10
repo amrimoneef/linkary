@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:math' as math;
 import 'dart:ui';
-import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/proximity_level.dart';
 import 'package:iconsax/iconsax.dart';
 

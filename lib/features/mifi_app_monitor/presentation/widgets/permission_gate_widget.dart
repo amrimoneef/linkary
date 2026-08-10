@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
 import '../controllers/app_monitor_controller.dart';
 
 class PermissionGateWidget extends StatelessWidget {

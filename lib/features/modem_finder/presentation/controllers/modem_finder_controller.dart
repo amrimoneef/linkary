@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:get/get.dart';
 import '../../../dashboard/presentation/controllers/dashboard_controller.dart';
 import '../../domain/entities/proximity_level.dart';
