@@ -128,6 +128,9 @@ class ConnectedDevicesController extends GetxController {
       await registerBackgroundDeviceMonitor();
       _startForegroundTimer();
       
+      // ⚡ فحص فوري لاكتشاف الأجهزة الموجودة مسبقاً
+      await _checkForNewDevices();
+      
       CustomSnackbar.showSuccess('إشعارات التطبيق', 'تم تفعيل اكتشاف الأجهزة الجديدة بنجاح.');
     } else {
       // إلغاء مهمة الخلفية والمؤقت المباشر مع الحفاظ على القوائم المحفوظة
@@ -164,78 +167,43 @@ class ConnectedDevicesController extends GetxController {
       ).toList();
 
       if (untrustedDevices.isNotEmpty) {
+        bool hasNewDevices = false;
+
         for (var device in untrustedDevices) {
-          // إذا كان الجهاز غير موثوق ولم يتم إرسال تنبيه له من قبل
+          // إضافة للمعلّقة إذا لم يكن موجوداً بالفعل (للتتبع في الواجهة)
           if (!currentPending.contains(device.mac)) {
             await SessionManager.addPendingMac(device.mac, sn);
             await SessionManager.addPendingMac(device.mac);
-            
-            // إرسال إشعار نظام الأندرويد في شريط الإشعارات العلوي
-            await _showInAppNotification(device);
+            hasNewDevices = true;
           }
+        }
+        
+        // إظهار تنبيه داخل التطبيق فقط للأجهزة الجديدة
+        if (hasNewDevices) {
+          CustomSnackbar.showWarning(
+            'أجهزة غير موثقة متصلة',
+            'يوجد ${untrustedDevices.length} جهاز غير موثق متصل بالشبكة.',
+          );
         }
         
         // تحديث القوائم التفاعلية
         pendingMacs.value = await SessionManager.getPendingMacs(sn);
-        
-        // تحديث قائمة الأجهزة لإظهار حالة الأجهزة
-        await fetchDevices();
       }
+      
+      // تنظيف الأجهزة المعلقة التي لم تعد متصلة
+      final currentMacsSet = result.map((d) => d.mac).toSet();
+      final stalePending = currentPending.where((mac) => !currentMacsSet.contains(mac)).toList();
+      for (var mac in stalePending) {
+        await SessionManager.removePendingMac(mac, sn);
+      }
+      if (stalePending.isNotEmpty) {
+        pendingMacs.value = await SessionManager.getPendingMacs(sn);
+      }
+      
+      // تحديث قائمة الأجهزة لإظهار حالة الأجهزة
+      await fetchDevices();
     } catch (e) {
       debugPrint('Foreground device check error: $e');
-    }
-  }
-
-  /// إشعار عند اكتشاف جهاز جديد (إشعار نظام في شريط الإشعارات + تنبيه داخل التطبيق)
-  Future<void> _showInAppNotification(ConnectedDeviceEntity device) async {
-    final displayName = device.name.isEmpty ? 'جهاز غير معروف' : device.name;
-    
-    // 1. إشعار نظام حقيقي يظهر في شريط الإشعارات العلوي للهاتف
-    await _showSystemNotification(
-      title: 'جهاز جديد متصل!',
-      body: 'تم اكتشاف جهاز جديد ($displayName) متصل بشبكة الواي فاي.',
-    );
-
-    // 2. شريط تنبيه داخل التطبيق
-    CustomSnackbar.showWarning(
-      'جهاز جديد متصل!',
-      'تم اكتشاف جهاز جديد ($displayName) متصل بالشبكة.',
-    );
-  }
-
-  /// إرسال إشعار محلي إلى شريط الإشعارات العلوي للنظام
-  Future<void> _showSystemNotification({required String title, required String body}) async {
-    try {
-      final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      
-      const AndroidInitializationSettings initAndroid = 
-          AndroidInitializationSettings('@drawable/ic_notification');
-      const InitializationSettings initSettings = 
-          InitializationSettings(android: initAndroid);
-      await flutterLocalNotificationsPlugin.initialize(settings: initSettings);
-
-      final id = DateTime.now().millisecondsSinceEpoch % 100000;
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        'new_device_alerts_v2',
-        'إشعارات الأجهزة الجديدة',
-        channelDescription: 'تنبيهات عند اتصال جهاز جديد بالمودم',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: true,
-        playSound: true,
-        enableVibration: true,
-      );
-      const NotificationDetails platformDetails = 
-          NotificationDetails(android: androidDetails);
-      
-      await flutterLocalNotificationsPlugin.show(
-        id: id,
-        title: title,
-        body: body,
-        notificationDetails: platformDetails,
-      );
-    } catch (e) {
-      debugPrint('خطأ أثناء إرسال إشعار النظام: $e');
     }
   }
 

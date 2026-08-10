@@ -95,15 +95,15 @@ class BackgroundDeviceMonitor {
           pendingMacs = await SessionManager.getPendingMacs();
         }
 
-        // 6. البحث عن أجهزة جديدة غير معروفة وغير معلقة
-        final newMacs = currentMacs.where((mac) =>
-          !knownMacs.contains(mac) && !pendingMacs.contains(mac)
+        // 6. البحث عن أجهزة غير موثّقة
+        final untrustedMacs = currentMacs.where((mac) =>
+          !knownMacs.contains(mac)
         ).toList();
 
-        debugPrint('📱 [BG Device Monitor] Found ${currentMacs.length} total, ${newMacs.length} new devices');
+        debugPrint('📱 [BG Device Monitor] Found ${currentMacs.length} total, ${untrustedMacs.length} untrusted devices');
 
         // 7. إرسال إشعارات وتحديث القائمة المعلقة
-        if (newMacs.isNotEmpty) {
+        if (untrustedMacs.isNotEmpty) {
           final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
           const AndroidInitializationSettings initAndroid =
@@ -112,9 +112,11 @@ class BackgroundDeviceMonitor {
               InitializationSettings(android: initAndroid);
           await flutterLocalNotificationsPlugin.initialize(settings: initSettings);
 
-          for (var mac in newMacs) {
-            await SessionManager.addPendingMac(mac, sn);
-            await SessionManager.addPendingMac(mac);
+          for (var mac in untrustedMacs) {
+            if (!pendingMacs.contains(mac)) {
+              await SessionManager.addPendingMac(mac, sn);
+              await SessionManager.addPendingMac(mac);
+            }
 
             final deviceInfo = clients.firstWhere(
               (c) => (c['mac_addr'] ?? c['mac'] ?? '').toString().toUpperCase() == mac,
@@ -122,7 +124,9 @@ class BackgroundDeviceMonitor {
             );
             final deviceName = (deviceInfo['host_name'] ?? deviceInfo['name'] ?? 'غير معروف').toString();
 
-            final id = Random().nextInt(100000);
+            // ID ثابت لكل جهاز بناءً على الـ MAC الخاص به ليحل محل الإشعار السابق لنفس الجهاز
+            final int deviceNotificationId = mac.hashCode.abs() % 100000;
+            
             const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
               'new_device_alerts_v2',
               'إشعارات الأجهزة الجديدة',
@@ -137,9 +141,9 @@ class BackgroundDeviceMonitor {
                 NotificationDetails(android: androidDetails);
 
             await flutterLocalNotificationsPlugin.show(
-              id: id,
-              title: 'جهاز جديد متصل!',
-              body: 'تم اكتشاف جهاز جديد ($deviceName) متصل بشبكة الواي فاي.',
+              id: deviceNotificationId,
+              title: 'جهاز متصل جديد!',
+              body: 'تم اكتشاف جهاز $deviceName متصل بشبكتك',
               notificationDetails: platformDetails,
             );
           }
