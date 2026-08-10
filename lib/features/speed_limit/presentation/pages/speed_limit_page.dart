@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import '../controllers/speed_limit_controller.dart';
 import '../../../connected_devices/presentation/controllers/connected_devices_controller.dart';
-import '../../domain/entities/speed_limit_entity.dart';
+import '../widgets/speed_rule_editor_sheet.dart';
 
 class SpeedLimitPage extends StatelessWidget {
   SpeedLimitPage({super.key});
@@ -231,48 +231,15 @@ class SpeedLimitPage extends StatelessWidget {
         const SizedBox(height: 30),
         Text('أو اختر سرعة جاهزة:', style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 15),
-        _buildPresetsGrid(onApply: (v) => controller.applyPreset(v)),
+        SpeedRuleEditorSheet.buildPresetsGrid(
+          cardColor: cardColor,
+          glowColor: glowColor,
+          textColor: textColor,
+          subTextColor: subTextColor,
+          onApply: (v) => controller.applyPreset(v),
+          currentDlValue: controller.rxDownloadSpeed.value,
+        ),
       ],
-    );
-  }
-
-  // شبكة السرعات الجاهزة
-  Widget _buildPresetsGrid({required Function(int) onApply, String? currentDlValue}) {
-    final List<Map<String, dynamic>> presets = [
-      {'label': '1/2M', 'sub': '62 bps', 'val': 62},
-      {'label': '1MB', 'sub': '124 Kbps', 'val': 124},
-      {'label': '2MB', 'sub': '248 Kbps', 'val': 248},
-      {'label': '4MB', 'sub': '496 Kbps', 'val': 496},
-      {'label': '5MB', 'sub': '620 Kbps', 'val': 620},
-      {'label': '6MB', 'sub': '744 Kbps', 'val': 744},
-    ];
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: presets.map((p) {
-        final bool isSelected = currentDlValue == p['val'].toString() || (currentDlValue == null && controller.rxDownloadSpeed.value == p['val'].toString());
-        return GestureDetector(
-          onTap: () => onApply(p['val']),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: (Get.width - 80) / 3, // عرض 3 عناصر في السطر
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected ? glowColor.withValues(alpha: 0.15) : cardColor,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: isSelected ? glowColor : Colors.grey.withValues(alpha: 0.2), width: 1.5),
-            ),
-            child: Column(
-              children: [
-                Text(p['label'], style: TextStyle(color: isSelected ? glowColor : textColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 2),
-                Text(p['sub'], style: TextStyle(color: subTextColor, fontSize: 10)),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 
@@ -289,11 +256,10 @@ class SpeedLimitPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('الأجهزة المحددة', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton.icon(
-              onPressed: () => _showSmartAddDeviceSheet(context),
-              icon: Icon(Iconsax.add_circle, color: glowColor),
-              label: Text('إضافة جهاز', style: TextStyle(color: glowColor, fontWeight: FontWeight.bold)),
-            )
+            IconButton(
+              icon: Icon(Iconsax.add_square, color: glowColor),
+              onPressed: () => SpeedRuleEditorSheet.show(context),
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -354,7 +320,7 @@ class SpeedLimitPage extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: Icon(Iconsax.edit, color: glowColor, size: 20),
-                      onPressed: () => _showSmartAddDeviceSheet(context, item: item),
+                      onPressed: () => SpeedRuleEditorSheet.show(context, item: item),
                     ),
                     IconButton(
                       icon: const Icon(Iconsax.trash, color: Colors.redAccent, size: 20),
@@ -419,215 +385,6 @@ class SpeedLimitPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  // ==========================================
-  // 🚀 النافذة السفلية لإضافة أو تعديل جهاز
-  // ==========================================
-  void _showSmartAddDeviceSheet(BuildContext context, {SpeedLimitItem? item}) {
-    final bool isEdit = item != null;
-    
-    if (isEdit) {
-      controller.selectedSmartIp.value = item.ip;
-      controller.selectedSmartName.value = item.comment;
-    } else {
-      controller.selectedSmartIp.value = '';
-      controller.selectedSmartName.value = '';
-    }
-
-    final upCtrl = TextEditingController(text: isEdit ? item.upSpeed.toString() : '0');
-    final dlCtrl = TextEditingController(text: isEdit ? item.dlSpeed.toString() : '0');
-
-    ConnectedDevicesController? devicesController;
-    try {
-      devicesController = Get.find<ConnectedDevicesController>();
-      if (devicesController.devices.isEmpty) devicesController.fetchDevices();
-    } catch (_) {}
-
-    Get.bottomSheet(
-      Container(
-        height: Get.height * 0.9,
-        padding: const EdgeInsets.all(25),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(child: Container(width: 50, height: 5, decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(10)))),
-            const SizedBox(height: 25),
-            Text(isEdit ? 'تعديل قاعدة تقييد' : 'إضافة جهاز للقائمة', style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 5),
-            Text(isEdit ? 'قم بتعديل السرعات المحددة لهذا الجهاز.' : 'اختر جهازاً، ثم حدد السرعات المسموحة.', style: TextStyle(color: subTextColor, fontSize: 14)),
-            const SizedBox(height: 25),
-
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 1. شريط الأجهزة المتصلة (فقط في حال الإضافة)
-                    if (!isEdit) ...[
-                      SizedBox(
-                        height: 140,
-                        child: devicesController == null
-                            ? Center(child: Text('ميزة الأجهزة غير فعالة', style: TextStyle(color: subTextColor)))
-                            : Obx(() {
-                          if (devicesController!.isLoading.value) return Center(child: CircularProgressIndicator(color: glowColor));
-                          final devicesList = devicesController.devices;
-                          if (devicesList.isEmpty) return Center(child: Text('لا توجد أجهزة متصلة', style: TextStyle(color: subTextColor)));
-
-                          return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: devicesList.length,
-                            itemBuilder: (context, index) {
-                              final dev = devicesList[index];
-                              final devName = dev.name.isEmpty ? 'جهاز مجهول' : dev.name;
-
-                              return Obx(() {
-                                bool isSelected = controller.selectedSmartIp.value == dev.ip;
-                                bool alreadyAdded = controller.deviceItems.any((e) => e.ip == dev.ip);
-
-                                return GestureDetector(
-                                  onTap: alreadyAdded ? null : () => controller.selectSmartDevice(dev.ip, devName),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    width: 120,
-                                    margin: const EdgeInsets.only(left: 15),
-                                    padding: const EdgeInsets.all(15),
-                                    decoration: BoxDecoration(
-                                      color: alreadyAdded 
-                                          ? Colors.grey.withValues(alpha: 0.05)
-                                          : (isSelected ? glowColor.withValues(alpha: 0.1) : cardColor),
-                                      borderRadius: BorderRadius.circular(22),
-                                      border: Border.all(
-                                          color: alreadyAdded
-                                              ? Colors.transparent
-                                              : (isSelected ? glowColor : Colors.grey.withValues(alpha: 0.1)),
-                                          width: isSelected ? 2 : 1),
-                                      boxShadow: isSelected ? [BoxShadow(color: glowColor.withValues(alpha: 0.1), blurRadius: 10)] : [],
-                                    ),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                                alreadyAdded
-                                                    ? Iconsax.tick_circle
-                                                    : (isSelected ? Iconsax.mobile5 : Iconsax.mobile),
-                                                color: alreadyAdded
-                                                    ? Colors.grey
-                                                    : (isSelected ? glowColor : subTextColor),
-                                                size: 30),
-                                            const SizedBox(height: 10),
-                                            Text(devName,
-                                                style: TextStyle(
-                                                    color: alreadyAdded ? Colors.grey : (isSelected ? glowColor : textColor),
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold),
-                                                textAlign: TextAlign.center,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis),
-                                          ],
-                                        ),
-                                        if (alreadyAdded)
-                                          Positioned(
-                                            top: -5,
-                                            right: -5,
-                                            child: Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                              decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(8)),
-                                              child: const Text('مضاف', style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              });
-                            },
-                          );
-                        }),
-                      ),
-                      const SizedBox(height: 30),
-                    ],
-
-                    // 2. عرض البيانات المختارة / الثابتة
-                    Obx(() => _buildTextField('IP الجهاز', TextEditingController(text: controller.selectedSmartIp.value), Iconsax.global, readOnly: true)),
-                    const SizedBox(height: 20),
-
-                    // 3. إعداد السرعات
-                    Row(
-                      children: [
-                        Expanded(child: _buildTextField('سرعة التنزيل', dlCtrl, Iconsax.arrow_down)),
-                        const SizedBox(width: 15),
-                        Expanded(child: _buildTextField('سرعة الرفع', upCtrl, Iconsax.arrow_up_3)),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
-
-                    // 4. السرعات الجاهزة للتسهيل
-                    Text('السرعات الجاهزة:', style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 15),
-                    ValueListenableBuilder(
-                      valueListenable: dlCtrl,
-                      builder: (context, value, _) {
-                        return _buildPresetsGrid(
-                          onApply: (v) {
-                            dlCtrl.text = v.toString();
-                            upCtrl.text = v.toString();
-                          },
-                          currentDlValue: dlCtrl.text,
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-            ),
-
-            // 5. زر الإضافة أو التحديث
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: Obx(() {
-                bool isReady = controller.selectedSmartIp.value.isNotEmpty;
-                return ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isReady ? glowColor : Colors.grey.withValues(alpha: 0.3),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-                    elevation: isReady ? 5 : 0,
-                  ),
-                  icon: Icon(isEdit ? Iconsax.tick_circle : Iconsax.add, color: isReady ? Colors.white : Colors.white54),
-                  label: Text(isEdit ? 'تحديث البيانات' : 'تأكيد الإضافة', style: TextStyle(color: isReady ? Colors.white : Colors.white54, fontSize: 16, fontWeight: FontWeight.bold)),
-                  onPressed: isReady ? () {
-                    if (isEdit) {
-                      controller.updateDeviceRule(item.index, int.parse(upCtrl.text), int.parse(dlCtrl.text));
-                    } else {
-                      controller.addDeviceRule(
-                        controller.selectedSmartIp.value,
-                        int.parse(upCtrl.text),
-                        int.parse(dlCtrl.text),
-                        controller.selectedSmartName.value.isEmpty ? 'جهاز مخصص' : controller.selectedSmartName.value
-                      );
-                    }
-                    Get.back();
-                  } : null,
-                );
-              }),
-            ),
-          ],
-        ),
-      ),
-      isScrollControlled: true,
     );
   }
 }
