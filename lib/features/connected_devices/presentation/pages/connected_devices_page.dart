@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import '../controllers/connected_devices_controller.dart';
 import '../../../../core/widgets/custom_snackbar.dart';
+import '../../../device_management/presentation/widgets/device_detail_sheet.dart';
+import '../../../device_management/presentation/models/managed_device.dart';
 import '../../../device_data_limit/presentation/pages/device_data_limit_page.dart';
 
 class ConnectedDevicesPage extends StatelessWidget {
@@ -168,16 +170,11 @@ class ConnectedDevicesPage extends StatelessWidget {
                                       ],
                                     ),
                                     const SizedBox(height: 15),
-
-                                    // 🔍 أزرار الفلترة (الكل، موثوق، غير موثوق)
-                                    _buildFilterChips(),
-                                    const SizedBox(height: 15),
-
                                     // 📱 قائمة الأجهزة
-                                    if (controller.filteredDevices.isEmpty)
+                                    if (controller.devices.isEmpty)
                                       _buildEmptyState()
                                     else
-                                      ...controller.filteredDevices
+                                      ...controller.devices
                                           .map((device) =>
                                               _buildDeviceCard(context, device))
                                           .toList(),
@@ -290,20 +287,30 @@ class ConnectedDevicesPage extends StatelessWidget {
       secondaryBackground: Container(
         margin: const EdgeInsets.only(bottom: 15),
         decoration: BoxDecoration(
-          color: Colors.orangeAccent.withValues(alpha: 0.8),
+          color: Colors.blueAccent.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(25),
         ),
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.symmetric(horizontal: 25),
-        child: const Icon(Icons.speed, color: Colors.white, size: 30),
+        child: const Icon(Iconsax.setting_2, color: Colors.white, size: 30),
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
           // Swipe Right -> Block
           _showBlockConfirmDialog(context, device);
         } else if (direction == DismissDirection.endToStart) {
-          // Swipe Left -> Speed Limit
-          _showSpeedLimitDialog(context, device);
+          // Swipe Left -> Device Management
+          Get.bottomSheet(
+            DeviceDetailSheet(
+              device: ManagedDevice(
+                mac: device.mac,
+                name: displayName,
+                ip: device.ip,
+                type: device.type,
+              )
+            ),
+            isScrollControlled: true,
+          );
         }
         return false; // Prevent removing from list
       },
@@ -511,140 +518,7 @@ class ConnectedDevicesPage extends StatelessWidget {
     );
   }
 
-  // ==========================================
-  // ⚡ نافذة تحديد السرعة
-  // ==========================================
-  void _showSpeedLimitDialog(BuildContext context, dynamic device) {
-    final TextEditingController upCtrl = TextEditingController(text: '0');
-    final TextEditingController downCtrl = TextEditingController(text: '0');
 
-    void applyPreset(int val) {
-      upCtrl.text = val.toString();
-      downCtrl.text = val.toString();
-    }
-
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('تحديد سرعة الجهاز', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 5),
-              Text(controller.getDisplayName(device), style: TextStyle(color: subTextColor, fontSize: 14)),
-              const SizedBox(height: 20),
-              
-              // Presets
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  {'label': 'غير محدود', 'sub': '0 Kbps', 'val': 0},
-                  {'label': '1/2M', 'sub': '62 bps', 'val': 62},
-                  {'label': '1MB', 'sub': '124 Kbps', 'val': 124},
-                  {'label': '2MB', 'sub': '248 Kbps', 'val': 248},
-                  {'label': '4MB', 'sub': '496 Kbps', 'val': 496},
-                  {'label': '5MB', 'sub': '620 Kbps', 'val': 620},
-                  {'label': '6MB', 'sub': '744 Kbps', 'val': 744},
-                ].map((p) {
-                  return GestureDetector(
-                    onTap: () => applyPreset(p['val'] as int),
-                    child: Container(
-                      width: (Get.width - 80) / 3, // عرض 3 عناصر في السطر
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.2), width: 1.5),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(p['label'] as String, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 16)),
-                          const SizedBox(height: 2),
-                          Text(p['sub'] as String, style: TextStyle(color: subTextColor, fontSize: 10)),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: downCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'التنزيل (KB/s)',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                        prefixIcon: const Icon(Icons.download),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: TextField(
-                      controller: upCtrl,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'الرفع (KB/s)',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                        prefixIcon: const Icon(Icons.upload),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 25),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: glowColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  onPressed: () {
-                    Get.back();
-                    int up = int.tryParse(upCtrl.text) ?? 0;
-                    int down = int.tryParse(downCtrl.text) ?? 0;
-                    controller.limitDeviceSpeed(device, up, down);
-                  },
-                  child: const Text('حفظ السرعة', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-              ),
-              const SizedBox(height: 15),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    side: BorderSide(color: glowColor),
-                  ),
-                  onPressed: () {
-                    Get.back();
-                    Get.to(() => const DeviceDataLimitPage());
-                  },
-                  child: Text('إدارة باقة الأجهزة (Data Limit)', style: TextStyle(color: glowColor, fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      isScrollControlled: true,
-    );
-  }
 
   // ==========================================
   // 💬 نافذة تغيير اسم الجهاز
@@ -894,99 +768,7 @@ class ConnectedDevicesPage extends StatelessWidget {
     );
   }
 
-  // ==========================================
-  // 🔍 أزرار الفلترة (الكل، موثوق، غير موثوق)
-  // ==========================================
-  Widget _buildFilterChips() {
-    if (!controller.isBgMonitorEnabled.value) return const SizedBox.shrink();
 
-    final trustedCount = controller.devices
-        .where((d) => controller.knownMacs.contains(d.mac))
-        .length;
-    final untrustedCount = controller.devices
-        .where((d) => !controller.knownMacs.contains(d.mac))
-        .length;
-
-    final filters = [
-      {'key': 'all', 'label': 'الكل', 'count': controller.devices.length},
-      {'key': 'trusted', 'label': 'موثوق', 'count': trustedCount},
-      {'key': 'untrusted', 'label': 'غير موثوق', 'count': untrustedCount},
-    ];
-
-    return Row(
-      children: filters.map((f) {
-        final key = f['key'] as String;
-        final label = f['label'] as String;
-        final count = f['count'] as int;
-        final isSelected = controller.selectedFilter.value == key;
-
-        Color badgeColor;
-        if (key == 'trusted') {
-          badgeColor = Colors.green;
-        } else if (key == 'untrusted') {
-          badgeColor = Colors.redAccent;
-        } else {
-          badgeColor = glowColor;
-        }
-
-        return Expanded(
-          child: GestureDetector(
-            onTap: () => controller.setFilter(key),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? badgeColor.withValues(alpha: 0.15)
-                    : cardColor,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(
-                  color: isSelected
-                      ? badgeColor
-                      : Colors.grey.withValues(alpha: 0.15),
-                  width: isSelected ? 1.5 : 1,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: isSelected ? textColor : subTextColor,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? badgeColor
-                          : subTextColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '$count',
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : subTextColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
 
   // ==========================================
   // 🔔 مفتاح تفعيل مراقبة الأجهزة الجديدة
@@ -1333,7 +1115,7 @@ class ConnectedDevicesPage extends StatelessWidget {
                                 fontSize: 13)),
                         const SizedBox(height: 3),
                         Text(
-                          'اسحب بطاقة الجهاز لليسار لحظر الجهاز، أو اسحب لليمين لتحديد سرعة التنزيل والرفع.',
+                          'اسحب بطاقة الجهاز لليمين لحظر الجهاز، أو اسحب لليسار لإدارة إعدادات الجهاز.',
                           style: TextStyle(color: subTextColor, fontSize: 11, height: 1.4),
                         ),
                       ],

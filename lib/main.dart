@@ -49,7 +49,7 @@ class ModemApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'إعدادات مودم SAM4G', // لمسة شخصية لعلامتك التجارية
-      themeMode: ThemeMode.system, // Using system preference to switch automatically
+      themeMode: ThemeMode.dark, // جعل الثيم الليلي هو الافتراضي
       debugShowCheckedModeBanner: false, 
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
