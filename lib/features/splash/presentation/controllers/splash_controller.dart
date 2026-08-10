@@ -9,6 +9,7 @@ import '../../../modem_auth/domain/entities/auth_entity.dart';
 import '../../../main_layout/presentation/pages/main_layout_page.dart';
 import '../../../onboarding/presentation/pages/onboarding_page.dart';
 import '../../../quick_setup/presentation/pages/quick_setup_page.dart';
+import '../../../../core/services/app_update_service.dart';
 import '../pages/modem_connection_error_page.dart';
 
 class SplashController extends GetxController {
@@ -30,6 +31,10 @@ class SplashController extends GetxController {
   }
 
   Future<void> _initApp() async {
+    // 0. التحقق الإجباري من التحديثات قبل الدخول للتطبيق
+    loadingText.value = 'التحقق من التحديثات...';
+    await AppUpdateService.checkForUpdate();
+
     // 1. Check onboarding status
     final onboardingVisited = await SessionManager.isOnboardingVisited();
     if (!onboardingVisited) {
