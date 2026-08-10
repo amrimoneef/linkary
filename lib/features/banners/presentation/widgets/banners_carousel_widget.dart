@@ -60,9 +60,12 @@ class _BannersCarouselWidgetState extends State<BannersCarouselWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            SizedBox(
-              height: 100,
-              child: PageView.builder(
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: AspectRatio(
+                  aspectRatio: 3.0, // نسبة عرض لارتفاع ديناميكية ليتناسق مع كل الشاشات
+                  child: PageView.builder(
                 controller: _pageController,
                 onPageChanged: controller.onPageChanged,
                 itemCount: controller.banners.length,
@@ -103,7 +106,7 @@ class _BannersCarouselWidgetState extends State<BannersCarouselWidget> {
                   );
                 },
               ),
-            ),
+            ))),
             const SizedBox(height: 10),
             // Dots indicator
             Row(
