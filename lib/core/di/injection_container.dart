@@ -133,6 +133,7 @@ import '../../features/device_data_limit/domain/usecases/get_device_data_limit_e
 import '../../features/device_data_limit/domain/usecases/set_device_data_limit_enable_usecase.dart';
 import '../../features/device_data_limit/domain/usecases/get_device_data_limit_list_usecase.dart';
 import '../../features/device_data_limit/domain/usecases/add_device_data_limit_usecase.dart';
+import '../../features/device_data_limit/domain/usecases/update_device_data_limit_usecase.dart';
 import '../../features/device_data_limit/domain/usecases/delete_device_data_limit_usecase.dart';
 import '../../features/device_data_limit/infrastructure/data_sources/device_data_limit_remote_data_source.dart';
 import '../../features/device_data_limit/infrastructure/repositories_impl/device_data_limit_repository_impl.dart';
@@ -227,6 +228,7 @@ Future<void> initDI() async {
   Get.lazyPut(() => SetDeviceDataLimitEnableUseCase(Get.find()), fenix: true);
   Get.lazyPut(() => GetDeviceDataLimitListUseCase(Get.find()), fenix: true);
   Get.lazyPut(() => AddDeviceDataLimitUseCase(Get.find()), fenix: true);
+  Get.lazyPut(() => UpdateDeviceDataLimitUseCase(Get.find()), fenix: true);
   Get.lazyPut(() => DeleteDeviceDataLimitUseCase(Get.find()), fenix: true);
 
 
@@ -263,7 +265,7 @@ Future<void> initDI() async {
         updateAdminSettingsUseCase: Get.find(),
       ), fenix: true);
   Get.lazyPut(() => DeviceDataLimitController(
-      Get.find(), Get.find(), Get.find(), Get.find(), Get.find()
+      Get.find(), Get.find(), Get.find(), Get.find(), Get.find(), Get.find()
   ), fenix: true);
 
   // ==========================================

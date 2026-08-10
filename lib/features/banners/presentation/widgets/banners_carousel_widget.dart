@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -76,21 +77,27 @@ class _BannersCarouselWidgetState extends State<BannersCarouselWidget> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: CachedNetworkImage(
-                          imageUrl: banner.imageUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          placeholder: (context, url) => GlassCard(
-                            borderRadius: 20,
-                            child: const SizedBox.shrink(),
-                          ),
-                          errorWidget: (context, url, error) => GlassCard(
-                            borderRadius: 20,
-                            child: const Center(
-                              child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
-                            ),
-                          ),
-                        ),
+                        child: banner.localImageBase64 != null && banner.localImageBase64!.isNotEmpty
+                            ? Image.memory(
+                                base64Decode(banner.localImageBase64!),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              )
+                            : CachedNetworkImage(
+                                imageUrl: banner.imageUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                placeholder: (context, url) => GlassCard(
+                                  borderRadius: 20,
+                                  child: const SizedBox.shrink(),
+                                ),
+                                errorWidget: (context, url, error) => GlassCard(
+                                  borderRadius: 20,
+                                  child: const Center(
+                                    child: Icon(Icons.broken_image, color: Colors.grey, size: 40),
+                                  ),
+                                ),
+                              ),
                       ),
                     ),
                   );

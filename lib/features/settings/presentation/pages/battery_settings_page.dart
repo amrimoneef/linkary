@@ -326,7 +326,7 @@ class _BatterySettingsPageState extends State<BatterySettingsPage> {
                           style: TextStyle(color: textColor(context), fontWeight: FontWeight.bold),
                         ),
                         content: Text(
-                          'يرجى عند اعادة تشغيل المودم او ايقاف تشغيله الدخول الى شاشة الرصيد والاستعلام عن الرصيد، لكي يصلك التنبيه دون مشاكل',
+                          'يرجى عند اعادة تشغيل المودم او ايقاف تشغيله او عند الاشتراك في باقه جديده الدخول الى شاشة الرصيد والاستعلام عن الرصيد، لكي يصلك التنبيه دون مشاكل',
                           style: TextStyle(color: subTextColor(context), height: 1.5),
                         ),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

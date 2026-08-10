@@ -5,5 +5,6 @@ abstract class DeviceDataLimitRepository {
   Future<bool> setEnableStatus(bool enable);
   Future<List<DeviceDataLimit>> getLimitList();
   Future<bool> addLimitItem(String mac, int quotaBytes, String comment);
+  Future<bool> updateLimitItem(int index, String mac, int quotaBytes, String comment);
   Future<bool> deleteLimitItem(String mac);
 }

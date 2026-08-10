@@ -10,6 +10,7 @@ abstract class DeviceDataLimitRemoteDataSource {
   Future<bool> setEnableStatus(bool enable);
   Future<List<DeviceDataLimitModel>> getLimitList();
   Future<bool> addLimitItem(String mac, int quotaBytes, String comment);
+  Future<bool> updateLimitItem(int index, String mac, int quotaBytes, String comment);
   Future<bool> deleteLimitItem(String mac);
 }
 
@@ -85,6 +86,26 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
     final url = '$baseUrl/api.cgi?path=statistics&method=add_user_data_limit_item&timeout=20';
     
     Map<String, dynamic> payload = {
+      "mac": mac,
+      "quota": quotaBytes.toString(),
+      "comment": comment,
+    };
+
+    final response = await client.post(
+      Uri.parse(url), 
+      headers: _getHeaders(_sessionId), 
+      body: jsonEncode(payload)
+    );
+    final data = jsonDecode(response.body);
+    return data['result'] == 0;
+  }
+
+  @override
+  Future<bool> updateLimitItem(int index, String mac, int quotaBytes, String comment) async {
+    final url = '$baseUrl/api.cgi?path=statistics&method=update_user_data_limit_item&timeout=20';
+    
+    Map<String, dynamic> payload = {
+      "index": index,
       "mac": mac,
       "quota": quotaBytes.toString(),
       "comment": comment,

@@ -36,8 +36,8 @@ void main() async {
   // تهيئة خدمة مراقبة البطارية في الخلفية
   await BatteryMonitorService.initialize();
 
-  // تهيئة خدمة الإشعارات (Firebase Cloud Messaging)
-  await FcmNotificationService().initialize();
+  // تهيئة خدمة الإشعارات (Firebase Cloud Messaging) دون تعطيل بدء التطبيق
+  FcmNotificationService().initialize();
 
   runApp(const ModemApp());
 }

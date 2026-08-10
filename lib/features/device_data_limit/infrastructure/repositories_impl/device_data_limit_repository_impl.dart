@@ -28,6 +28,11 @@ class DeviceDataLimitRepositoryImpl implements DeviceDataLimitRepository {
   }
 
   @override
+  Future<bool> updateLimitItem(int index, String mac, int quotaBytes, String comment) async {
+    return await remoteDataSource.updateLimitItem(index, mac, quotaBytes, comment);
+  }
+
+  @override
   Future<bool> deleteLimitItem(String mac) async {
     return await remoteDataSource.deleteLimitItem(mac);
   }

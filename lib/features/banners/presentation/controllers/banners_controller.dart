@@ -39,7 +39,18 @@ class BannersController extends GetxController {
 
     try {
       final result = await getBannersUseCase.execute();
-      banners.value = result;
+      
+      final now = DateTime.now();
+      banners.value = result.where((banner) {
+        if (banner.expiresAt != null && banner.expiresAt!.isNotEmpty) {
+          final expiryDate = DateTime.tryParse(banner.expiresAt!);
+          if (expiryDate != null && now.isAfter(expiryDate)) {
+            return false; // Filter out expired banners
+          }
+        }
+        return true;
+      }).toList();
+      
       if (banners.isNotEmpty) {
         _startAutoSlide();
         _precacheBanners(result);

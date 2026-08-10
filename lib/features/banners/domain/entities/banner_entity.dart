@@ -4,6 +4,7 @@ class BannerEntity {
   final String? link;
   final String? expiresAt;
   final String? app;
+  final String? localImageBase64;
 
   BannerEntity({
     required this.id,
@@ -11,5 +12,6 @@ class BannerEntity {
     this.link,
     this.expiresAt,
     this.app,
+    this.localImageBase64,
   });
 }

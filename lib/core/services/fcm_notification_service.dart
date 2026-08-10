@@ -61,8 +61,8 @@ class FcmNotificationService {
       // 2. إعداد إشعارات Foreground (Local Notifications)
       await _setupLocalNotifications();
 
-      // 3. الاشتراك التلقائي في موضوع (Topic) الخاص بمستخدمي التطبيق
-      await subscribeToAppUsersTopic();
+      // 3. الاشتراك التلقائي في موضوع (Topic) الخاص بمستخدمي التطبيق دون حظر التطبيق
+      subscribeToAppUsersTopic();
 
       // تسجيل معالج الإشعارات في الخلفية
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

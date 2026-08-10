@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../../domain/entities/device_data_limit.dart';
 import '../../domain/usecases/add_device_data_limit_usecase.dart';
+import '../../domain/usecases/update_device_data_limit_usecase.dart';
 import '../../domain/usecases/delete_device_data_limit_usecase.dart';
 import '../../domain/usecases/get_device_data_limit_enable_usecase.dart';
 import '../../domain/usecases/get_device_data_limit_list_usecase.dart';
@@ -12,6 +13,7 @@ class DeviceDataLimitController extends GetxController {
   final SetDeviceDataLimitEnableUseCase _setEnableUseCase;
   final GetDeviceDataLimitListUseCase _getListUseCase;
   final AddDeviceDataLimitUseCase _addLimitUseCase;
+  final UpdateDeviceDataLimitUseCase _updateLimitUseCase;
   final DeleteDeviceDataLimitUseCase _deleteLimitUseCase;
 
   DeviceDataLimitController(
@@ -19,12 +21,22 @@ class DeviceDataLimitController extends GetxController {
     this._setEnableUseCase,
     this._getListUseCase,
     this._addLimitUseCase,
+    this._updateLimitUseCase,
     this._deleteLimitUseCase,
   );
 
   var isLoading = false.obs;
   var isEnabled = false.obs;
   var deviceLimits = <DeviceDataLimit>[].obs;
+  
+  // For Smart Bottom Sheet
+  var selectedSmartMac = ''.obs;
+  var selectedSmartName = ''.obs;
+
+  void selectSmartDevice(String mac, String name) {
+    selectedSmartMac.value = mac;
+    selectedSmartName.value = name;
+  }
 
   @override
   void onInit() {
@@ -69,6 +81,20 @@ class DeviceDataLimitController extends GetxController {
         await fetchData();
       } else {
         CustomSnackbar.showError('خطأ', 'فشل في إضافة القيد');
+      }
+    } catch (e) {
+      CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+    }
+  }
+
+  Future<void> updateLimitItem(int index, String mac, int quotaBytes, String comment) async {
+    try {
+      final success = await _updateLimitUseCase(index, mac, quotaBytes, comment);
+      if (success) {
+        CustomSnackbar.showSuccess('نجاح', 'تم تعديل القيد بنجاح');
+        await fetchData();
+      } else {
+        CustomSnackbar.showError('خطأ', 'فشل في تعديل القيد');
       }
     } catch (e) {
       CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
