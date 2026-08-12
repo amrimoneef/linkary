@@ -337,7 +337,7 @@ class DashboardPage extends StatelessWidget {
                       Icon(Icons.devices, color: Color(0xB2538EFA), size: 16),
                       const SizedBox(width: 5),
                       Obx(() => TextButton(
-                        onPressed: () => Get.to(() => ConnectedDevicesPage()),
+                        onPressed: () => Get.to(() => const DeviceManagementPage()),
                         child: Text('${controller.connectedDevicesCount.value} ${controller.connectedDevicesCount.value == 1 ? "جهاز" : "أجهزة"}', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                       ))
                     ],
@@ -413,8 +413,7 @@ class DashboardPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          _buildActionItem(context, Icons.devices, 'الأجهزة', const Color(0xFF4A90E2), () => Get.to(() => ConnectedDevicesPage())),
-          _buildActionItem(context, Icons.manage_accounts, 'إدارة الأجهزة', const Color(0xFF06B6D4), () => Get.to(() => const DeviceManagementPage())),
+          _buildActionItem(context, Icons.devices, 'الأجهزة', const Color(0xFF4A90E2), () => Get.to(() => const DeviceManagementPage())),
           _buildActionItem(context, Icons.radar, 'أين المودم؟', const Color(0xFFFF073A), () => Get.to(() => const ModemFinderPage())),
           _buildActionItem(context, Icons.wifi_password, 'الواي فاي', const Color(0xFF9B51E0), () => Get.to(() => WifiSettingsPage())),
           _buildActionItem(context, Icons.data_usage, 'الباقة', Colors.orangeAccent, () => Get.to(() => DataUsagePage())),

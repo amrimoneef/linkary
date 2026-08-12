@@ -15,8 +15,8 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
   Color get cardColor => Get.isDarkMode ? const Color(0xFF16213E) : Colors.white;
   Color get textColor => Get.isDarkMode ? Colors.white : const Color(0xFF111827);
   Color get subTextColor => Get.isDarkMode ? Colors.white54 : const Color(0xFF6B7280);
-  Color get glowColor => Get.isDarkMode ? const Color(0xFF3FBFB3) : const Color(
-      0xFFA3F6EE);
+  Color get glowColor =>
+      Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0xFF92C0F6);
 
   @override
   Widget build(BuildContext context) {
@@ -25,21 +25,21 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
     return Scaffold(
       body: Stack(
         children: [
-          // 🌌 1. الدائرة السعرية المتدرجة (Radial Glow)
+          // 🌌 1. الدائرة السحرية المتدرجة في الزاوية العلوية (Radial Glow)
           Positioned(
-            top: -120,
+            top: -150,
             right: -100,
             child: Container(
-              width: 370,
-              height: 370,
+              width: 450,
+              height: 450,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
                     glowColor.withValues(alpha: Get.isDarkMode ? 0.3 : 0.4),
-                    glowColor.withValues(alpha: 0.01),
+                    glowColor.withValues(alpha: 0.0),
                   ],
-                  stops: const [0.7, 1.0],
+                  stops: const [0.2, 1.0],
                 ),
               ),
             ),
@@ -56,57 +56,93 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                       children: [
                     const SizedBox(height: 10),
 
-                    // زر العودة واللوجو
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_back_ios, color: textColor),
-                          onPressed: () => Get.back(),
-                          padding: EdgeInsets.zero,
-                          alignment: Alignment.centerLeft,
-                        ),
-                        Image.asset(
-                          Get.isDarkMode ? 'assets/images/الشعار ابيض.png' : 'assets/images/الشعار اسود.png',
-                          height: 30,
-                          fit: BoxFit.contain,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 30),
+                    // --- الترويسة العلوية ---
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 0.0, vertical: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // النص وزر العودة في اليمين (Start)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.arrow_back_ios,
+                                    color: textColor, size: 18),
+                                onPressed: () => Get.back(),
+                              ),
+                              Text('إدارة الأجهزة',
+                                  style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
 
-                    // العنوان الرئيسي
-                    Text('إدارة الأجهزة', style: TextStyle(color: textColor, fontSize: 32, fontWeight: FontWeight.bold, height: 1.2)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Text('تحكم شامل بالأجهزة المتصلة ', style: TextStyle(color: subTextColor, fontSize: 14)),
-                        Text('من مكان واحد', style: TextStyle(color: glowColor.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.bold)),
-                      ],
+                          // الشعار وزر التحديث في الطرف الآخر (End)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Iconsax.refresh_circle,
+                                    color: glowColor, size: 26),
+                                onPressed: () => controller.fetchAllData(),
+                              ),
+                              const SizedBox(width: 5),
+                              Image.asset(
+                                Get.isDarkMode
+                                    ? 'assets/images/الشعار ابيض.png'
+                                    : 'assets/images/الشعار اسود.png',
+                                height: 25,
+                                fit: BoxFit.contain,
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                        const SizedBox(height: 24),
-                        const StatsSummaryCard(),
-                        const SizedBox(height: 24),
-                        Text(
-                          'مفاتيح التحكم الرئيسية',
-                          style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    const SizedBox(height: 10),
+                    const StatsSummaryCard(),
+                    const SizedBox(height: 24),
+                    const MasterTogglesSection(),
+                    const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('الأجهزة المتصلة حالياً',
+                                style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: cardColor,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: glowColor.withValues(alpha: 0.25),
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: glowColor.withValues(alpha: 0.2),
+                                    blurRadius: 10,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Iconsax.info_circle,
+                                color: glowColor,
+                                size: 20,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        const MasterTogglesSection(),
-                        const SizedBox(height: 24),
-                        Text(
-                          'الأجهزة المتصلة حالياً',
-                          style: TextStyle(
-                            color: isDark ? Colors.white : Colors.black87,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 15),
                       ],
                     ),
                   ),

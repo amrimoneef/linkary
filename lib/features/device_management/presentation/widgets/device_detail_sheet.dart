@@ -250,8 +250,8 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 children: [
                   _buildFeatureCard(
-                    title: 'التحكم الأبوي',
-                    subtitle: (draftParentalRule != null && !deleteParentalRule) ? 'مُفعل - اضغط للتعديل' : 'تحديد أوقات وأيام السماح بالإنترنت',
+                    title: 'تقييد وقت السماح',
+                    subtitle: (draftParentalRule != null && !deleteParentalRule) ? 'مُفعل - اضغط للتعديل' : 'تحديد أوقات مسموحة للاتصال',
                     icon: Iconsax.clock,
                     color: (draftParentalRule != null && !deleteParentalRule) ? Colors.purpleAccent : subTextColor,
                     cardColor: cardColor,

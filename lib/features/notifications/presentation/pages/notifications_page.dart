@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'dart:ui';
+import '../../../connected_devices/presentation/widgets/monitor_toggle_widget.dart';
 import '../controllers/notifications_controller.dart';
 import 'package:intl/intl.dart' as intl;
 
@@ -64,20 +65,30 @@ class NotificationsPage extends StatelessWidget {
           })
         ],
       ),
-      body: Obx(() {
-        if (controller.notifications.isEmpty) {
-          return _buildEmptyState(context);
-        }
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: MonitorToggleWidget(),
+          ),
+          Expanded(
+            child: Obx(() {
+              if (controller.notifications.isEmpty) {
+                return _buildEmptyState(context);
+              }
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: controller.notifications.length,
-          itemBuilder: (context, index) {
-            final notification = controller.notifications[index];
-            return _buildNotificationItem(context, notification);
-          },
-        );
-      }),
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: controller.notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = controller.notifications[index];
+                  return _buildNotificationItem(context, notification);
+                },
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 
