@@ -27,6 +27,7 @@ class DeviceDataLimitController extends GetxController {
 
   var isLoading = false.obs;
   var isEnabled = false.obs;
+  var isFeatureSupported = true.obs;
   var deviceLimits = <DeviceDataLimit>[].obs;
   
   // For Smart Bottom Sheet
@@ -49,8 +50,16 @@ class DeviceDataLimitController extends GetxController {
     try {
       isEnabled.value = await _getEnableUseCase();
       deviceLimits.value = await _getListUseCase();
+      isFeatureSupported.value = true;
     } catch (e) {
-      CustomSnackbar.showError('خطأ', 'فشل في جلب البيانات: ${e.toString()}');
+      final errorStr = e.toString();
+      if (errorStr.contains('100002') || errorStr.contains('100003') || errorStr.contains('Connection reset by peer')) {
+        isFeatureSupported.value = false;
+        print('Data Limit Feature not supported: $errorStr');
+      } else {
+        isFeatureSupported.value = true;
+        CustomSnackbar.showError('خطأ', 'فشل في جلب البيانات: $errorStr');
+      }
     } finally {
       isLoading.value = false;
     }

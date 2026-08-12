@@ -316,13 +316,21 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                   const SizedBox(height: 16),
                   _buildFeatureCard(
                     title: 'تحديد الباقة',
-                    subtitle: (draftDataRule != null && !deleteDataRule) ? 'مُفعل - ${_formatBytes(draftDataRule!.quotaBytes)}' : 'تحديد كمية البيانات المسموح باستهلاكها',
+                    subtitle: !dataCtrl.isFeatureSupported.value 
+                        ? 'سيتم دعم الميزة في التحديث القادم للمودم'
+                        : (draftDataRule != null && !deleteDataRule) 
+                            ? 'مُفعل - ${_formatBytes(draftDataRule!.quotaBytes)}' 
+                            : 'تحديد كمية البيانات المسموح باستهلاكها',
                     icon: Iconsax.data,
-                    color: (draftDataRule != null && !deleteDataRule) ? Colors.greenAccent : subTextColor,
+                    color: !dataCtrl.isFeatureSupported.value 
+                        ? Colors.grey 
+                        : (draftDataRule != null && !deleteDataRule) ? Colors.greenAccent : subTextColor,
                     cardColor: cardColor,
-                    textColor: textColor,
-                    subTextColor: subTextColor,
-                    onTap: () {
+                    textColor: !dataCtrl.isFeatureSupported.value ? Colors.grey : textColor,
+                    subTextColor: !dataCtrl.isFeatureSupported.value ? Colors.grey : subTextColor,
+                    onTap: !dataCtrl.isFeatureSupported.value 
+                        ? () { CustomSnackbar.showInfo('غير مدعوم', 'هذا المودم لا يدعم حالياً تحديد الباقة، سيتم دعمه قريباً في تحديث قادم.'); }
+                        : () {
                       DataRuleEditorSheet.show(
                         context, 
                         limit: draftDataRule, 

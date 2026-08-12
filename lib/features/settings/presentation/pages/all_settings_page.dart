@@ -14,6 +14,8 @@ import '../../../speed_limit/presentation/pages/speed_limit_page.dart';
 import '../../../data_usage/presentation/pages/data_usage_page.dart';
 import '../../../mac_filter/presentation/pages/mac_filter_page.dart';
 import '../../../device_data_limit/presentation/pages/device_data_limit_page.dart';
+import '../../../device_data_limit/presentation/controllers/device_data_limit_controller.dart';
+import '../../../../core/widgets/custom_snackbar.dart';
 import '../../../parental_control/presentation/pages/parental_control_page.dart';
 import '../../../about/presentation/pages/about_page.dart';
 import '../../../settings/presentation/pages/admin_settings_page.dart';
@@ -226,13 +228,18 @@ class AllSettingsPage extends StatelessWidget {
         ),
 
         // 4.2 إدارة باقة الأجهزة
-        _buildSettingCard(
-          title: 'إدارة باقة الأجهزة',
-          subtitle: 'تحديد باقة لكل جهاز متصل',
-          icon: Icons.data_usage,
-          gradientColors: const [Color(0xFFFFA07A), Color(0xFFFF4500)],
-          onTap: () => Get.to(() => const DeviceDataLimitPage()),
-        ),
+        Obx(() {
+          final isSupported = Get.find<DeviceDataLimitController>().isFeatureSupported.value;
+          return _buildSettingCard(
+            title: 'إدارة باقة الأجهزة',
+            subtitle: isSupported ? 'تحديد باقة لكل جهاز متصل' : 'سيتم دعم الميزة في التحديث القادم للمودم',
+            icon: Icons.data_usage,
+            gradientColors: isSupported ? const [Color(0xFFFFA07A), Color(0xFFFF4500)] : const [Colors.grey, Colors.black45],
+            onTap: isSupported 
+                ? () => Get.to(() => const DeviceDataLimitPage())
+                : () => CustomSnackbar.showInfo('غير مدعوم', 'هذا المودم لا يدعم حالياً تحديد الباقة، سيتم دعمه قريباً في تحديث قادم.'),
+          );
+        }),
 
         // 4.5 الأجهزة المتصلة
         _buildSettingCard(
