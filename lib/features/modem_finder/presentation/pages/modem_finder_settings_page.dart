@@ -9,6 +9,7 @@ import '../../infrastructure/services/anti_loss_service.dart';
 import '../../infrastructure/services/wifi_rssi_reader.dart';
 import '../controllers/modem_finder_controller.dart';
 import 'package:vibration/vibration.dart';
+import '../../../../core/network/session_manager.dart';
 
 class ModemFinderSettingsPage extends StatefulWidget {
   const ModemFinderSettingsPage({super.key});
@@ -57,6 +58,21 @@ class _ModemFinderSettingsPageState extends State<ModemFinderSettingsPage> {
   }
 
   void _toggleAntiLoss(bool value) async {
+    if (value) {
+      final sn = await SessionManager.getLastSN();
+      if (sn == null || !(sn.toUpperCase().startsWith('M5610') || sn.toUpperCase().startsWith('M5010'))) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('عذراً، هذه الميزة مخصصة لمودمات SAM4G فقط.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+        debugPrint("🆘 sn: $sn");
+        setState(() => _isAntiLossEnabled = false);
+        return;
+      }
+    }
+
     setState(() => _isAntiLossEnabled = value);
     await _calibrationService.saveAntiLossEnabled(value);
     

@@ -336,3 +336,4 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
     }
   }
 }
+

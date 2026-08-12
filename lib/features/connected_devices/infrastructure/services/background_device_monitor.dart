@@ -249,7 +249,6 @@ class BackgroundDeviceMonitor {
   }
 }
 
-/// تسجيل مهمة الفحص الدوري في الخلفية (كل 15 دقيقة)
 Future<void> registerBackgroundDeviceMonitor() async {
   await Workmanager().registerPeriodicTask(
     "bg_device_monitor_unique",
