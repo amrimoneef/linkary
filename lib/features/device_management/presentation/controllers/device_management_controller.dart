@@ -80,7 +80,7 @@ class DeviceManagementController extends GetxController {
 
   Future<void> toggleSpeedLimit(bool value) async {
     speedCtrl.isEnabled.value = value;
-    await speedCtrl.saveData();
+    await speedCtrl.saveData(closeOnSuccess: false);
   }
 
   Future<void> toggleDataLimit(bool value) async {

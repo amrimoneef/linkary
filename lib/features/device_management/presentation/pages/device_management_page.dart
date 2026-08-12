@@ -85,6 +85,11 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
+                                icon: Icon(Iconsax.info_circle,
+                                    color: subTextColor, size: 24),
+                                onPressed: () => _showGuideBottomSheet(context),
+                              ),
+                              IconButton(
                                 icon: Icon(Iconsax.refresh_circle,
                                     color: glowColor, size: 26),
                                 onPressed: () => controller.fetchAllData(),
@@ -149,19 +154,25 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                 ),
                 Obx(() {
                   if (controller.isLoading.value) {
-                    return const SliverFillRemaining(
-                      child: Center(child: LoadingIndicator()),
+                    return const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 50.0),
+                        child: Center(child: LoadingIndicator()),
+                      ),
                     );
                   }
 
                   final devices = controller.managedDevices;
                   
                   if (devices.isEmpty) {
-                    return SliverFillRemaining(
-                      child: Center(
-                        child: Text(
-                          'لا توجد أجهزة متصلة',
-                          style: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 50.0),
+                        child: Center(
+                          child: Text(
+                            'لا توجد أجهزة متصلة',
+                            style: TextStyle(color: isDark ? Colors.white54 : Colors.black54),
+                          ),
                         ),
                       ),
                     );
@@ -201,6 +212,156 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showGuideBottomSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(25),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF16213E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 50,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Icon(Iconsax.info_circle, color: glowColor, size: 24),
+                const SizedBox(width: 10),
+                Text('دليل الأجهزة وتلميحات الشاشة',
+                    style: TextStyle(
+                        color: textColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: glowColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Icon(Iconsax.arrow_right_1, color: glowColor, size: 24),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('السحب للحظر السريع',
+                            style: TextStyle(
+                                color: textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text('اسحب بطاقة الجهاز إلى اليسار لحظره مباشرة.',
+                            style: TextStyle(
+                                color: subTextColor, fontSize: 12, height: 1.4)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.purpleAccent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Iconsax.setting_2, color: Colors.purpleAccent, size: 24),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('إدارة القيود',
+                            style: TextStyle(
+                                color: textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text('اضغط على بطاقة الجهاز لتعديل السرعة أو التحكم الأبوي.',
+                            style: TextStyle(
+                                color: subTextColor, fontSize: 12, height: 1.4)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Iconsax.shield_tick, color: Colors.green, size: 24),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('توثيق الأجهزة',
+                            style: TextStyle(
+                                color: textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text('اضغط على أيقونة الدرع لتوثيق الجهاز أو إلغاء توثيقه.',
+                            style: TextStyle(
+                                color: subTextColor, fontSize: 12, height: 1.4)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: glowColor,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text('حسناً، فهمت',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
     );
   }
 }

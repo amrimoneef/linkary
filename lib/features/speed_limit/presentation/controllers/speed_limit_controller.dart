@@ -95,7 +95,7 @@ class SpeedLimitController extends GetxController {
     deviceItems.removeWhere((element) => element.index == index);
   }
 
-  Future<void> saveData() async {
+  Future<void> saveData({bool closeOnSuccess = true}) async {
     isSaving.value = true;
     try {
       final upSpeed = int.tryParse(uploadController.text) ?? 248;
@@ -103,7 +103,7 @@ class SpeedLimitController extends GetxController {
 
       final success = await saveUseCase.execute(isEnabled.value, selectedMode.value, upSpeed, dlSpeed, deviceItems);
       if (success) {
-        Get.back();
+        if (closeOnSuccess) Get.back();
         CustomSnackbar.showSuccess('تم', 'تم تطبيق الإعدادات بنجاح');
       } else {
         CustomSnackbar.showError('خطأ', 'فشل حفظ الإعدادات');
