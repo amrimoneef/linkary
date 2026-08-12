@@ -70,7 +70,7 @@ class DataRuleEditorSheet {
           children: [
             Center(child: Container(width: 50, height: 5, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(10)))),
             const SizedBox(height: 25),
-            Text(isEdit ? 'تعديل قيد جهاز' : 'إضافة قيد جهاز', style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(isEdit ? 'تعديل باقة الجهاز' : 'إضافة جهاز للقائمة', style: TextStyle(color: textColor, fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
             Text(isEdit ? 'قم بتعديل باقة البيانات المخصصة لهذا الجهاز.' : 'اختر جهازاً، ثم حدد الباقة المسموحة.', style: TextStyle(color: subTextColor, fontSize: 14)),
             const SizedBox(height: 25),

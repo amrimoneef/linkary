@@ -47,10 +47,10 @@ class DashboardPage extends StatelessWidget {
       backgroundColor: bgColor(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          await Future.wait([
-            controller.fetchData(),
-            if (Get.isRegistered<BannersController>()) Get.find<BannersController>().fetchBanners(),
-          ]);
+          await controller.fetchData();
+          if (Get.isRegistered<BannersController>()) {
+            await Get.find<BannersController>().fetchBanners();
+          }
         },
         color: const Color(0xFF4A90E2),
         child: SingleChildScrollView(

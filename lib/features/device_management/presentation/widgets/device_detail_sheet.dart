@@ -89,7 +89,7 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
       if (deleteSpeedRule) {
         if (draftSpeedRule != null) {
           spdCtrl.removeDeviceRule(draftSpeedRule!.index);
-          await spdCtrl.saveData();
+          await spdCtrl.saveUseCase.execute(spdCtrl.isEnabled.value, spdCtrl.selectedMode.value, int.tryParse(spdCtrl.uploadController.text) ?? 248, int.tryParse(spdCtrl.downloadController.text) ?? 248, spdCtrl.deviceItems);
         }
         successMessages.add('تم إزالة قيود السرعة');
       } else if (draftSpeedRule != null) {
@@ -99,7 +99,7 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
         } else {
           spdCtrl.addDeviceRule(widget.device.ip ?? '', draftSpeedRule!.upSpeed, draftSpeedRule!.dlSpeed, widget.device.name);
         }
-        await spdCtrl.saveData();
+        await spdCtrl.saveUseCase.execute(spdCtrl.isEnabled.value, spdCtrl.selectedMode.value, int.tryParse(spdCtrl.uploadController.text) ?? 248, int.tryParse(spdCtrl.downloadController.text) ?? 248, spdCtrl.deviceItems);
         successMessages.add('تم تحديد السرعة');
       }
     } catch (e) {
@@ -109,16 +109,19 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
     // Data Limit
     try {
       if (deleteDataRule) {
-        await dataCtrl.deleteLimitItem(widget.device.mac);
-        successMessages.add('تم إزالة قيد البيانات');
+        final success = await dataCtrl.deleteLimitItem(widget.device.mac, showSnackbar: false);
+        if (success) successMessages.add('تم إزالة قيد البيانات');
+        else errorMessages.add('فشل إزالة الباقة');
       } else if (draftDataRule != null) {
         final existing = dataCtrl.deviceLimits.firstWhereOrNull((d) => d.mac == widget.device.mac);
+        bool success = false;
         if (existing != null) {
-          dataCtrl.updateLimitItem(int.parse(existing.index), widget.device.mac, draftDataRule!.quotaBytes, widget.device.name);
+          success = await dataCtrl.updateLimitItem(int.tryParse(existing.index) ?? 0, widget.device.mac, draftDataRule!.quotaBytes, widget.device.name, showSnackbar: false);
         } else {
-          dataCtrl.addLimitItem(widget.device.mac, draftDataRule!.quotaBytes, widget.device.name);
+          success = await dataCtrl.addLimitItem(widget.device.mac, draftDataRule!.quotaBytes, widget.device.name, showSnackbar: false);
         }
-        successMessages.add('تم تحديد الباقة');
+        if (success) successMessages.add('تم تحديد الباقة');
+        else errorMessages.add('فشل تحديد الباقة');
       }
     } catch (e) {
       errorMessages.add('فشل الباقة: $e');
@@ -128,13 +131,13 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
       isSaving = false;
     });
 
+    // Close sheet FIRST before showing snackbars to avoid Get.back() closing the snackbar instead of the sheet
+    Get.back(); 
+
     if (errorMessages.isNotEmpty) {
       CustomSnackbar.showError('حدث خطأ جزئي', errorMessages.join('\n'));
     } else if (successMessages.isNotEmpty) {
       CustomSnackbar.showSuccess('اكتمل بنجاح', successMessages.join('\n'));
-      Get.back(); // Close sheet on full success
-    } else {
-      Get.back(); // No changes were actually submitted but user pressed save
     }
     
     // Refresh UI data

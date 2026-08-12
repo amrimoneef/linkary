@@ -167,17 +167,19 @@ class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
       children: [
         _buildInfoBanner('يمكنك تحديد باقة استهلاك مخصصة لكل جهاز متصل حسب الحاجة.'),
         const SizedBox(height: 25),
-
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('الأجهزة المحددة', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
-            IconButton(
-              icon: Icon(Iconsax.add_circle, color: glowColor),
-              onPressed: () => DataRuleEditorSheet.show(context),
-            )
+            Text('الأجهزة المقيدة', style: TextStyle(color: textColor, fontSize: 18, fontWeight: FontWeight.bold)),
+            if (controller.isEnabled.value)
+              TextButton.icon(
+                onPressed: () => DataRuleEditorSheet.show(context),
+                icon: Icon(Iconsax.add_circle, color: glowColor),
+                label: Text('إضافة جهاز', style: TextStyle(color: glowColor, fontWeight: FontWeight.bold)),
+              )
           ],
         ),
+
         const SizedBox(height: 10),
 
         Obx(() => controller.deviceLimits.isEmpty

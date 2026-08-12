@@ -73,45 +73,54 @@ class DeviceDataLimitController extends GetxController {
     }
   }
 
-  Future<void> addLimitItem(String mac, int quotaBytes, String comment) async {
+  Future<bool> addLimitItem(String mac, int quotaBytes, String comment, {bool showSnackbar = true}) async {
     try {
       final success = await _addLimitUseCase(mac, quotaBytes, comment);
       if (success) {
-        CustomSnackbar.showSuccess('نجاح', 'تمت إضافة القيد بنجاح');
+        if (showSnackbar) CustomSnackbar.showSuccess('نجاح', 'تمت إضافة القيد بنجاح');
         await fetchData();
+        return true;
       } else {
-        CustomSnackbar.showError('خطأ', 'فشل في إضافة القيد');
+        if (showSnackbar) CustomSnackbar.showError('خطأ', 'فشل في إضافة القيد');
+        return false;
       }
     } catch (e) {
-      CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+      if (showSnackbar) CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+      return false;
     }
   }
 
-  Future<void> updateLimitItem(int index, String mac, int quotaBytes, String comment) async {
+  Future<bool> updateLimitItem(int index, String mac, int quotaBytes, String comment, {bool showSnackbar = true}) async {
     try {
       final success = await _updateLimitUseCase(index, mac, quotaBytes, comment);
       if (success) {
-        CustomSnackbar.showSuccess('نجاح', 'تم تعديل القيد بنجاح');
+        if (showSnackbar) CustomSnackbar.showSuccess('نجاح', 'تم تحديث القيد بنجاح');
         await fetchData();
+        return true;
       } else {
-        CustomSnackbar.showError('خطأ', 'فشل في تعديل القيد');
+        if (showSnackbar) CustomSnackbar.showError('خطأ', 'فشل في تحديث القيد');
+        return false;
       }
     } catch (e) {
-      CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+      if (showSnackbar) CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+      return false;
     }
   }
 
-  Future<void> deleteLimitItem(String mac) async {
+  Future<bool> deleteLimitItem(String mac, {bool showSnackbar = true}) async {
     try {
       final success = await _deleteLimitUseCase(mac);
       if (success) {
-        CustomSnackbar.showSuccess('نجاح', 'تم حذف القيد بنجاح');
+        if (showSnackbar) CustomSnackbar.showSuccess('نجاح', 'تم حذف القيد بنجاح');
         await fetchData();
+        return true;
       } else {
-        CustomSnackbar.showError('خطأ', 'فشل في حذف القيد');
+        if (showSnackbar) CustomSnackbar.showError('خطأ', 'فشل في حذف القيد');
+        return false;
       }
     } catch (e) {
-      CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+      if (showSnackbar) CustomSnackbar.showError('خطأ', 'حدث خطأ: ${e.toString()}');
+      return false;
     }
   }
 
