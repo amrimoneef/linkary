@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 class AntiLossService {
   static const MethodChannel _channel = MethodChannel('com.linkary/anti_loss');
 
-  Future<bool> startAntiLoss({String soundName = 'alarm1'}) async {
+  Future<bool> startAntiLoss({String soundName = 'alarm1', String? bssid}) async {
     try {
-      final bool? result = await _channel.invokeMethod('startAntiLoss', {'soundName': soundName});
+      final bool? result = await _channel.invokeMethod('startAntiLoss', {
+        'soundName': soundName,
+        if (bssid != null && bssid.isNotEmpty) 'bssid': bssid,
+      });
       return result ?? false;
     } on PlatformException catch (e) {
       print("Failed to start anti-loss service: '${e.message}'.");

@@ -182,9 +182,18 @@ class MainActivity: FlutterFragmentActivity() {
                         }
                     }
                     val soundName = call.argument<String>("soundName") ?: "alarm1"
+                    // Read current BSSID: prefer Flutter-provided, fallback to reading it here
+                    var bssid = call.argument<String>("bssid") ?: ""
+                    if (bssid.isEmpty()) {
+                        try {
+                            val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                            bssid = wm.connectionInfo.bssid ?: ""
+                        } catch (_: Exception) {}
+                    }
                     val i = Intent(this, AntiLossService::class.java).apply {
                         action = "START"
                         putExtra("soundName", soundName)
+                        putExtra("bssid", bssid)
                     }
                     startForegroundServiceCompat(i)
                     result.success(true)
@@ -246,6 +255,15 @@ class MainActivity: FlutterFragmentActivity() {
                         val wifiInfo = wifiManager.connectionInfo
                         val ssid = wifiInfo.ssid?.replace("\"", "") ?: ""
                         result.success(ssid)
+                    } catch (e: Exception) {
+                        result.error("ERROR", e.message, null)
+                    }
+                }
+                "getBSSID" -> {
+                    try {
+                        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                        val wifiInfo = wifiManager.connectionInfo
+                        result.success(wifiInfo.bssid ?: "")
                     } catch (e: Exception) {
                         result.error("ERROR", e.message, null)
                     }

@@ -20,6 +20,8 @@ import kotlin.math.pow
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import android.content.pm.ServiceInfo
+import java.net.HttpURLConnection
+import java.net.URL
 
 class AntiLossService : Service() {
 
@@ -28,6 +30,8 @@ class AntiLossService : Service() {
             private set
         const val CHANNEL_ID = "antiloss_service_channel"
         const val ALERT_CHANNEL_ID = "antiloss_alert_channel_v2"
+        private const val MODEM_BASE_URL = "http://mobile.router"
+        private const val MASKED_BSSID = "02:00:00:00:00:00"
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -35,6 +39,9 @@ class AntiLossService : Service() {
     private var isAlerting = false
     private var mediaPlayer: MediaPlayer? = null
     private var soundName: String = "alarm1"
+    private var savedBssid: String = ""
+    private var checkCycleCount = 0
+    private var isOnModemNetworkCached = true // افتراضياً نعتبره على الشبكة عند البدء
 
     private val monitorRunnable = object : Runnable {
         override fun run() {
@@ -62,7 +69,11 @@ class AntiLossService : Service() {
         isRunning = true
         consecutiveWeakReadings = 0
         isAlerting = false
+        checkCycleCount = 0
         soundName = intent?.getStringExtra("soundName") ?: "alarm1"
+        savedBssid = intent?.getStringExtra("bssid") ?: ""
+        
+        Log.d("AntiLossService", "🛡️ Anti-Loss Service Started | Saved BSSID: $savedBssid")
         
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -81,10 +92,14 @@ class AntiLossService : Service() {
             Log.e("AntiLossService", "Foreground error: ${e.message}")
         }
         
+        // التحقق الأولي من الشبكة في thread منفصل
+        Thread {
+            isOnModemNetworkCached = isOnModemNetwork()
+            Log.d("AntiLossService", "🌐 Initial network check: onModem=$isOnModemNetworkCached")
+        }.start()
+        
         handler.removeCallbacks(monitorRunnable)
         handler.postDelayed(monitorRunnable, 2000)
-        
-        Log.d("AntiLossService", "🛡️ Anti-Loss Service Started")
         
         return START_STICKY
     }
@@ -94,9 +109,47 @@ class AntiLossService : Service() {
             val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             val wifiInfo = wifiManager.connectionInfo
             val rssi = wifiInfo.rssi
+            val currentBssid = wifiInfo.bssid ?: ""
 
-            Log.d("AntiLossService", "📡 Current RSSI: $rssi")
+            checkCycleCount++
 
+            // --- التحقق من شبكة المودم ---
+            // فحص سريع عبر BSSID (كل دورة)
+            val bssidMatch = isBssidMatch(currentBssid)
+            
+            // فحص دوري عبر HTTP ping (كل 15 دورة = ~30 ثانية)
+            if (checkCycleCount % 15 == 0) {
+                Thread {
+                    isOnModemNetworkCached = isOnModemNetwork()
+                    Log.d("AntiLossService", "🌐 Periodic network check: onModem=$isOnModemNetworkCached (BSSID=$currentBssid)")
+                }.start()
+            }
+
+            // تحديد هل نحن على شبكة المودم
+            val onModemNetwork = when {
+                // BSSID صالح ومتطابق → نعم
+                bssidMatch == true -> true
+                // BSSID صالح وغير متطابق → لا
+                bssidMatch == false -> false
+                // BSSID مخفي → نعتمد على آخر نتيجة HTTP ping
+                else -> isOnModemNetworkCached
+            }
+
+            Log.d("AntiLossService", "📡 RSSI: $rssi | BSSID match: $bssidMatch | OnModem: $onModemNetwork")
+
+            if (!onModemNetwork) {
+                // لسنا على شبكة المودم → أعد التعيين ولا تطلق إنذار
+                consecutiveWeakReadings = 0
+                if (isAlerting) {
+                    isAlerting = false
+                    stopAlarm()
+                }
+                val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(9002, createStatusNotification("في انتظار الاتصال بشبكة مودم SAM4G..."))
+                return
+            }
+
+            // --- نحن على شبكة المودم → راقب الإشارة ---
             if (rssi < -65 && rssi != -127) { // Only weak signal, NOT completely disconnected
                 consecutiveWeakReadings++
             } else {
@@ -107,10 +160,29 @@ class AntiLossService : Service() {
                 }
             }
 
-            // إذا انقطعت الإشارة تماماً أو ضعفت جداً لمدة 6 ثواني (3 قراءات متتالية)
+            // إذا ضعفت الإشارة لمدة 10 ثواني (5 قراءات متتالية)
             if (consecutiveWeakReadings >= 5 && !isAlerting) {
-                isAlerting = true
-                triggerAlarmNotification()
+                // تحقق نهائي قبل الإنذار عبر HTTP ping (في thread منفصل)
+                Thread {
+                    val confirmedOnModem = isOnModemNetwork()
+                    isOnModemNetworkCached = confirmedOnModem
+                    if (confirmedOnModem) {
+                        handler.post {
+                            if (consecutiveWeakReadings >= 5 && !isAlerting) {
+                                isAlerting = true
+                                triggerAlarmNotification()
+                            }
+                        }
+                    } else {
+                        handler.post {
+                            consecutiveWeakReadings = 0
+                            Log.d("AntiLossService", "🚫 Alarm suppressed — not on modem network (HTTP ping failed)")
+                            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                            notificationManager.notify(9002, createStatusNotification("في انتظار الاتصال بشبكة المودم..."))
+                        }
+                    }
+                }.start()
+                return
             }
 
             // Update foreground notification with current RSSI
@@ -123,6 +195,45 @@ class AntiLossService : Service() {
 
         } catch (e: Exception) {
             Log.e("AntiLossService", "Error reading RSSI: ${e.message}")
+        }
+    }
+
+    /**
+     * مقارنة BSSID الحالي مع المحفوظ.
+     * @return true إذا تطابقا، false إذا اختلفا، null إذا BSSID مخفي أو غير متاح
+     */
+    private fun isBssidMatch(currentBssid: String): Boolean? {
+        if (savedBssid.isEmpty()) return null // لا يوجد BSSID محفوظ
+        if (currentBssid.isEmpty() || currentBssid == MASKED_BSSID) return null // BSSID مخفي
+        return currentBssid.equals(savedBssid, ignoreCase = true)
+    }
+
+    /**
+     * تحقق من الاتصال بشبكة المودم عبر HTTP ping.
+     * يجب استدعاؤها من thread منفصل (ليس Main thread).
+     */
+    private fun isOnModemNetwork(): Boolean {
+        // أولاً: تحقق سريع من BSSID
+        try {
+            val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val currentBssid = wifiManager.connectionInfo.bssid ?: ""
+            val match = isBssidMatch(currentBssid)
+            if (match != null) return match
+        } catch (_: Exception) {}
+
+        // BSSID مخفي → fallback إلى HTTP ping
+        return try {
+            val url = URL("$MODEM_BASE_URL/api.cgi?path=device_info&method=get&timeout=5")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connectTimeout = 3000
+            connection.readTimeout = 3000
+            connection.requestMethod = "GET"
+            val responseCode = connection.responseCode
+            connection.disconnect()
+            responseCode == 200
+        } catch (e: Exception) {
+            Log.d("AntiLossService", "🌐 HTTP ping failed: ${e.message}")
+            false
         }
     }
 

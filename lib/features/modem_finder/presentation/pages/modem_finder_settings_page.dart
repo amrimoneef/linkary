@@ -79,7 +79,12 @@ class _ModemFinderSettingsPageState extends State<ModemFinderSettingsPage> {
     final antiLossService = Get.find<AntiLossService>();
 
     if (value) {
-      await antiLossService.startAntiLoss(soundName: _selectedSound);
+      // قراءة BSSID الحالي لتحديد هوية شبكة المودم
+      final reader = Get.find<WifiRssiReader>();
+      final bssid = await reader.getBSSID();
+      debugPrint('🔗 Anti-Loss starting with BSSID: $bssid');
+      
+      await antiLossService.startAntiLoss(soundName: _selectedSound, bssid: bssid);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم تفعيل حماية المودم')),
       );
@@ -103,7 +108,9 @@ class _ModemFinderSettingsPageState extends State<ModemFinderSettingsPage> {
 
       // If service is running, restart it to apply new sound
       if (_isAntiLossEnabled) {
-        await antiLossService.startAntiLoss(soundName: newSound);
+        final reader = Get.find<WifiRssiReader>();
+        final bssid = await reader.getBSSID();
+        await antiLossService.startAntiLoss(soundName: newSound, bssid: bssid);
       }
     }
   }

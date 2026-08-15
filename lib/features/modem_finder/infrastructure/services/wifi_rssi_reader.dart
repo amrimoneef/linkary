@@ -50,4 +50,14 @@ class WifiRssiReader {
       return '';
     }
   }
+
+  /// Read BSSID (Access Point MAC address) for modem network verification
+  Future<String> getBSSID() async {
+    try {
+      final bssid = await _channel.invokeMethod<String>('getBSSID');
+      return bssid ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
 }
