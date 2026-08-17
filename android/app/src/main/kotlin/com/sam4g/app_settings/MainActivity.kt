@@ -26,6 +26,8 @@ import android.media.RingtoneManager
 import android.media.AudioAttributes
 import android.net.wifi.WifiManager
 import android.net.wifi.WifiInfo
+import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -42,6 +44,11 @@ class MainActivity: FlutterFragmentActivity() {
     
     // 🚀 Icon Cache to prevent expensive extractions on every refresh
     private val iconCache = LruCache<String, ByteArray>(1000) // Cache for 1000 icons (approx 5MB of RAM)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

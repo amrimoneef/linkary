@@ -98,5 +98,6 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    implementation("androidx.activity:activity-ktx:1.9.3")
     implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
 }
