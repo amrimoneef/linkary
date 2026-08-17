@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconly/iconly.dart';
 import 'package:iconsax/iconsax.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../dashboard/presentation/controllers/dashboard_controller.dart';
@@ -202,7 +201,7 @@ class AllSettingsPage extends StatelessWidget {
 
           title: 'حد السرعة',
           subtitle: 'تقييد سرعة الأجهزة',
-          icon: IconlyLight.chart,
+          icon: Iconsax.chart_2,
           gradientColors: const [Color(0xFFF6E2A0), Color(0xFFD5B040)],
           onTap: () => Get.to(() => SpeedLimitPage()),
         ),
@@ -212,7 +211,7 @@ class AllSettingsPage extends StatelessWidget {
 
           title: 'استهلاك الباقة',
           subtitle: 'تحديد حصة البيانات',
-          icon: IconlyLight.graph,
+          icon: Iconsax.graph,
           gradientColors: const [Color(0xFF8BEDD7), Color(0xFF3EC3A5)],
           onTap: () => Get.to(() => DataUsagePage()),
         ),
@@ -255,7 +254,7 @@ class AllSettingsPage extends StatelessWidget {
 
           title: 'التحكم الأبوي',
           subtitle: 'إدارة أوقات استخدام الإنترنت',
-          icon: IconlyLight.lock,
+          icon: Iconsax.lock,
           gradientColors: const [Color(0xFFC28BF6), Color(0xFF9B51E0)],
           onTap: () => Get.to(() => ParentalControlPage()),
         ),
