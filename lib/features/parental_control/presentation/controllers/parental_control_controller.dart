@@ -23,6 +23,7 @@ class ParentalControlController extends GetxController {
 
   var isLoading = true.obs;
   var isEnabled = false.obs;
+  var isFeatureSupported = true.obs;
   var devicesList = <ParentalDevice>[].obs;
 
   @override
@@ -31,7 +32,7 @@ class ParentalControlController extends GetxController {
     fetchData();
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({bool silent = false}) async {
     isLoading.value = true;
     try {
       isEnabled.value = await getStatusUseCase.execute();
@@ -51,16 +52,38 @@ class ParentalControlController extends GetxController {
         }
         return d;
       }).toList();
+      isFeatureSupported.value = true;
     } catch (e) {
       if (SessionHelper.handleSessionError(e)) return;
-      CustomSnackbar.showError('خطأ', 'فشل جلب البيانات: $e');
-      debugPrint('Error: $e');
+      final errorStr = e.toString();
+      if (errorStr.contains('100002') || 
+          errorStr.contains('100003') || 
+          errorStr.contains('Connection reset by peer') ||
+          errorStr.contains('FormatException') ||
+          errorStr.contains('FEATURE_NOT_SUPPORTED') ||
+          errorStr.contains('404') ||
+          errorStr.contains('500') ||
+          errorStr.contains('ClientException')) {
+        isFeatureSupported.value = false;
+        isEnabled.value = false;
+        devicesList.clear();
+      } else {
+        isFeatureSupported.value = true;
+        if (!silent) {
+          CustomSnackbar.showError('خطأ', 'فشل جلب البيانات: $e');
+        }
+      }
+      debugPrint('Parental Control Fetch: $e');
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> toggleParentalControl(bool value) async {
+    if (!isFeatureSupported.value) {
+      CustomSnackbar.showInfo('ميزة قادمة', 'هذا المودم لا يدعم حالياً هذه الميزة.');
+      return;
+    }
     isEnabled.value = value;
     await setStatusUseCase.execute(value);
   }

@@ -89,11 +89,6 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                                     color: subTextColor, size: 24),
                                 onPressed: () => _showGuideBottomSheet(context),
                               ),
-                              IconButton(
-                                icon: Icon(Iconsax.refresh_circle,
-                                    color: glowColor, size: 26),
-                                onPressed: () => controller.fetchAllData(),
-                              ),
                               const SizedBox(width: 5),
                               Image.asset(
                                 Get.isDarkMode
@@ -122,7 +117,7 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold)),
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
                                 color: cardColor,
                                 borderRadius: BorderRadius.circular(12),
@@ -139,10 +134,11 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                                   ),
                                 ],
                               ),
-                              child: Icon(
-                                Iconsax.info_circle,
-                                color: glowColor,
-                                size: 20,
+                              child:
+                              IconButton(
+                                icon: Icon(Iconsax.refresh_circle,
+                                    color: glowColor, size: 26),
+                                onPressed: () => controller.fetchAllData(),
                               ),
                             ),
                           ],

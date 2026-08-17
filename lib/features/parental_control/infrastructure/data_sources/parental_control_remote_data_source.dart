@@ -24,13 +24,22 @@ class ParentalControlRemoteDataSourceImpl implements ParentalControlRemoteDataSo
     'reset_time': '1',
   };
 
+  dynamic _safeJsonDecode(String body) {
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || (!trimmed.startsWith('{') && !trimmed.startsWith('['))) {
+      throw const FormatException('FEATURE_NOT_SUPPORTED');
+    }
+    return jsonDecode(trimmed);
+  }
+
   @override
   Future<bool> getParentalControlStatus() async {
     final sessionId = Get.find<AuthController>().currentUser?.sessionId;
     if (sessionId == null) throw Exception('الجلسة منتهية');
 
     final res = await client.get(Uri.parse('$baseUrl/api.cgi?path=firewall&method=get_parental_control_enable&timeout=20&_=${DateTime.now().millisecondsSinceEpoch}'), headers: _getHeaders(sessionId));
-    return jsonDecode(res.body)['pctrl_enable'] == 1;
+    final data = _safeJsonDecode(res.body);
+    return data['pctrl_enable'] == 1;
   }
 
   @override
@@ -40,7 +49,8 @@ class ParentalControlRemoteDataSourceImpl implements ParentalControlRemoteDataSo
 
     final payload = {"pctrl_enable": isEnabled ? 1 : 0};
     final res = await client.post(Uri.parse('$baseUrl/api.cgi?path=firewall&method=set_parental_control_enable&timeout=20'), headers: _getHeaders(sessionId), body: jsonEncode(payload));
-    return jsonDecode(res.body)['result'] == 0;
+    final data = _safeJsonDecode(res.body);
+    return data['result'] == 0;
   }
 
   @override
@@ -49,7 +59,7 @@ class ParentalControlRemoteDataSourceImpl implements ParentalControlRemoteDataSo
     if (sessionId == null) throw Exception('الجلسة منتهية');
 
     final res = await client.get(Uri.parse('$baseUrl/api.cgi?path=firewall&method=get_parental_control_list&timeout=20&_=${DateTime.now().millisecondsSinceEpoch}'), headers: _getHeaders(sessionId));
-    final data = jsonDecode(res.body);
+    final data = _safeJsonDecode(res.body);
 
     if (data['pctrl_list'] == null) return [];
 
@@ -85,7 +95,7 @@ class ParentalControlRemoteDataSourceImpl implements ParentalControlRemoteDataSo
     };
 
     final res = await client.post(Uri.parse(url), headers: _getHeaders(sessionId), body: jsonEncode(payload));
-    final data = jsonDecode(res.body);
+    final data = _safeJsonDecode(res.body);
     return data['responses']?[0]?['data']?['result'] == 0;
   }
 
@@ -106,7 +116,7 @@ class ParentalControlRemoteDataSourceImpl implements ParentalControlRemoteDataSo
     };
 
     final res = await client.post(Uri.parse(url), headers: _getHeaders(sessionId), body: jsonEncode(payload));
-    final data = jsonDecode(res.body);
+    final data = _safeJsonDecode(res.body);
     return data['responses']?[0]?['data']?['result'] == 0;
   }
 }

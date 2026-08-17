@@ -8,13 +8,13 @@ import '../../../dashboard/presentation/controllers/dashboard_controller.dart';
 import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 
 // استيراد كافة شاشات الإعدادات الفرعية
+import '../../../parental_control/presentation/controllers/parental_control_controller.dart';
 import '../../../settings/presentation/pages/wifi_settings_page.dart';
 import '../../../speed_limit/presentation/pages/speed_limit_page.dart';
 import '../../../data_usage/presentation/pages/data_usage_page.dart';
 import '../../../mac_filter/presentation/pages/mac_filter_page.dart';
 import '../../../device_data_limit/presentation/pages/device_data_limit_page.dart';
 import '../../../device_data_limit/presentation/controllers/device_data_limit_controller.dart';
-import '../../../../core/widgets/custom_snackbar.dart';
 import '../../../parental_control/presentation/pages/parental_control_page.dart';
 import '../../../about/presentation/pages/about_page.dart';
 import '../../../settings/presentation/pages/admin_settings_page.dart';
@@ -248,14 +248,16 @@ class AllSettingsPage extends StatelessWidget {
         ),
 
         // 5. التحكم الأبوي
-        _buildSettingCard(
-
-          title: 'التحكم الأبوي',
-          subtitle: 'إدارة أوقات استخدام الإنترنت',
-          icon: Iconsax.lock,
-          gradientColors: const [Color(0xFFC28BF6), Color(0xFF9B51E0)],
-          onTap: () => Get.to(() => ParentalControlPage()),
-        ),
+        Obx(() {
+          final isSupported = Get.find<ParentalControlController>().isFeatureSupported.value;
+          return _buildSettingCard(
+            title: 'التحكم الأبوي',
+            subtitle: isSupported ? 'إدارة أوقات استخدام الإنترنت' : 'قريباً في التحديث القادم للمودم 🚀',
+            icon: Iconsax.lock,
+            gradientColors: isSupported ? const [Color(0xFFC28BF6), Color(0xFF9B51E0)] : const [Color(0xFF8B5CF6), Color(0xFF6D28D9)],
+            onTap: () => Get.to(() => ParentalControlPage()),
+          );
+        }),
 
         // 7. إعدادات المسؤول
         _buildSettingCard(

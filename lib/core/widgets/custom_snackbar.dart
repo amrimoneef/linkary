@@ -10,10 +10,12 @@ class CustomSnackbar {
     bool isError = false,
     bool isWarning = false,
   }) {
-    // إغلاق أي تنبيه مفتوح مسبقاً لمنع التكدس
-    if (Get.isSnackbarOpen) {
-      Get.closeCurrentSnackbar();
-    }
+    // إغلاق أي تنبيه مفتوح مسبقاً بأمان لمنع التكدس والأخطاء
+    try {
+      if (Get.isSnackbarOpen) {
+        Get.closeAllSnackbars();
+      }
+    } catch (_) {}
 
     Color baseColor = const Color(0xFF1E293B); // لون داكن أنيق كافتراضي
     Color textColor = Colors.white;
@@ -30,11 +32,6 @@ class CustomSnackbar {
       icon = Iconsax.warning_2;
     } else {
       icon = Iconsax.info_circle;
-    }
-
-    // إغلاق أي تنبيه مفتوح مسبقاً لمنع التكدس
-    if (Get.isSnackbarOpen) {
-      Get.closeCurrentSnackbar();
     }
 
     Get.snackbar(

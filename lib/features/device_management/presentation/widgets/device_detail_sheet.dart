@@ -251,13 +251,26 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                 children: [
                   _buildFeatureCard(
                     title: 'تقييد وقت السماح',
-                    subtitle: (draftParentalRule != null && !deleteParentalRule) ? 'مُفعل - اضغط للتعديل' : 'تحديد أوقات مسموحة للاتصال',
+                    subtitle: !parCtrl.isFeatureSupported.value 
+                        ? 'قريباً في التحديث القادم للمودم'
+                        : (draftParentalRule != null && !deleteParentalRule) 
+                            ? 'مُفعل - اضغط للتعديل' 
+                            : 'تحديد أوقات مسموحة للاتصال',
                     icon: Iconsax.clock,
-                    color: (draftParentalRule != null && !deleteParentalRule) ? Colors.purpleAccent : subTextColor,
+                    color: !parCtrl.isFeatureSupported.value 
+                        ? const Color(0xFF8B5CF6)
+                        : (draftParentalRule != null && !deleteParentalRule) ? Colors.purpleAccent : subTextColor,
                     cardColor: cardColor,
                     textColor: textColor,
-                    subTextColor: subTextColor,
-                    onTap: () {
+                    subTextColor: !parCtrl.isFeatureSupported.value ? const Color(0xFF8B5CF6) : subTextColor,
+                    onTap: !parCtrl.isFeatureSupported.value 
+                        ? () { 
+                            CustomSnackbar.showInfo(
+                              'ميزة قادمة', 
+                              'ستتوفر الميزة قريباً في التحديث القادم للمودم.'
+                            ); 
+                          }
+                        : () {
                       ParentalRuleEditorSheet.show(
                         context, 
                         deviceToEdit: draftParentalRule, 

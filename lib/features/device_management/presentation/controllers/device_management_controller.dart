@@ -24,9 +24,9 @@ class DeviceManagementController extends GetxController {
     isLoading.value = true;
     try {
       // Fetch all data sequentially to prevent router overload (Connection reset by peer)
-      await parentalCtrl.fetchData();
+      await parentalCtrl.fetchData(silent: true);
       await speedCtrl.fetchData();
-      await dataLimitCtrl.fetchData();
+      await dataLimitCtrl.fetchData(silent: true);
       await devicesCtrl.fetchDevices();
       _buildManagedDevices();
     } catch (e) {

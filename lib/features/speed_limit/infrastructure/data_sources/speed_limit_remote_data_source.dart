@@ -24,6 +24,14 @@ class SpeedLimitRemoteDataSourceImpl implements SpeedLimitRemoteDataSource {
     'reset_time': '1', // 🚀 الفخ السري الذي اكتشفته!
   };
 
+  dynamic _safeJsonDecode(String body) {
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || (!trimmed.startsWith('{') && !trimmed.startsWith('['))) {
+      throw const FormatException('FEATURE_NOT_SUPPORTED');
+    }
+    return jsonDecode(trimmed);
+  }
+
   @override
   Future<SpeedLimitModel> fetchSpeedLimit() async {
     final sessionId = Get.find<AuthController>().currentUser?.sessionId;
@@ -35,7 +43,7 @@ class SpeedLimitRemoteDataSourceImpl implements SpeedLimitRemoteDataSource {
     final response = await client.get(Uri.parse(url), headers: _getHeaders(sessionId));
     if (response.body.contains("session no exist")) throw Exception('SESSION_EXPIRED');
 
-    return SpeedLimitModel.fromJson(jsonDecode(response.body));
+    return SpeedLimitModel.fromJson(_safeJsonDecode(response.body));
   }
 
   @override
@@ -65,7 +73,7 @@ class SpeedLimitRemoteDataSourceImpl implements SpeedLimitRemoteDataSource {
         body: jsonEncode(payload)
     );
 
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     return data['result'] == 0;
   }
 }
