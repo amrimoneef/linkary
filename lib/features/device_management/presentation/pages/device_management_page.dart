@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import '../../../../core/services/tutorial_service.dart';
 import '../controllers/device_management_controller.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../widgets/device_detail_sheet.dart';
@@ -21,6 +22,10 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<TutorialService>().showDeviceManagementTutorial(context);
+    });
 
     return Scaffold(
       body: Stack(
@@ -80,14 +85,15 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                             ],
                           ),
 
-                          // الشعار وزر التحديث في الطرف الآخر (End)
+                          // الشعار وزر المساعدة في الطرف الآخر (End)
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Iconsax.info_circle,
+                                key: Get.find<TutorialService>().deviceManagementHelpKey,
+                                icon: Icon(Icons.help_outline,
                                     color: subTextColor, size: 24),
-                                onPressed: () => _showGuideBottomSheet(context),
+                                onPressed: () => Get.find<TutorialService>().showDeviceManagementTutorial(context, force: true),
                               ),
                               const SizedBox(width: 5),
                               Image.asset(
@@ -104,9 +110,9 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const StatsSummaryCard(),
+                    StatsSummaryCard(key: Get.find<TutorialService>().dmStatsSummaryKey),
                     const SizedBox(height: 24),
-                    const MasterTogglesSection(),
+                    MasterTogglesSection(key: Get.find<TutorialService>().dmMasterTogglesKey),
                     const SizedBox(height: 24),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -117,6 +123,7 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold)),
                             Container(
+                              key: Get.find<TutorialService>().dmRefreshButtonKey,
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
                                 color: cardColor,
@@ -181,6 +188,7 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
                         (context, index) {
                           final device = devices[index];
                           return ManagedDeviceCard(
+                            key: index == 0 ? Get.find<TutorialService>().dmDeviceCardKey : null,
                             device: device,
                             onTap: () {
                               showModalBottomSheet(

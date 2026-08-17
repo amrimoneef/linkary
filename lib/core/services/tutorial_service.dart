@@ -35,6 +35,13 @@ class TutorialService extends GetxService {
   final GlobalKey logoutButtonKey = GlobalKey();
   final GlobalKey settingsGridKey = GlobalKey();
 
+  // مفاتيح شاشة إدارة الأجهزة DeviceManagement
+  final GlobalKey deviceManagementHelpKey = GlobalKey();
+  final GlobalKey dmStatsSummaryKey = GlobalKey();
+  final GlobalKey dmMasterTogglesKey = GlobalKey();
+  final GlobalKey dmRefreshButtonKey = GlobalKey();
+  final GlobalKey dmDeviceCardKey = GlobalKey();
+
   // مفاتيح شاشة الرصيد Bill
   final GlobalKey billHelpKey = GlobalKey();
   final GlobalKey expectedBalanceKey = GlobalKey();
@@ -322,6 +329,49 @@ class TutorialService extends GetxService {
         },
         onSkip: () {
           prefs.setBool('has_seen_app_detail_tutorial', true);
+          _isShowing = false;
+          return true;
+        },
+      ).show(context: context);
+    } else {
+      _isShowing = false;
+    }
+  }
+
+  void showDeviceManagementTutorial(BuildContext context, {bool force = false}) async {
+    if (_isShowing) return;
+    _isShowing = true;
+
+    prefs = await SharedPreferences.getInstance();
+    bool hasSeenTutorial = prefs.getBool('has_seen_device_management_tutorial') ?? false;
+
+    if (!hasSeenTutorial || force) {
+      _currentIndex = 0;
+      _targets = (!hasSeenTutorial && !force) 
+          ? _createHelpButtonHintTarget(deviceManagementHelpKey) 
+          : _createDeviceManagementTargets();
+      
+      _scrollToTarget(_targets[0].keyTarget);
+
+      TutorialCoachMark(
+        targets: _targets,
+        colorShadow: const Color(0xFF0A0E21),
+        textSkip: "إنهاء الدرس",
+        paddingFocus: 10,
+        opacityShadow: 0.9,
+        useSafeArea: true,
+        onFinish: () {
+          prefs.setBool('has_seen_device_management_tutorial', true);
+          _isShowing = false;
+        },
+        onClickTarget: (target) {
+          _currentIndex++;
+          if (_currentIndex < _targets.length) {
+            _scrollToTarget(_targets[_currentIndex].keyTarget);
+          }
+        },
+        onSkip: () {
+          prefs.setBool('has_seen_device_management_tutorial', true);
           _isShowing = false;
           return true;
         },
@@ -1002,6 +1052,84 @@ class TutorialService extends GetxService {
         ],
       ),
     ];
+  }
+
+  List<TargetFocus> _createDeviceManagementTargets() {
+    List<TargetFocus> targets = [
+      TargetFocus(
+        identify: "DmStatsSummary",
+        keyTarget: dmStatsSummaryKey,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            builder: (context, controller) => _buildTutorialContent(
+              controller: controller,
+              title: "ملخص الأجهزة والقيود",
+              description: "لوحة معلومات ذكية توضح عدد الأجهزة المتصلة حالياً بالشبكة وعدد الأجهزة المطبق عليها قيود الوقت، السرعة، وباقة البيانات.",
+            ),
+          )
+        ],
+      ),
+      TargetFocus(
+        identify: "DmMasterToggles",
+        keyTarget: dmMasterTogglesKey,
+        alignSkip: Alignment.bottomRight,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            builder: (context, controller) => _buildTutorialContent(
+              controller: controller,
+              title: "مفاتيح التحكم",
+              description: "يمكنك تفعيل أو إيقاف أي ميزة (تخصيص الوقت، السرعة، الباقة، ومراقب الأجهزة الجديدة) بضغطة زر واحدة.",
+            ),
+          )
+        ],
+      ),
+      TargetFocus(
+        identify: "DmRefreshButton",
+        keyTarget: dmRefreshButtonKey,
+        alignSkip: Alignment.bottomLeft,
+        shape: ShapeLightFocus.RRect,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            builder: (context, controller) => _buildTutorialContent(
+              controller: controller,
+              isLast: dmDeviceCardKey.currentContext == null,
+              title: "تحديث قائمة الأجهزة",
+              description: "اضغط هنا لإعادة فحص الشبكة فوراً وجلب أحدث الأجهزة المتصلة وقراءات استهلاكها الحية.",
+            ),
+          )
+        ],
+      ),
+    ];
+
+    if (dmDeviceCardKey.currentContext != null) {
+      targets.add(
+        TargetFocus(
+          identify: "DmDeviceCard",
+          keyTarget: dmDeviceCardKey,
+          alignSkip: Alignment.bottomRight,
+          shape: ShapeLightFocus.RRect,
+          contents: [
+            TargetContent(
+              align: ContentAlign.top,
+              builder: (context, controller) => _buildTutorialContent(
+                controller: controller,
+                isLast: true,
+                title: "تخصيص قواعد كل جهاز",
+                description: "اضغط على أي جهاز متصل لفتح نافذة التحكم المتقدم: لتحديد باقة خاصة به، تقييد سرعته، جدول ساعات استخدامه، استخدم ايقونة الدرع لتوثيق الجهاز أو أسحب لليسار لحظره تماماً من الشبكة!",
+              ),
+            )
+          ],
+        ),
+      );
+    }
+
+    return targets;
   }
 
   Widget _buildTutorialContent({
