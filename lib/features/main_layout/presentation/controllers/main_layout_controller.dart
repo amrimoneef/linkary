@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/utils/whats_new_helper.dart';
 import '../../../../core/widgets/permissions_dialog.dart';
 
@@ -9,11 +10,18 @@ class MainLayoutController extends GetxController {
   @override
   void onReady() async {
     super.onReady();
-    // عرض "ما الجديد" إذا كان هناك تحديث جديد ولم يتم عرضه بعد
-    WhatsNewHelper.checkAndShowWhatsNew();
     
-    // طلب الصلاحيات إذا لم يتم طلبها من قبل
+    // 1️⃣ أولاً: عرض نافذة "ما الجديد" إذا كان هناك تحديث جديد والانتظار حتى يغلقها المستخدم
+    await WhatsNewHelper.checkAndShowWhatsNew();
+    
+    // 2️⃣ ثانياً: عرض نافذة طلب صلاحيات الإشعارات بعد إغلاق التحديثات
     await PermissionsDialog.showIfNeeded();
+
+    // 3️⃣ ثالثاً: بدء الدرس التفاعلي للشاشة الرئيسية بعد خلو الشاشة من أي حوارات منبثقة
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (Get.isRegistered<TutorialService>() && Get.context != null) {
+      Get.find<TutorialService>().showDashboardTutorial(Get.context!);
+    }
   }
 
   void changePage(int index) {

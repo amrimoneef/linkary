@@ -78,7 +78,7 @@ class TutorialService extends GetxService {
   List<TargetFocus> _targets = [];
 
   void showDashboardTutorial(BuildContext context, {bool force = false}) async {
-    if (_isShowing) return;
+    if (_isShowing || (!force && (Get.isDialogOpen == true || Get.isBottomSheetOpen == true))) return;
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();

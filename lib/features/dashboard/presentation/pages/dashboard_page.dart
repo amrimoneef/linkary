@@ -38,11 +38,6 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      tutorialService.showDashboardTutorial(context);
-    });
-
-    // 🚀 تم إزالة Obx الخارجي من هنا، لأن GetX يعيد بناء الواجهة تلقائياً عند تغيير الثيم
     return Scaffold(
       backgroundColor: bgColor(context),
       body: RefreshIndicator(

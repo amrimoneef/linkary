@@ -42,7 +42,8 @@ class VoiceAssistantController extends GetxController {
          // نترك المعالجة لـ finalResult أو الضغط اليدوي لتجنب التكرار والسباق
       }
     };
-    _speechService.initialize();
+    // 🎙️ تم إزالة التهيئة التلقائية هنا لمنع طلب صلاحية الميكروفون عند فتح التطبيق
+    // يتم تهيئة خدمة التعرف على الصوت وطلب الإذن عند ضغط المستخدم على زر المساعد لأول مرة
   }
 
   void toggleListening() {
