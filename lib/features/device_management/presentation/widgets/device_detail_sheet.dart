@@ -43,21 +43,24 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
   bool deleteSpeedRule = false;
   bool deleteDataRule = false;
 
-  bool hasChanges = false;
+  bool isParentalModified = false;
+  bool isSpeedModified = false;
+  bool isDataLimitModified = false;
+
+  bool get hasChanges => isParentalModified || isSpeedModified || isDataLimitModified;
 
   @override
   void initState() {
     super.initState();
+    final macUpper = widget.device.mac.toUpperCase();
     // Load initial state from controllers
-    draftParentalRule = parCtrl.devicesList.firstWhereOrNull((d) => d.mac == widget.device.mac);
-    draftSpeedRule = spdCtrl.deviceItems.firstWhereOrNull((d) => d.ip == widget.device.ip);
-    draftDataRule = dataCtrl.deviceLimits.firstWhereOrNull((d) => d.mac == widget.device.mac);
+    draftParentalRule = parCtrl.devicesList.firstWhereOrNull((d) => d.mac.toUpperCase() == macUpper);
+    draftSpeedRule = spdCtrl.deviceItems.firstWhereOrNull((d) => (d.ip.isNotEmpty && d.ip == widget.device.ip) || (d.comment.isNotEmpty && d.comment == widget.device.name));
+    draftDataRule = dataCtrl.deviceLimits.firstWhereOrNull((d) => d.mac.toUpperCase() == macUpper);
   }
 
   void _checkChanges() {
-    setState(() {
-      hasChanges = true;
-    });
+    setState(() {});
   }
 
   Future<void> _saveAllChanges() async {
@@ -68,63 +71,93 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
     List<String> successMessages = [];
     List<String> errorMessages = [];
 
-    // Parental Control
-    try {
-      if (deleteParentalRule) {
-        final success = await parCtrl.deleteRuleUseCase.execute(widget.device.mac);
-        if (success) successMessages.add('تم حذف قيود أوقات السماح');
-      } else if (draftParentalRule != null && draftParentalRule!.timeSlots.isNotEmpty) {
-        final slot = draftParentalRule!.timeSlots.first;
-        final success = await parCtrl.saveRuleUseCase.execute(
-          widget.device.mac, slot.startTime, slot.endTime, slot.repeatMode, 0
-        );
-        if (success) successMessages.add('تم تقييد أوقات الجهاز');
+    // 1. Parental Control - فقط في حال تم تعديلها فعلياً
+    if (isParentalModified) {
+      try {
+        if (deleteParentalRule) {
+          final success = await parCtrl.deleteRuleUseCase.execute(widget.device.mac);
+          if (success) successMessages.add('تم حذف قيود أوقات السماح');
+        } else if (draftParentalRule != null && draftParentalRule!.timeSlots.isNotEmpty) {
+          final slot = draftParentalRule!.timeSlots.first;
+          final success = await parCtrl.saveRuleUseCase.execute(
+            widget.device.mac, slot.startTime, slot.endTime, slot.repeatMode, 0
+          );
+          if (success) successMessages.add('تم تقييد أوقات الجهاز');
+        }
+      } catch (e) {
+        errorMessages.add('فشل الأوقات: $e');
       }
-    } catch (e) {
-      errorMessages.add('فشل الأوقات: $e');
     }
 
-    // Speed Limit
-    try {
-      if (deleteSpeedRule) {
-        if (draftSpeedRule != null) {
-          spdCtrl.removeDeviceRule(draftSpeedRule!.index);
-          await spdCtrl.saveUseCase.execute(spdCtrl.isEnabled.value, spdCtrl.selectedMode.value, int.tryParse(spdCtrl.uploadController.text) ?? 248, int.tryParse(spdCtrl.downloadController.text) ?? 248, spdCtrl.deviceItems);
+    // 2. Speed Limit - فقط في حال تم تعديلها فعلياً
+    if (isSpeedModified) {
+      try {
+        if (deleteSpeedRule) {
+          if (draftSpeedRule != null) {
+            spdCtrl.removeDeviceRule(draftSpeedRule!.index);
+            await spdCtrl.saveUseCase.execute(
+              spdCtrl.isEnabled.value, 
+              spdCtrl.selectedMode.value, 
+              int.tryParse(spdCtrl.uploadController.text) ?? 248, 
+              int.tryParse(spdCtrl.downloadController.text) ?? 248, 
+              spdCtrl.deviceItems
+            );
+          }
+          successMessages.add('تم إزالة قيود السرعة');
+        } else if (draftSpeedRule != null) {
+          final existing = spdCtrl.deviceItems.firstWhereOrNull((d) => (d.ip.isNotEmpty && d.ip == widget.device.ip) || (d.comment.isNotEmpty && d.comment == widget.device.name));
+          if (existing != null) {
+            spdCtrl.updateDeviceRule(existing.index, draftSpeedRule!.upSpeed, draftSpeedRule!.dlSpeed);
+          } else {
+            spdCtrl.addDeviceRule(widget.device.ip ?? '', draftSpeedRule!.upSpeed, draftSpeedRule!.dlSpeed, widget.device.name);
+          }
+          await spdCtrl.saveUseCase.execute(
+            spdCtrl.isEnabled.value, 
+            spdCtrl.selectedMode.value, 
+            int.tryParse(spdCtrl.uploadController.text) ?? 248, 
+            int.tryParse(spdCtrl.downloadController.text) ?? 248, 
+            spdCtrl.deviceItems
+          );
+          successMessages.add('تم تحديد السرعة');
         }
-        successMessages.add('تم إزالة قيود السرعة');
-      } else if (draftSpeedRule != null) {
-        final existing = spdCtrl.deviceItems.firstWhereOrNull((d) => d.ip == widget.device.ip);
-        if (existing != null) {
-          spdCtrl.updateDeviceRule(existing.index, draftSpeedRule!.upSpeed, draftSpeedRule!.dlSpeed);
-        } else {
-          spdCtrl.addDeviceRule(widget.device.ip ?? '', draftSpeedRule!.upSpeed, draftSpeedRule!.dlSpeed, widget.device.name);
-        }
-        await spdCtrl.saveUseCase.execute(spdCtrl.isEnabled.value, spdCtrl.selectedMode.value, int.tryParse(spdCtrl.uploadController.text) ?? 248, int.tryParse(spdCtrl.downloadController.text) ?? 248, spdCtrl.deviceItems);
-        successMessages.add('تم تحديد السرعة');
+      } catch (e) {
+        errorMessages.add('فشل السرعة: $e');
       }
-    } catch (e) {
-      errorMessages.add('فشل السرعة: $e');
     }
 
-    // Data Limit
-    try {
-      if (deleteDataRule) {
-        final success = await dataCtrl.deleteLimitItem(widget.device.mac, showSnackbar: false);
-        if (success) successMessages.add('تم إزالة قيد البيانات');
-        else errorMessages.add('فشل إزالة الباقة');
-      } else if (draftDataRule != null) {
-        final existing = dataCtrl.deviceLimits.firstWhereOrNull((d) => d.mac == widget.device.mac);
-        bool success = false;
-        if (existing != null) {
-          success = await dataCtrl.updateLimitItem(int.tryParse(existing.index) ?? 0, widget.device.mac, draftDataRule!.quotaBytes, widget.device.name, showSnackbar: false);
-        } else {
-          success = await dataCtrl.addLimitItem(widget.device.mac, draftDataRule!.quotaBytes, widget.device.name, showSnackbar: false);
+    // 3. Data Limit - فقط في حال تم تعديلها فعلياً (لمنع تصفير العداد على المودم)
+    if (isDataLimitModified) {
+      try {
+        final macUpper = widget.device.mac.toUpperCase();
+        if (deleteDataRule) {
+          final success = await dataCtrl.deleteLimitItem(widget.device.mac, showSnackbar: false);
+          if (success) successMessages.add('تم إزالة قيد البيانات');
+          else errorMessages.add('فشل إزالة الباقة');
+        } else if (draftDataRule != null) {
+          final existing = dataCtrl.deviceLimits.firstWhereOrNull((d) => d.mac.toUpperCase() == macUpper);
+          bool success = false;
+          if (existing != null) {
+            success = await dataCtrl.updateLimitItem(
+              int.tryParse(existing.index) ?? 0, 
+              widget.device.mac, 
+              draftDataRule!.quotaBytes, 
+              widget.device.name, 
+              showSnackbar: false
+            );
+          } else {
+            success = await dataCtrl.addLimitItem(
+              widget.device.mac, 
+              draftDataRule!.quotaBytes, 
+              widget.device.name, 
+              showSnackbar: false
+            );
+          }
+          if (success) successMessages.add('تم تحديد الباقة');
+          else errorMessages.add('فشل تحديد الباقة');
         }
-        if (success) successMessages.add('تم تحديد الباقة');
-        else errorMessages.add('فشل تحديد الباقة');
+      } catch (e) {
+        errorMessages.add('فشل الباقة: $e');
       }
-    } catch (e) {
-      errorMessages.add('فشل الباقة: $e');
     }
 
     setState(() {
@@ -286,11 +319,13 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                             TimeSlot(index: 0, startTime: sTime, endTime: eTime, repeatMode: mask)
                           ]);
                           deleteParentalRule = false;
+                          isParentalModified = true;
                           _checkChanges();
                           Get.back();
                         },
                         onDeleteDraft: draftParentalRule != null ? () {
                           deleteParentalRule = true;
+                          isParentalModified = true;
                           _checkChanges();
                           Get.back();
                         } : null,
@@ -313,13 +348,15 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                         preSelectedIp: widget.device.ip, 
                         preSelectedName: widget.device.name,
                         onSaveDraft: (up, down) {
-                          draftSpeedRule = SpeedLimitItem(index: 0, ip: widget.device.ip ?? '', upSpeed: up, dlSpeed: down, comment: widget.device.name);
+                          draftSpeedRule = SpeedLimitItem(index: draftSpeedRule?.index ?? 0, ip: widget.device.ip ?? '', upSpeed: up, dlSpeed: down, comment: widget.device.name);
                           deleteSpeedRule = false;
+                          isSpeedModified = true;
                           _checkChanges();
                           Get.back();
                         },
                         onDeleteDraft: draftSpeedRule != null ? () {
                           deleteSpeedRule = true;
+                          isSpeedModified = true;
                           _checkChanges();
                           Get.back();
                         } : null,
@@ -356,21 +393,23 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                         preSelectedName: widget.device.name,
                         onSaveDraft: (bytes) {
                           draftDataRule = DeviceDataLimit(
-                            index: '0',
+                            index: draftDataRule?.index ?? '0',
                             hostname: widget.device.name,
                             mac: widget.device.mac, 
                             quotaBytes: bytes, 
-                            status: '1', 
-                            currentUsageBytes: 0,
+                            status: draftDataRule?.status ?? '1', 
+                            currentUsageBytes: draftDataRule?.currentUsageBytes ?? 0,
                             comment: widget.device.name,
-                            recordData: ''
+                            recordData: draftDataRule?.recordData ?? ''
                           );
                           deleteDataRule = false;
+                          isDataLimitModified = true;
                           _checkChanges();
                           Get.back();
                         },
                         onDeleteDraft: draftDataRule != null ? () {
                           deleteDataRule = true;
+                          isDataLimitModified = true;
                           _checkChanges();
                           Get.back();
                         } : null,
