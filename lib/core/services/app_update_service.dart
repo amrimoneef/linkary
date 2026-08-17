@@ -10,8 +10,10 @@ class AppUpdateService {
     if (!Platform.isAndroid) return;
 
     try {
-      // 1. فحص وجود تحديث في متجر جوجل بلاي
-      final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
+      // 1. فحص وجود تحديث في متجر جوجل بلاي بمهلة سريعة جداً (2.5 ثانية كحد أقصى) لتجنب تعليق شاشة البداية
+      final AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate().timeout(
+        const Duration(milliseconds: 2500),
+      );
 
       // 2. إذا توفر تحديث 
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {

@@ -77,8 +77,28 @@ class TutorialService extends GetxService {
   int _currentIndex = 0;
   List<TargetFocus> _targets = [];
 
+  BuildContext? _getValidOverlayContext(BuildContext context, [GlobalKey? targetKey]) {
+    try {
+      if (Overlay.maybeOf(context) != null) return context;
+      if (Get.overlayContext != null && Overlay.maybeOf(Get.overlayContext!) != null) {
+        return Get.overlayContext;
+      }
+      if (targetKey?.currentContext != null && Overlay.maybeOf(targetKey!.currentContext!) != null) {
+        return targetKey.currentContext;
+      }
+      if (Get.key.currentContext != null && Overlay.maybeOf(Get.key.currentContext!) != null) {
+        return Get.key.currentContext;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   void showDashboardTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing || (!force && (Get.isDialogOpen == true || Get.isBottomSheetOpen == true))) return;
+    
+    final validContext = _getValidOverlayContext(context, helpButtonKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -116,7 +136,7 @@ class TutorialService extends GetxService {
           _isShowing = false;
           return true;
         },
-      ).show(context: context);
+      ).show(context: validContext);
     } else {
       _isShowing = false;
     }
@@ -124,6 +144,9 @@ class TutorialService extends GetxService {
 
   void showNetworkInfoTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing) return;
+    final validContext = _getValidOverlayContext(context, networkInfoHelpKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -167,6 +190,9 @@ class TutorialService extends GetxService {
 
   void showAllSettingsTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing) return;
+    final validContext = _getValidOverlayContext(context, allSettingsHelpKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -202,7 +228,7 @@ class TutorialService extends GetxService {
           _isShowing = false;
           return true;
         },
-      ).show(context: context);
+      ).show(context: validContext);
     } else {
       _isShowing = false;
     }
@@ -210,6 +236,9 @@ class TutorialService extends GetxService {
 
   void showBillTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing) return;
+    final validContext = _getValidOverlayContext(context, billHelpKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -245,7 +274,7 @@ class TutorialService extends GetxService {
           _isShowing = false;
           return true;
         },
-      ).show(context: context);
+      ).show(context: validContext);
     } else {
       _isShowing = false;
     }
@@ -253,6 +282,9 @@ class TutorialService extends GetxService {
 
   void showAppMonitorTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing) return;
+    final validContext = _getValidOverlayContext(context, appMonitorHelpKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -288,7 +320,7 @@ class TutorialService extends GetxService {
           _isShowing = false;
           return true;
         },
-      ).show(context: context);
+      ).show(context: validContext);
     } else {
       _isShowing = false;
     }
@@ -296,6 +328,9 @@ class TutorialService extends GetxService {
 
   void showAppDetailTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing) return;
+    final validContext = _getValidOverlayContext(context, appDetailHelpKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -332,7 +367,7 @@ class TutorialService extends GetxService {
           _isShowing = false;
           return true;
         },
-      ).show(context: context);
+      ).show(context: validContext);
     } else {
       _isShowing = false;
     }
@@ -340,6 +375,9 @@ class TutorialService extends GetxService {
 
   void showDeviceManagementTutorial(BuildContext context, {bool force = false}) async {
     if (_isShowing) return;
+    final validContext = _getValidOverlayContext(context, deviceManagementHelpKey);
+    if (validContext == null) return;
+
     _isShowing = true;
 
     prefs = await SharedPreferences.getInstance();
@@ -375,7 +413,7 @@ class TutorialService extends GetxService {
           _isShowing = false;
           return true;
         },
-      ).show(context: context);
+      ).show(context: validContext);
     } else {
       _isShowing = false;
     }

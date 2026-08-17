@@ -45,10 +45,9 @@ class _BannersCarouselWidgetState extends State<BannersCarouselWidget> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isLoading.value) {
+      if (controller.isLoading.value && controller.banners.isEmpty) {
         return const SizedBox(
           height: 140,
-          // Show empty space or you can add GlassCard if preferred
         );
       }
 

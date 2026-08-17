@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../domain/entities/banner_entity.dart';
 import '../../domain/usecases/get_banners_usecase.dart';
+import '../../infrastructure/models/banner_model.dart';
 
 class BannersController extends GetxController {
   final GetBannersUseCase getBannersUseCase;
@@ -22,6 +25,9 @@ class BannersController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // 🚀 عرض البانرات المخزنة فوراً في 0 ثانية (Cache-First)
+    _loadCachedBanners();
+    // 🔄 تحديث البانرات من الخادم في الخلفية
     fetchBanners();
   }
 
@@ -29,6 +35,39 @@ class BannersController extends GetxController {
   void onClose() {
     _timer?.cancel();
     super.onClose();
+  }
+
+  /// تحميل البانرات من الكاش المحلي فوراً دون انتظار أي استجابة من الشبكة
+  void _loadCachedBanners() {
+    try {
+      if (Get.isRegistered<SharedPreferences>()) {
+        final prefs = Get.find<SharedPreferences>();
+        final cachedString = prefs.getString('cached_banners_data');
+        if (cachedString != null && cachedString.isNotEmpty) {
+          final List<dynamic> jsonList = jsonDecode(cachedString);
+          final cached = jsonList.map((json) => BannerModel.fromJson(json as Map<String, dynamic>)).toList();
+          final now = DateTime.now();
+          
+          final validCached = cached.where((banner) {
+            if (banner.expiresAt != null && banner.expiresAt!.isNotEmpty) {
+              final expiryDate = DateTime.tryParse(banner.expiresAt!);
+              if (expiryDate != null && now.isAfter(expiryDate)) {
+                return false;
+              }
+            }
+            return true;
+          }).toList();
+
+          if (validCached.isNotEmpty) {
+            banners.value = validCached;
+            isLoading.value = false;
+            _startAutoSlide();
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) print("⚠️ Error loading cached banners: $e");
+    }
   }
 
   Future<void> fetchBanners() async {
@@ -41,7 +80,7 @@ class BannersController extends GetxController {
       final result = await getBannersUseCase.execute();
       
       final now = DateTime.now();
-      banners.value = result.where((banner) {
+      final validBanners = result.where((banner) {
         if (banner.expiresAt != null && banner.expiresAt!.isNotEmpty) {
           final expiryDate = DateTime.tryParse(banner.expiresAt!);
           if (expiryDate != null && now.isAfter(expiryDate)) {
@@ -51,9 +90,10 @@ class BannersController extends GetxController {
         return true;
       }).toList();
       
-      if (banners.isNotEmpty) {
+      if (validBanners.isNotEmpty) {
+        banners.value = validBanners;
         _startAutoSlide();
-        _precacheBanners(result);
+        _precacheBanners(validBanners);
       }
     } catch (e) {
       errorMessage.value = e.toString();
@@ -66,8 +106,10 @@ class BannersController extends GetxController {
   Future<void> _precacheBanners(List<BannerEntity> fetchedBanners) async {
     for (var banner in fetchedBanners) {
       try {
-        final provider = CachedNetworkImageProvider(banner.imageUrl);
-        provider.resolve(const ImageConfiguration());
+        if (banner.imageUrl.isNotEmpty) {
+          final provider = CachedNetworkImageProvider(banner.imageUrl);
+          provider.resolve(const ImageConfiguration());
+        }
       } catch (e) {
         if (kDebugMode) print("❌ Error precaching banner: $e");
       }

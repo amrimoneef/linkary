@@ -6,6 +6,7 @@ import '../../domain/usecases/delete_device_data_limit_usecase.dart';
 import '../../domain/usecases/get_device_data_limit_enable_usecase.dart';
 import '../../domain/usecases/get_device_data_limit_list_usecase.dart';
 import '../../domain/usecases/set_device_data_limit_enable_usecase.dart';
+import '../../../../core/utils/session_helper.dart';
 import '../../../../core/widgets/custom_snackbar.dart';
 
 class DeviceDataLimitController extends GetxController {
@@ -52,9 +53,11 @@ class DeviceDataLimitController extends GetxController {
       deviceLimits.value = await _getListUseCase();
       isFeatureSupported.value = true;
     } catch (e) {
+      if (SessionHelper.handleSessionError(e)) return;
       final errorStr = e.toString();
       if (errorStr.contains('100002') || 
           errorStr.contains('100003') || 
+          errorStr.contains('SESSION_EXPIRED') ||
           errorStr.contains('Connection reset by peer') ||
           errorStr.contains('FormatException') ||
           errorStr.contains('FEATURE_NOT_SUPPORTED') ||

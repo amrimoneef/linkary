@@ -18,69 +18,77 @@ class BannersRepositoryImpl implements BannersRepository {
     final prefs = Get.find<SharedPreferences>();
     const cacheKey = 'cached_banners_data';
 
+    // 1. استرجاع الكاش القديم فوراً
+    final cachedString = prefs.getString(cacheKey);
+    List<BannerModel> oldCache = [];
+    if (cachedString != null && cachedString.isNotEmpty) {
+      try {
+        final List<dynamic> jsonList = jsonDecode(cachedString);
+        oldCache = jsonList.map((json) => BannerModel.fromJson(json as Map<String, dynamic>)).toList();
+      } catch (_) {}
+    }
+
     try {
-      final banners = await remoteDataSource.getBanners();
+      final banners = await remoteDataSource.getBanners().timeout(const Duration(seconds: 3));
       
-      // Load old cache to fallback on images if network is slow
-      final cachedString = prefs.getString(cacheKey);
-      List<BannerModel> oldCache = [];
-      if (cachedString != null && cachedString.isNotEmpty) {
-        try {
-          final List<dynamic> jsonList = jsonDecode(cachedString);
-          oldCache = jsonList.map((json) => BannerModel.fromJson(json as Map<String, dynamic>)).toList();
-        } catch (_) {}
-      }
-      
-      final List<BannerModel> bannersWithImages = [];
-      for (var banner in banners) {
+      // 2. معالجة الصور بالتوازي (Parallel Execution) واستخدام الكاش المسبق للصور المخزنة
+      final tasks = banners.map((banner) async {
+        final oldBanner = oldCache.firstWhereOrNull((b) => b.id == banner.id && b.imageUrl == banner.imageUrl);
+        
+        // إذا كانت الصورة مخزنة مسبقاً في الكاش، نستخدمها فوراً دون أي اتصال بالإنترنت
+        if (oldBanner?.localImageBase64 != null && oldBanner!.localImageBase64!.isNotEmpty) {
+          return BannerModel(
+            id: banner.id,
+            imageUrl: banner.imageUrl,
+            link: banner.link,
+            expiresAt: banner.expiresAt,
+            app: banner.app,
+            localImageBase64: oldBanner.localImageBase64,
+          );
+        }
+
+        // إذا كانت الصورة جديدة ولم تُخزن بعد، نحملها بمهلة سريعة
         String? base64Image;
         bool isImageDeleted = false;
-        
         try {
-          final response = await http.get(Uri.parse(banner.imageUrl)).timeout(const Duration(seconds: 5));
+          final response = await http.get(Uri.parse(banner.imageUrl)).timeout(const Duration(seconds: 2));
           if (response.statusCode == 200) {
             base64Image = base64Encode(response.bodyBytes);
           } else if (response.statusCode == 404 || response.statusCode == 403) {
-            isImageDeleted = true; // Image deleted or forbidden on server
+            isImageDeleted = true;
           }
         } catch (e) {
-          if (kDebugMode) print('Failed to download image for base64: $e');
-        }
-        
-        // Skip adding this banner if its image was explicitly deleted/not found
-        if (isImageDeleted) continue;
-        
-        // Fallback to old cached image if download failed (e.g., timeout)
-        if (base64Image == null) {
-          final oldBanner = oldCache.firstWhereOrNull((b) => b.id == banner.id && b.imageUrl == banner.imageUrl);
-          base64Image = oldBanner?.localImageBase64;
+          if (kDebugMode) print('Failed to download new banner image: $e');
         }
 
-        bannersWithImages.add(BannerModel(
+        if (isImageDeleted) return null;
+
+        return BannerModel(
           id: banner.id,
           imageUrl: banner.imageUrl,
           link: banner.link,
           expiresAt: banner.expiresAt,
           app: banner.app,
           localImageBase64: base64Image,
-        ));
-      }
+        );
+      });
 
-      // Cache the result
-      final List<Map<String, dynamic>> jsonList = bannersWithImages.map((b) => b.toJson()).toList();
-      await prefs.setString(cacheKey, jsonEncode(jsonList));
-      return bannersWithImages;
+      final results = await Future.wait(tasks);
+      final List<BannerModel> validBanners = results.whereType<BannerModel>().toList();
+
+      // 3. تحديث الكاش
+      if (validBanners.isNotEmpty) {
+        final List<Map<String, dynamic>> jsonList = validBanners.map((b) => b.toJson()).toList();
+        await prefs.setString(cacheKey, jsonEncode(jsonList));
+        return validBanners;
+      } else if (oldCache.isNotEmpty) {
+        return oldCache;
+      }
+      return validBanners;
     } catch (e) {
-      if (kDebugMode) print('Failed to fetch banners, trying cache. Error: $e');
-      // Fallback to cache
-      final cachedString = prefs.getString(cacheKey);
-      if (cachedString != null && cachedString.isNotEmpty) {
-        try {
-          final List<dynamic> jsonList = jsonDecode(cachedString);
-          return jsonList.map((json) => BannerModel.fromJson(json as Map<String, dynamic>)).toList();
-        } catch (cacheError) {
-          if (kDebugMode) print('Failed to parse cached banners: $cacheError');
-        }
+      if (kDebugMode) print('Failed to fetch banners from network, using cache: $e');
+      if (oldCache.isNotEmpty) {
+        return oldCache;
       }
       rethrow;
     }

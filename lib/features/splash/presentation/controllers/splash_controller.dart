@@ -31,9 +31,11 @@ class SplashController extends GetxController {
   }
 
   Future<void> _initApp() async {
-    // 0. التحقق الإجباري من التحديثات قبل الدخول للتطبيق
+    // 0. التحقق السريع من التحديثات (مهلة 1.5 ثانية كحد أقصى لتفادي تعليق البداية عند انعدام الإنترنت)
     loadingText.value = 'التحقق من التحديثات...';
-    await AppUpdateService.checkForUpdate();
+    try {
+      await AppUpdateService.checkForUpdate().timeout(const Duration(milliseconds: 2500));
+    } catch (_) {}
 
     // 1. Check onboarding status
     final onboardingVisited = await SessionManager.isOnboardingVisited();
