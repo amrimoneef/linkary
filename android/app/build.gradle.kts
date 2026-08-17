@@ -72,6 +72,18 @@ android {
             useLegacyPackaging = false
         }
     }
+
+    bundle {
+        language {
+            enableSplit = false // 🌍 يمنع فصل اللغات لتجنب تعليق التنزيل عند 60%-99%
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
 }
 
 kotlin {
