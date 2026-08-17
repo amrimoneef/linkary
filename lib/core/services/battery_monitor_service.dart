@@ -51,7 +51,7 @@ class BatteryMonitorService {
     try {
       // debugPrint('🔋 [BATTERY_MONITOR] checkBatteryAndNotify started');
       final prefs = await SharedPreferences.getInstance();
-      final isEnabled = prefs.getBool('battery_monitor_enabled') ?? false;
+      final isEnabled = prefs.getBool('battery_monitor_enabled') ?? true;
       
       // debugPrint('🔋 [BATTERY_MONITOR] isEnabled: $isEnabled');
       if (!isEnabled) {

@@ -271,7 +271,7 @@ class AllSettingsPage extends StatelessWidget {
         // 8. إدارة التنبيهات
         _buildSettingCard(
           title: 'إدارة التنبيهات',
-          subtitle: 'تنبيهات البطارية ورصيد البيانات',
+          subtitle: 'تنبيهات الأجهزة، البطارية، والرصيد',
           icon: Iconsax.notification,
           gradientColors: const [Color(0xFF81C784), Color(0xFF388E3C)],
           onTap: () => Get.to(() => const BatterySettingsPage()),

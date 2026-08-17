@@ -99,9 +99,10 @@ class SessionManager {
     );
   }
 
-  /// هل إشعارات الأجهزة في الخلفية مفعلة؟ (الافتراضي: غير مفعل)
+  /// هل إشعارات الأجهزة في الخلفية مفعلة؟ (الافتراضي: مفعل)
   static Future<bool> isBackgroundDeviceMonitorEnabled([String? sn]) async {
     final val = await _storage.read(key: _getKey(_bgDeviceMonitorEnabledKey, sn));
+    if (val == null) return true; // تفعيل تلقائي عند التثبيت الجديد
     return val == 'true';
   }
 
