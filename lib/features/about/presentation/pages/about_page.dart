@@ -8,6 +8,7 @@ import 'package:linkary/core/theme/app_colors.dart';
 import 'package:linkary/core/widgets/glass_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../../../../core/services/app_update_service.dart';
 import '../../../../core/widgets/custom_snackbar.dart';
 
 class AboutPage extends StatelessWidget {
@@ -20,93 +21,84 @@ class AboutPage extends StatelessWidget {
     // الألوان الديناميكية
     final textColor = isDark ? Colors.white : const Color(0xFF111827);
     final subTextColor = isDark ? Colors.white54 : const Color(0xFF6B7280);
-    final glowColor = Color(0xff4a90e2);
+    final glowColor = const Color(0xff4a90e2);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      extendBodyBehindAppBar: true, // لجعل الخلفية المتوهجة تمتد خلف شريط التطبيق
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: textColor),
-          onPressed: () => Get.back(),
-        ),
-      ),
+      backgroundColor: isDark ? const Color(0xFF0A0E21) : const Color(0xFFF4F7FC),
       body: Stack(
         children: [
-          // 🌌 1. التوهج الدائري السحري (Radial Glow) في الخلفية
+          // 🌌 خلفية الإشعاع والتوهج
           Positioned(
             top: -100,
-            right: -50,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    glowColor.withValues(alpha: isDark ? 0.3 : 0.15),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.2, 1.0],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -150,
             left: -100,
             child: Container(
-              width: 300,
-              height: 300,
+              width: 350,
+              height: 350,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    glowColor.withValues(alpha: isDark ? 0.15 : 0.05),
-                    Colors.transparent,
+                    glowColor.withValues(alpha: isDark ? 0.3 : 0.2),
+                    glowColor.withValues(alpha: 0.0),
                   ],
                   stops: const [0.2, 1.0],
                 ),
               ),
             ),
           ),
-
-          // 📝 2. المحتوى الرئيسي
           SafeArea(
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  // 🔙 زر الرجوع + العنوان
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios, color: textColor, size: 20),
+                        onPressed: () => Get.back(),
+                      ),
+                      Text(
+                        'حول التطبيق',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 48), // لموازنة التوسيط
+                    ],
+                  ),
+                  const SizedBox(height: 10),
 
-                  // 🚀 أيقونة التطبيق (بتصميم 3D متوهج)
-                  Container(
-                    width: 110,
-                    height: 110,
-                    decoration: BoxDecoration(
-                      // gradient: LinearGradient(
-                      //   colors: [glowColor.withValues(alpha: 0.8), glowColor],
-                      //   begin: Alignment.topLeft,
-                      //   end: Alignment.bottomRight,
-                      // ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: glowColor.withValues(alpha: 0.4),
-                          blurRadius: 25,
-                          offset: const Offset(0, 10),
-                        )
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Image.asset('assets/images/app_logo.png'),
+                  // 💎 أيقونة التطبيق الكبيرة
+                  Hero(
+                    tag: 'app_logo_hero',
+                    child: Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: glowColor.withValues(alpha: 0.4),
+                            blurRadius: 25,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/app_logo.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 15),
 
                   // 📝 اسم التطبيق والإصدار
                   Image.asset(
@@ -115,24 +107,34 @@ class AboutPage extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: glowColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: glowColor.withValues(alpha: 0.3)),
-                    ),
-                    child: FutureBuilder<PackageInfo>(
-                      future: PackageInfo.fromPlatform(),
-                      builder: (context, snapshot) {
-                        final versionString = snapshot.hasData 
-                            ? '${snapshot.data!.version} (${snapshot.data!.buildNumber})' 
-                            : '...';
-                        return Text(
-                          'الإصدار $versionString',
-                          style: TextStyle(color: glowColor, fontWeight: FontWeight.bold, fontSize: 12),
-                        );
-                      },
+                  GestureDetector(
+                    onTap: () => AppUpdateService.checkForUpdate(isManual: true),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: glowColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: glowColor.withValues(alpha: 0.3)),
+                      ),
+                      child: FutureBuilder<PackageInfo>(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snapshot) {
+                          final versionString = snapshot.hasData 
+                              ? '${snapshot.data!.version} (${snapshot.data!.buildNumber})' 
+                              : '...';
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Iconsax.refresh, color: glowColor, size: 14),
+                              const SizedBox(width: 6),
+                              Text(
+                                'الإصدار $versionString  •  فحص التحديثات',
+                                style: TextStyle(color: glowColor, fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 15),
