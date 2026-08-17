@@ -19,7 +19,7 @@ class BackgroundDeviceMonitor {
   static Future<void> checkDevicesAndNotify() async {
     try {
       WidgetsFlutterBinding.ensureInitialized();
-      debugPrint('🔍 [BG Device Monitor] Task started');
+      // debugPrint('🔍 [BG Device Monitor] Task started');
 
       // 1. جلب الرقم التسلسلي الأخير للمودم
       final sn = await SessionManager.getLastSN();
@@ -31,7 +31,7 @@ class BackgroundDeviceMonitor {
       }
 
       if (!isEnabled) {
-        debugPrint('⏸️ [BG Device Monitor] Feature disabled in settings');
+        // debugPrint('⏸️ [BG Device Monitor] Feature disabled in settings');
         return;
       }
 
@@ -52,7 +52,7 @@ class BackgroundDeviceMonitor {
         }
 
         if (sessionId == null || sessionId.isEmpty) {
-          debugPrint('❌ [BG Device Monitor] No sessionId or password available');
+          // debugPrint('❌ [BG Device Monitor] No sessionId or password available');
           return;
         }
 
@@ -237,13 +237,13 @@ class BackgroundDeviceMonitor {
           await SessionManager.saveSessionId(sessionId, sn);
           await SessionManager.saveSessionId(sessionId); // fallback
           await SessionManager.setLastHeartbeat(DateTime.now(), sn);
-          debugPrint('🔑 [BG Silent Login] Successfully generated new session ID');
+          // debugPrint('🔑 [BG Silent Login] Successfully generated new session ID');
           return sessionId;
         }
       }
       return null;
     } catch (e) {
-      debugPrint('🔑 [BG Silent Login] Failed: $e');
+      // debugPrint('🔑 [BG Silent Login] Failed: $e');
       return null;
     }
   }

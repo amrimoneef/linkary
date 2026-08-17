@@ -49,11 +49,11 @@ class BatteryMonitorService {
 
   static Future<void> checkBatteryAndNotify() async {
     try {
-      debugPrint('🔋 [BATTERY_MONITOR] checkBatteryAndNotify started');
+      // debugPrint('🔋 [BATTERY_MONITOR] checkBatteryAndNotify started');
       final prefs = await SharedPreferences.getInstance();
       final isEnabled = prefs.getBool('battery_monitor_enabled') ?? false;
       
-      debugPrint('🔋 [BATTERY_MONITOR] isEnabled: $isEnabled');
+      // debugPrint('🔋 [BATTERY_MONITOR] isEnabled: $isEnabled');
       if (!isEnabled) {
         return;
       }
@@ -63,7 +63,7 @@ class BatteryMonitorService {
       final lastAlert = prefs.getString('last_battery_alert') ?? 'normal';
       int alertCount = prefs.getInt('battery_alert_count') ?? 0;
       
-      debugPrint('🔋 [BATTERY_MONITOR] lowThreshold: $lowThreshold, notifyFull: $notifyFull, lastAlert: $lastAlert, alertCount: $alertCount');
+      // debugPrint('🔋 [BATTERY_MONITOR] lowThreshold: $lowThreshold, notifyFull: $notifyFull, lastAlert: $lastAlert, alertCount: $alertCount');
 
       final response = await http.post(
         Uri.parse('$modemBaseUrl/api.cgi?path=aoc&method=get_bat_info&timeout=10'),
@@ -79,10 +79,10 @@ class BatteryMonitorService {
         }),
       ).timeout(const Duration(seconds: 10));
 
-      debugPrint('🔋 [BATTERY_MONITOR] API Response Status: ${response.statusCode}');
+      // debugPrint('🔋 [BATTERY_MONITOR] API Response Status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        debugPrint('🔋 [BATTERY_MONITOR] Raw Response: ${response.body}');
+        // debugPrint('🔋 [BATTERY_MONITOR] Raw Response: ${response.body}');
         final data = jsonDecode(response.body);
         
         int capacity = 0;
@@ -93,14 +93,14 @@ class BatteryMonitorService {
           capacity = int.tryParse(data['capacity']?.toString() ?? '0') ?? 0;
           status = int.tryParse(data['status']?.toString() ?? '0') ?? 0;
           hasData = true;
-          debugPrint('🔋 [BATTERY_MONITOR] Parsed direct JSON: capacity=$capacity, status=$status');
+          // debugPrint('🔋 [BATTERY_MONITOR] Parsed direct JSON: capacity=$capacity, status=$status');
         } else if (data['responses'] != null && data['responses'].isNotEmpty) {
           final batData = data['responses'][0]['data'];
           if (batData != null) {
             capacity = int.tryParse(batData['capacity']?.toString() ?? '0') ?? 0;
             status = int.tryParse(batData['status']?.toString() ?? '0') ?? 0;
             hasData = true;
-            debugPrint('🔋 [BATTERY_MONITOR] Parsed wrapped JSON: capacity=$capacity, status=$status');
+            // debugPrint('🔋 [BATTERY_MONITOR] Parsed wrapped JSON: capacity=$capacity, status=$status');
           }
         }
 

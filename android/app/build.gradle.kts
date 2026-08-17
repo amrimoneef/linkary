@@ -18,17 +18,13 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.sam4g.app_settings"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     // 🔑 إعداد توقيع النسخة الإنتاجية
@@ -70,11 +66,17 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         jniLibs {
             // 🚀 هذا السطر يمنع ضغط مكتبات الـ Native ويجعلها متوافقة مع الـ 16KB تلقائياً
             useLegacyPackaging = false
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 

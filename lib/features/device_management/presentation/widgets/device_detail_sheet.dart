@@ -317,19 +317,24 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                   _buildFeatureCard(
                     title: 'تحديد الباقة',
                     subtitle: !dataCtrl.isFeatureSupported.value 
-                        ? 'سيتم دعم الميزة في التحديث القادم للمودم'
+                        ? 'قريباً في التحديث القادم للمودم'
                         : (draftDataRule != null && !deleteDataRule) 
                             ? 'مُفعل - ${_formatBytes(draftDataRule!.quotaBytes)}' 
                             : 'تحديد كمية البيانات المسموح باستهلاكها',
                     icon: Iconsax.data,
                     color: !dataCtrl.isFeatureSupported.value 
-                        ? Colors.grey 
+                        ? const Color(0xFF8B5CF6) 
                         : (draftDataRule != null && !deleteDataRule) ? Colors.greenAccent : subTextColor,
                     cardColor: cardColor,
-                    textColor: !dataCtrl.isFeatureSupported.value ? Colors.grey : textColor,
-                    subTextColor: !dataCtrl.isFeatureSupported.value ? Colors.grey : subTextColor,
+                    textColor: textColor,
+                    subTextColor: !dataCtrl.isFeatureSupported.value ? const Color(0xFF8B5CF6) : subTextColor,
                     onTap: !dataCtrl.isFeatureSupported.value 
-                        ? () { CustomSnackbar.showInfo('غير مدعوم', 'هذا المودم لا يدعم حالياً تحديد الباقة، سيتم دعمه قريباً في تحديث قادم.'); }
+                        ? () { 
+                            CustomSnackbar.showInfo(
+                              'ميزة جديدة في طريقها لمودمك!', 
+                              'يجري حالياً إطلاق التحديث الجديد للمودم تدريجياً من الشركة المصنعة لتفعيل التحكم في باقات واستهلاك الأجهزة. ستعمل الميزة تلقائياً فور وصول التحديث لجهازك.'
+                            ); 
+                          }
                         : () {
                       DataRuleEditorSheet.show(
                         context, 

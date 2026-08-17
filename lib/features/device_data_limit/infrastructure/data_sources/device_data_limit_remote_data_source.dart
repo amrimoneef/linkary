@@ -37,13 +37,21 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
     return sessionId;
   }
 
+  dynamic _safeJsonDecode(String body) {
+    final trimmed = body.trim();
+    if (trimmed.isEmpty || (!trimmed.startsWith('{') && !trimmed.startsWith('['))) {
+      throw const FormatException('FEATURE_NOT_SUPPORTED');
+    }
+    return jsonDecode(trimmed);
+  }
+
   @override
   Future<bool> getEnableStatus() async {
     final time = DateTime.now().millisecondsSinceEpoch;
     final url = '$baseUrl/api.cgi?path=statistics&method=get_user_data_limit_enable&timeout=20&_=$time';
     
     final response = await client.get(Uri.parse(url), headers: _getHeaders(_sessionId));
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     return data['enable'] == 1;
   }
 
@@ -60,7 +68,7 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
       headers: _getHeaders(_sessionId), 
       body: jsonEncode(payload)
     );
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     return data['result'] == 0;
   }
 
@@ -70,7 +78,7 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
     final url = '$baseUrl/api.cgi?path=statistics&method=get_user_data_limit_list&timeout=20&_=$time';
     
     final response = await client.get(Uri.parse(url), headers: _getHeaders(_sessionId));
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     
     if (data['user_list'] != null) {
       return (data['user_list'] as List)
@@ -95,7 +103,7 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
       headers: _getHeaders(_sessionId), 
       body: jsonEncode(payload)
     );
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     return data['result'] == 0;
   }
 
@@ -115,7 +123,7 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
       headers: _getHeaders(_sessionId), 
       body: jsonEncode(payload)
     );
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     return data['result'] == 0;
   }
 
@@ -132,7 +140,7 @@ class DeviceDataLimitRemoteDataSourceImpl implements DeviceDataLimitRemoteDataSo
       headers: _getHeaders(_sessionId), 
       body: jsonEncode(payload)
     );
-    final data = jsonDecode(response.body);
+    final data = _safeJsonDecode(response.body);
     return data['result'] == 0;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import '../../../../core/widgets/custom_snackbar.dart';
 import '../controllers/device_data_limit_controller.dart';
 import '../../../connected_devices/presentation/controllers/connected_devices_controller.dart';
 import '../../domain/entities/device_data_limit.dart';
@@ -14,7 +15,8 @@ class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
   Color get cardColor => Get.isDarkMode ? const Color(0xFF16213E) : Colors.white;
   Color get textColor => Get.isDarkMode ? Colors.white : const Color(0xFF111827);
   Color get subTextColor => Get.isDarkMode ? Colors.white54 : const Color(0xFF6B7280);
-  Color get glowColor => Get.isDarkMode ? const Color(0xFF8B5CF6) : const Color(0xFFA78BFA); // Purple glow for data limit
+  Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(
+      0xFF538ACA); // Purple glow for data limit
 
   @override
   Widget build(BuildContext context) {
@@ -88,25 +90,30 @@ class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
                       const SizedBox(height: 35),
 
                       // ==========================================
-                      // 1. مفتاح التفعيل الرئيسي
-                      _buildMainToggle(),
-                      const SizedBox(height: 25),
+                      // 1. حالة الميزة (مدعومة أو قادمة في التحديث)
+                      if (!controller.isFeatureSupported.value) ...[
+                        _buildComingSoonView(context),
+                      ] else ...[
+                        // مفتاح التفعيل الرئيسي
+                        _buildMainToggle(),
+                        const SizedBox(height: 25),
 
-                      // 2. 🌟 العرض الديناميكي للأجهزة
-                      if (controller.isEnabled.value) ...[
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 400),
-                          transitionBuilder: (child, animation) => FadeTransition(
-                            opacity: animation,
-                            child: SlideTransition(
-                              position: Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero).animate(animation),
-                              child: child,
+                        // 🌟 العرض الديناميكي للأجهزة
+                        if (controller.isEnabled.value) ...[
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 400),
+                            transitionBuilder: (child, animation) => FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero).animate(animation),
+                                child: child,
+                              ),
                             ),
+                            child: _buildDeviceMode(context),
                           ),
-                          child: _buildDeviceMode(context),
-                        ),
-                        const SizedBox(height: 40),
-                      ]
+                          const SizedBox(height: 40),
+                        ]
+                      ],
                     ],
                   ),
                 ),
@@ -116,6 +123,202 @@ class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
         ),
       );
     });
+  }
+
+  // ==========================================
+  // 🚀 واجهة الميزة القادمة (في حال عدم دعم المودم الحالي)
+  // ==========================================
+
+  Widget _buildComingSoonView(BuildContext context) {
+    final isDark = Get.isDarkMode;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: glowColor.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: glowColor.withValues(alpha: isDark ? 0.08 : 0.05),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // شارة الحالة
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFF4A90E2).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFF4A90E2).withValues(alpha: 0.3)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'قريباً في التحديث القادم للمودم',
+                  style: TextStyle(
+                    color: Color.fromRGBO(74, 144, 226, 1),
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // عنوان
+          Text(
+            'ميزة جديدة قادمة لمودمك!',
+            style: TextStyle(
+              color: textColor,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+
+          // الشرح التوضيحي
+          Text(
+            'أطلقت شركة SAM4G للمودم تحديثاً برمجياً جديداً يدعم تحديد ومراقبة باقات الأجهزة المتصلة. يجري حالياً إطلاق التحديث تدريجياً لجميع المودمات، وستعمل هذه الشاشة لديك فور وصول التحديث لجهازك.',
+            style: TextStyle(
+              color: subTextColor,
+              fontSize: 13,
+              height: 1.6,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+
+          // بطاقة المميزات القادمة
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.15)),
+            ),
+            child: Column(
+              children: [
+                _buildUpcomingFeatureItem(
+                  icon: Iconsax.chart_2,
+                  title: 'تحديد حصة البيانات',
+                  desc: 'تحديد حجم ميجابايت مخصص لكل جهاز متصل بالشبكة.',
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Divider(height: 1, thickness: 0.5),
+                ),
+                _buildUpcomingFeatureItem(
+                  icon: Iconsax.status_up,
+                  title: 'متابعة الاستهلاك اللحظي',
+                  desc: 'شريط تقدم يوضح كمية البيانات المستهلكة بدقة.',
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Divider(height: 1, thickness: 0.5),
+                ),
+                _buildUpcomingFeatureItem(
+                  icon: Iconsax.shield_cross,
+                  title: 'إيقاف الإنترنت التلقائي',
+                  desc: 'قطع الإنترنت عن الجهاز تلقائياً عند انتهاء باقته المحددة.',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // زر التحقق من التحديث
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await controller.fetchData(silent: true);
+                if (controller.isFeatureSupported.value) {
+                  CustomSnackbar.showSuccess('مبروك!', 'تم تفعيل ميزة باقة الأجهزة في مودمك بنجاح.');
+                } else {
+                  CustomSnackbar.showInfo(
+                    'لم يصل التحديث بعد',
+                    'لم يتلقَّ مودمك التحديث بعد. يرجى إعادة المحاولة لاحقاً بعد نزول التحديث للمودم.',
+                  );
+                }
+              },
+              icon: controller.isLoading.value
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Iconsax.refresh, size: 18),
+              label: Text(
+                controller.isLoading.value ? 'جاري الفحص...' : 'فحص توفر الميزة في مودمي الآن',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: glowColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingFeatureItem({
+    required IconData icon,
+    required String title,
+    required String desc,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: glowColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: glowColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: TextStyle(
+                  color: subTextColor,
+                  fontSize: 11,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   // ==========================================

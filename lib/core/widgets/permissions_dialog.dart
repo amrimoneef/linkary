@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconly/iconly.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -45,7 +45,7 @@ class PermissionsDialog extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                IconlyBold.notification,
+                Iconsax.notification,
                 size: 64,
                 color: AppColors.primaryBlue,
               ),

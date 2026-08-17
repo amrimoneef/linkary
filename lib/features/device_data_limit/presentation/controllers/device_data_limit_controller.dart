@@ -45,7 +45,7 @@ class DeviceDataLimitController extends GetxController {
     fetchData();
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({bool silent = false}) async {
     isLoading.value = true;
     try {
       isEnabled.value = await _getEnableUseCase();
@@ -53,12 +53,22 @@ class DeviceDataLimitController extends GetxController {
       isFeatureSupported.value = true;
     } catch (e) {
       final errorStr = e.toString();
-      if (errorStr.contains('100002') || errorStr.contains('100003') || errorStr.contains('Connection reset by peer')) {
+      if (errorStr.contains('100002') || 
+          errorStr.contains('100003') || 
+          errorStr.contains('Connection reset by peer') ||
+          errorStr.contains('FormatException') ||
+          errorStr.contains('FEATURE_NOT_SUPPORTED') ||
+          errorStr.contains('404') ||
+          errorStr.contains('500') ||
+          errorStr.contains('ClientException')) {
         isFeatureSupported.value = false;
-        print('Data Limit Feature not supported: $errorStr');
+        isEnabled.value = false;
+        deviceLimits.clear();
       } else {
         isFeatureSupported.value = true;
-        CustomSnackbar.showError('خطأ', 'فشل في جلب البيانات: $errorStr');
+        if (!silent) {
+          CustomSnackbar.showError('خطأ', 'فشل في جلب البيانات: $errorStr');
+        }
       }
     } finally {
       isLoading.value = false;
@@ -66,6 +76,10 @@ class DeviceDataLimitController extends GetxController {
   }
 
   Future<void> toggleEnable(bool value) async {
+    if (!isFeatureSupported.value) {
+      CustomSnackbar.showInfo('ميزة جديدة في طريقها لمودمك!', 'يجري حالياً إطلاق التحديث الجديد للمودم تدريجياً من الشركة المصنعة لتفعيل التحكم في باقات واستهلاك الأجهزة. ستعمل الميزة تلقائياً فور وصول التحديث لجهازك.');
+      return;
+    }
     final prev = isEnabled.value;
     isEnabled.value = value;
     try {
@@ -78,7 +92,13 @@ class DeviceDataLimitController extends GetxController {
       }
     } catch (e) {
       isEnabled.value = prev;
-      CustomSnackbar.showError('خطأ', 'فشل في تحديث الحالة: ${e.toString()}');
+      final errStr = e.toString();
+      if (errStr.contains('FormatException') || errStr.contains('FEATURE_NOT_SUPPORTED') || errStr.contains('100002')) {
+        isFeatureSupported.value = false;
+        CustomSnackbar.showInfo('ميزة جديدة في طريقها لمودمك!', 'يجري حالياً إطلاق التحديث الجديد للمودم تدريجياً من الشركة المصنعة لتفعيل التحكم في باقات واستهلاك الأجهزة. ستعمل الميزة تلقائياً فور وصول التحديث لجهازك.');
+      } else {
+        CustomSnackbar.showError('خطأ', 'فشل في تحديث الحالة: $errStr');
+      }
     }
   }
 
