@@ -209,6 +209,7 @@ class BillController extends GetxController {
       CaptchaDialog(
         imageUrl: info.imageUrl,
         cookies: info.cookies,
+        imageBytes: info.imageBytes,
         onRefresh: () {
           // If they need a new captcha, they can just refresh the image url
           // The image url handles its own cache busting, but the nonce might expire if it takes too long.

@@ -79,6 +79,8 @@ import '../../features/bill/domain/repositories/bill_repository.dart';
 import '../../features/bill/domain/usecases/fetch_bill_usecase.dart';
 import '../../features/bill/domain/usecases/submit_bill_usecase.dart';
 import '../../features/bill/infrastructure/data_sources/bill_remote_data_source.dart';
+import '../../features/bill/infrastructure/data_sources/bill_api_data_source.dart';
+import '../../features/bill/infrastructure/services/bill_config_service.dart';
 import '../../features/bill/infrastructure/repositories_impl/bill_repository_impl.dart';
 import '../../features/bill/presentation/controllers/bill_controller.dart';
 
@@ -334,20 +336,35 @@ Future<void> initDI() async {
   // ==========================================
   // --- ميزة استعلام الرصيد والباقة (Bill) ---
   // ==========================================
+  Get.lazyPut<BillConfigService>(
+    () => BillConfigService(
+      client: http.Client(),
+      sharedPreferences: Get.find<SharedPreferences>(),
+    ),
+    fenix: true,
+  );
   Get.lazyPut<BillRemoteDataSource>(
-    () => BillRemoteDataSourceImpl(),
+    () => BillRemoteDataSourceImpl(configService: Get.find<BillConfigService>()),
+    fenix: true,
+  );
+  Get.lazyPut<BillApiDataSource>(
+    () => BillApiDataSource(client: http.Client()),
     fenix: true,
   );
   Get.lazyPut<BillRepository>(
-    () => BillRepositoryImpl(remoteDataSource: Get.find()),
+    () => BillRepositoryImpl(
+      remoteDataSource: Get.find<BillRemoteDataSource>(),
+      apiDataSource: Get.find<BillApiDataSource>(),
+      configService: Get.find<BillConfigService>(),
+    ),
     fenix: true,
   );
-  Get.lazyPut(() => FetchBillUseCase(Get.find()), fenix: true);
-  Get.lazyPut(() => SubmitBillUseCase(Get.find()), fenix: true);
+  Get.lazyPut(() => FetchBillUseCase(Get.find<BillRepository>()), fenix: true);
+  Get.lazyPut(() => SubmitBillUseCase(Get.find<BillRepository>()), fenix: true);
   Get.lazyPut(
     () => BillController(
-      fetchBillUseCase: Get.find(),
-      submitBillUseCase: Get.find(),
+      fetchBillUseCase: Get.find<FetchBillUseCase>(),
+      submitBillUseCase: Get.find<SubmitBillUseCase>(),
     ),
     fenix: true,
   );

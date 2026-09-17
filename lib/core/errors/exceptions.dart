@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class ServerException implements Exception {
   final String message;
   ServerException([this.message = "حدث خطأ في الخادم"]);
@@ -15,11 +17,13 @@ class CaptchaRequiredException implements Exception {
   final String nonce;
   final String cookies;
   final String imageUrl;
+  final Uint8List? imageBytes;
 
   CaptchaRequiredException({
     required this.nonce,
     required this.cookies,
     required this.imageUrl,
+    this.imageBytes,
     this.message = "مطلوب رمز التحقق (كابتشا)",
   });
 }
