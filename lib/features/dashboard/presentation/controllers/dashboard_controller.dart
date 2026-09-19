@@ -14,6 +14,7 @@ import '../../infrastructure/data_sources/connection_manager_data_source.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 
 class DashboardController extends GetxController with WidgetsBindingObserver {
   final GetDashboardDataUseCase getDashboardDataUseCase;
@@ -68,13 +69,30 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
 
   Timer? _pollingTimer;
 
+  bool get _hasActiveSession {
+    if (!Get.isRegistered<AuthController>()) return false;
+    final auth = Get.find<AuthController>();
+    return auth.currentUser?.sessionId != null && auth.currentUser!.sessionId!.isNotEmpty;
+  }
+
   @override
   void onInit() {
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
-    fetchData();
-    fetchBandConfig();
-    _startPolling();
+    if (_hasActiveSession) {
+      fetchData();
+      fetchBandConfig();
+      _startPolling();
+    }
+  }
+
+  /// يُستدعى عند تسجيل الدخول أو الانتقال للوحة التحكم الرئيسية
+  void refreshOnLogin() {
+    if (_hasActiveSession) {
+      fetchData();
+      fetchBandConfig();
+      _startPolling();
+    }
   }
 
   @override
@@ -88,8 +106,10 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // Return to foreground: Restart polling immediately
-      _startPolling();
-      fetchData(); 
+      if (_hasActiveSession) {
+        _startPolling();
+        fetchData(); 
+      }
     } else if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       // Go to background: Stop polling to prevent network timeouts from causing logout
       _pollingTimer?.cancel();
@@ -100,6 +120,10 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
 
 
   Future<void> fetchData() async {
+    if (!_hasActiveSession) {
+      isLoading.value = false;
+      return;
+    }
     isLoading.value = true;
     errorMessage.value = '';
 
@@ -110,6 +134,8 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
       dashboardData.value = result;
       isDataConnected.value = result.isDataConnected;
     } catch (e) {
+      isDataConnected.value = false;
+      dashboardData.value = null;
       if (SessionHelper.handleSessionError(e)) {
         _pollingTimer?.cancel();
         return;
@@ -183,7 +209,13 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
   }
 
   void _startPolling() {
+    _pollingTimer?.cancel();
+    if (!_hasActiveSession) return;
     _pollingTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      if (!_hasActiveSession) {
+        timer.cancel();
+        return;
+      }
       try {
         final result = await getDashboardDataUseCase.execute();
         var temp = result;
@@ -214,6 +246,8 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
         
         update();
       } catch (e) {
+        isDataConnected.value = false;
+        dashboardData.value = null;
         // ➕ الحماية الذكية: إذا انتهت الجلسة، نوقف العداد ونطرد المستخدم لشاشة الدخول
         if (SessionHelper.handleSessionError(e)) {
           _pollingTimer?.cancel(); // إيقاف الاستعلام
@@ -296,6 +330,10 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> fetchBandConfig() async {
+    if (!_hasActiveSession) {
+      isBandLoading.value = false;
+      return;
+    }
     isBandLoading.value = true;
     try {
       final dataSource = ConnectionManagerDataSource();

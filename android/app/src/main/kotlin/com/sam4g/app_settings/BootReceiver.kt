@@ -8,16 +8,17 @@ import android.os.Build
 import android.util.Log
 
 /**
- * يستقبل إشعار إعادة تشغيل الجهاز لإعادة تشغيل خدمات الجدار الناري والمراقبة تلقائياً.
+ * يستقبل إشعار إعادة تشغيل الجهاز لإعادة تشغيل خدمات الجدار الناري والمراقبة
+ * والإشعار الدائم تلقائياً.
  */
 class BootReceiver : BroadcastReceiver() {
 
     companion object {
-        const val PREFS_NAME = "FlutterSharedPreferences"
-        const val FLUTTER_PREFIX = "flutter."
+        const val PREFS_NAME           = "FlutterSharedPreferences"
+        const val FLUTTER_PREFIX       = "flutter."
         const val FIREWALL_ENABLED_KEY = "${FLUTTER_PREFIX}mifi_firewall_enabled"
-        const val BLOCKED_APPS_KEY = "${FLUTTER_PREFIX}mifi_firewall_blocked_apps"
-        const val AUTO_BLOCK_KEY = "${FLUTTER_PREFIX}mifi_monitor_app_auto_block"
+        const val BLOCKED_APPS_KEY     = "${FLUTTER_PREFIX}mifi_firewall_blocked_apps"
+        const val AUTO_BLOCK_KEY       = "${FLUTTER_PREFIX}mifi_monitor_app_auto_block"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -27,12 +28,13 @@ class BootReceiver : BroadcastReceiver() {
             return
         }
 
-        Log.d("LinkaryBoot", "📱 Device boot completed - checking firewall state")
+        Log.d("LinkaryBoot", "📱 Device boot completed - restoring Linkary services")
 
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val firewallEnabled = prefs.getBoolean(FIREWALL_ENABLED_KEY, false)
-        val hasAutoBlock = hasAnyAutoBlock(prefs)
+        val hasAutoBlock    = hasAnyAutoBlock(prefs)
 
+        // ── 1. إعادة الجدار الناري إن كان مفعلاً ─────────────────────────────
         if (firewallEnabled) {
             val blockedApps = readBlockedApps(prefs)
             if (blockedApps.isNotEmpty()) {
@@ -41,15 +43,23 @@ class BootReceiver : BroadcastReceiver() {
                     .setAction("START")
                     .putStringArrayListExtra("apps", ArrayList(blockedApps))
                 startServiceSafely(context, serviceIntent)
-                return
             }
-        }
-
-        if (hasAutoBlock) {
+        } else if (hasAutoBlock) {
             Log.d("LinkaryBoot", "👁️ Restarting monitor-only mode")
             val serviceIntent = Intent(context, LinkaryFirewallService::class.java)
                 .setAction("MONITOR")
             startServiceSafely(context, serviceIntent)
+        }
+
+        // ── 2. إعادة الإشعار الدائم إن كان مفعلاً ────────────────────────────
+        if (NotificationHelper.isNotificationEnabled(context)) {
+            Log.d("LinkaryBoot", "🔔 Restoring persistent notification after boot")
+            try {
+                NotificationHelper.createChannel(context)
+                NotificationHelper.refreshNotification(context)
+            } catch (e: Exception) {
+                Log.e("LinkaryBoot", "Failed to restore notification: ${e.message}")
+            }
         }
     }
 
@@ -79,7 +89,7 @@ class BootReceiver : BroadcastReceiver() {
     }
 
     private fun hasAnyAutoBlock(prefs: SharedPreferences): Boolean {
-        val raw = prefs.getString(AUTO_BLOCK_KEY, null)
+        val raw     = prefs.getString(AUTO_BLOCK_KEY, null)
         val entries = LinkaryFirewallService.parseFlutterStringList(raw)
         for (entry in entries) {
             val parts = entry.split("|")

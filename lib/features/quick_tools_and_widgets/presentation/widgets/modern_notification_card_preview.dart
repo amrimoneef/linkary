@@ -320,11 +320,18 @@ class ModernNotificationCardPreview extends StatelessWidget {
                           ),
                           const Spacer(),
                           Text(
-                            state.cleanPackageName.startsWith('من أصل')
-                                ? state.cleanPackageName
-                                : (state.cleanPackageName.startsWith('باقة')
-                                    ? 'من أصل ${state.cleanPackageName}'
-                                    : 'من أصل باقة ${state.cleanPackageName}'),
+                            () {
+                              final clean = state.cleanPackageName
+                                  .replaceAll(RegExp(r'[_-\s]*DATA_ONLY[_-\s]*', caseSensitive: false), ' ')
+                                  .replaceAll(RegExp(r'\b4G\b', caseSensitive: false), ' ')
+                                  .replaceAll(RegExp(r'\bGB\b', caseSensitive: false), ' ')
+                                  .replaceAll(RegExp(r'\s+'), ' ')
+                                  .trim();
+                              if (clean.startsWith('من أصل')) return clean;
+                              if (clean == 'باقة نشطة') return 'من أصل باقة نشطة';
+                              if (clean.startsWith('باقة')) return 'من أصل $clean GB';
+                              return 'من أصل $clean GB';
+                            }(),
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.grey.shade400,

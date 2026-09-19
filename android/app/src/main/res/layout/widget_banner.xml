@@ -3,7 +3,7 @@
     android:id="@+id/widget_banner_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layoutDirection="ltr"
+    android:layoutDirection="rtl"
     android:background="@drawable/bg_widget_pill_stadium"
     android:gravity="center_vertical"
     android:orientation="horizontal"

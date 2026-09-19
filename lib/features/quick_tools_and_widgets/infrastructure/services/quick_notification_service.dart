@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
 import '../../../../core/services/balance_tracking_service.dart';
 import '../../domain/entities/quick_tools_state_entity.dart';
+import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 
 class QuickNotificationService {
   static const int notificationId = 8888;
@@ -46,12 +48,26 @@ class QuickNotificationService {
     final updateTime = state.lastUpdated12h;
     final quotaProgress = state.quotaProgressPercent;
 
-    final cleanPackage = state.cleanPackageName;
+    final cleanPackage = state.cleanPackageName
+        .replaceAll(RegExp(r'[_-\s]*DATA_ONLY[_-\s]*', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'\b4G\b', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'\bGB\b', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
     final totalPlan = cleanPackage.startsWith('من أصل')
         ? cleanPackage
-        : (cleanPackage.startsWith('باقة')
-            ? 'من أصل $cleanPackage'
-            : 'من أصل باقة $cleanPackage');
+        : (cleanPackage == 'باقة نشطة'
+            ? 'من أصل باقة نشطة'
+            : (cleanPackage.startsWith('باقة')
+                ? 'من أصل $cleanPackage GB'
+                : 'من أصل $cleanPackage GB'));
+
+    // 💾 جلب session_id لإرساله للكود الأصلي حتى يتمكن WidgetActionReceiver من إعادة التشغيل بلا فتح التطبيق
+    String? sessionId;
+    try {
+      sessionId = Get.find<AuthController>().currentUser?.sessionId;
+    } catch (_) {}
 
     try {
       await _nativeChannel.invokeMethod('showCustomNotification', {
@@ -66,6 +82,7 @@ class QuickNotificationService {
         'last_updated_time': updateTime,
         'quota_progress': quotaProgress,
         'total_plan': totalPlan,
+        'session_id': sessionId, // 🔑 مفتاح إعادة التشغيل من الويدجت
       });
       return;
     } catch (e) {
@@ -148,16 +165,39 @@ class QuickNotificationService {
 
   /// إخفاء وإلغاء الإشعار عند إيقاف الميزة
   Future<void> cancel() async {
+    // إلغاء الإشعار الأصلي (RemoteViews) أولاً
     try {
       await _nativeChannel.invokeMethod('cancelCustomNotification');
+      if (kDebugMode) debugPrint('🔕 [QuickNotificationService] Native notification canceled.');
+      return; // نجح - لا حاجة لإلغاء Flutter
     } catch (_) {}
 
-    await _ensureInitialized();
-    try {
-      await _notificationsPlugin.cancel(id: notificationId);
-      if (kDebugMode) debugPrint('🔕 [QuickNotificationService] Notification canceled.');
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ [QuickNotificationService] cancel error: $e');
+    // fallback: إلغاء إشعار Flutter القياسي إن وجد
+    if (_isInitialized) {
+      try {
+        await _notificationsPlugin.cancel(id: notificationId);
+        if (kDebugMode) debugPrint('🔕 [QuickNotificationService] Flutter notification canceled.');
+      } catch (e) {
+        if (kDebugMode) debugPrint('❌ [QuickNotificationService] cancel error: $e');
+      }
     }
+  }
+
+  /// فحص الإجراء القادم من ضغطات الويدجت أو الإشعار أثناء بدء التشغيل
+  Future<String?> getPendingAction() async {
+    try {
+      return await _nativeChannel.invokeMethod<String>('getPendingAction');
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// الاستماع للإجراءات القادمة من أزرار الويدجت أو الإشعار أثناء عمل التطبيق
+  void setActionListener(void Function(String action) listener) {
+    _nativeChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onActionReceived' && call.arguments is String) {
+        listener(call.arguments as String);
+      }
+    });
   }
 }

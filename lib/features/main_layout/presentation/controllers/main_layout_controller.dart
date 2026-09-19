@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../../../../core/services/tutorial_service.dart';
 import '../../../../core/utils/whats_new_helper.dart';
 import '../../../../core/widgets/permissions_dialog.dart';
+import '../../../dashboard/presentation/controllers/dashboard_controller.dart';
 
 class MainLayoutController extends GetxController {
   // 🚀 المتغير التفاعلي الذي يراقب الشاشة الحالية (يبدأ بـ 1 = الرئيسية)
@@ -10,6 +11,11 @@ class MainLayoutController extends GetxController {
   @override
   void onReady() async {
     super.onReady();
+    
+    // 0️⃣ بدء استرجاع بيانات المودم فور وصول المستخدم للرئيسية
+    if (Get.isRegistered<DashboardController>()) {
+      Get.find<DashboardController>().refreshOnLogin();
+    }
     
     // 1️⃣ أولاً: عرض نافذة "ما الجديد" إذا كان هناك تحديث جديد والانتظار حتى يغلقها المستخدم
     await WhatsNewHelper.checkAndShowWhatsNew();

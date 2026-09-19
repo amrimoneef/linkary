@@ -56,6 +56,7 @@ class NetworkInfoPage extends StatelessWidget {
           onRefresh: () async {
             await dashboardController.fetchData();
             await dashboardController.fetchEngineeringInfo();
+            await dashboardController.fetchBandConfig();
           },
           color: const Color(0xFF8E2DE2),
           // 🌌 إضافة وهج خلفي للشاشة لتعزيز الطابع الفضائي
@@ -1607,6 +1608,14 @@ class _BandLockCardState extends State<BandLockCard> {
     },
   };
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.controller.bandConfig.value == null) {
+      widget.controller.fetchBandConfig();
+    }
+  }
+
   void applyChanges() async {
     await widget.controller.saveBandConfig(isAuto, selectedBands);
     await widget.controller.fetchData();
@@ -1632,7 +1641,73 @@ class _BandLockCardState extends State<BandLockCard> {
       }
 
       if (config == null) {
-        return const SizedBox.shrink();
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          padding: const EdgeInsets.all(24),
+          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F1A2E) : Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: isDark
+                  ? const Color(0xFF38BDF8).withValues(alpha: 0.4)
+                  : const Color(0xFF3B82F6).withValues(alpha: 0.3),
+              width: 1.8,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : const Color(0xFF3B82F6).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Iconsax.wifi_square,
+                        color: isDark ? Colors.white : const Color(0xFF3B82F6),
+                        size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'إعدادات البرج',
+                    style: TextStyle(
+                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'تعذر تحميل ترددات وإعدادات البرج حالياً. يرجى التأكد من اتصالك بالمودم والمحاولة مجدداً.',
+                style: TextStyle(
+                  color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                  fontSize: 13,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => widget.controller.fetchBandConfig(),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('إعادة المحاولة'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3B82F6),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       }
 
       if (!isInitialized) {

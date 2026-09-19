@@ -13,6 +13,17 @@ class SessionHelper {
   static bool handleSessionError(dynamic error) {
     if (error == null) return false;
     
+    // 🛡️ حماية حاسمة: إذا لم يكن المستخدم قد سجل دخوله بعد (أثناء شاشة البداية، معالج البدء، أو شاشة الدخول)
+    // لا نقوم بأي محاولة تجديد أو طرد أو إظهار رسالة "انتهت صلاحية الجلسة" إطلاقاً
+    final authController = Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+    final hasActiveSession = authController?.currentUser?.sessionId != null && 
+        authController!.currentUser!.sessionId!.isNotEmpty;
+    if (!hasActiveSession) {
+      if (kDebugMode) {
+        debugPrint('ℹ️ [SessionHelper] Discarding error because user has no active session: $error');
+      }
+      return false;
+    }
     final errorStr = error.toString().toLowerCase();
     
     final isSessionExpired = errorStr.contains('session_expired') || 

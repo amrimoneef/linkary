@@ -54,7 +54,7 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <View
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_weight="1" />
@@ -113,7 +113,7 @@
         </LinearLayout>
 
         <!-- Divider line -->
-        <View
+        <ImageView
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"

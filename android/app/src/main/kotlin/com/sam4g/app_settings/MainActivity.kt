@@ -50,9 +50,31 @@ class MainActivity: FlutterFragmentActivity() {
     // 🚀 Icon Cache to prevent expensive extractions on every refresh
     private val iconCache = LruCache<String, ByteArray>(1000) // Cache for 1000 icons (approx 5MB of RAM)
 
+    private var pendingAction: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        handleIntentAction(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntentAction(intent)
+    }
+
+    private fun handleIntentAction(intent: Intent?) {
+        val action = intent?.getStringExtra("action") ?: intent?.getStringExtra("open_screen")
+        if (action != null) {
+            pendingAction = action
+            try {
+                flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
+                    MethodChannel(messenger, "com.linkary/quick_notification")
+                        .invokeMethod("onActionReceived", action)
+                }
+            } catch (_: Exception) {}
+        }
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -288,87 +310,55 @@ class MainActivity: FlutterFragmentActivity() {
             when (call.method) {
                 "showCustomNotification" -> {
                     try {
-                        val isConnected = call.argument<Boolean>("is_connected") ?: false
-                        val balanceText = call.argument<String>("balance_text") ?: "-- GB"
+                        val isConnected   = call.argument<Boolean>("is_connected") ?: false
+                        val balanceText   = call.argument<String>("balance_text") ?: "-- GB"
                         val daysRemaining = call.argument<String>("days_remaining") ?: "-- يوم"
-                        val batteryLevel = call.argument<Int>("battery_level") ?: 0
-                        val isCharging = call.argument<Boolean>("is_charging") ?: false
-                        val signalBars = call.argument<Int>("signal_bars") ?: 0
-                        val devicesCount = call.argument<Int>("devices_count") ?: 0
-                        val lastUpdated = call.argument<String>("last_updated_time") ?: "00:00"
+                        val batteryLevel  = call.argument<Int>("battery_level") ?: 0
+                        val isCharging    = call.argument<Boolean>("is_charging") ?: false
+                        val signalBars    = call.argument<Int>("signal_bars") ?: 0
+                        val devicesCount  = call.argument<Int>("devices_count") ?: 0
+                        val lastUpdated   = call.argument<String>("last_updated_time") ?: "00:00"
                         val quotaProgress = call.argument<Int>("quota_progress") ?: 50
-                        val totalPlan = call.argument<String>("total_plan") ?: "باقة نشطة"
+                        val totalPlan     = call.argument<String>("total_plan") ?: "باقة نشطة"
+                        val sessionId     = call.argument<String>("session_id")
 
-                        createQuickNotificationChannel()
-
-                        val expandedView = RemoteViews(packageName, R.layout.notification_expanded).apply {
-                            setTextViewText(R.id.tv_notif_title, "مودم SAM4G")
-                            setTextViewText(R.id.tv_notif_status, if (isConnected) "متصل" else "غير متصل")
-                            setTextViewText(R.id.tv_notif_status_badge, if (isConnected) "متصل" else "غير متصل")
-                            setTextColor(R.id.tv_notif_status_badge, android.graphics.Color.parseColor(if (isConnected) "#34D399" else "#EF4444"))
-                            setImageViewResource(R.id.iv_notif_status_dot, if (isConnected) R.drawable.ic_dot_green else R.drawable.ic_dot_red)
-                            setTextViewText(R.id.tv_notif_updated, "آخر تحديث: $lastUpdated")
-                            setTextViewText(R.id.tv_notif_days, daysRemaining)
-                            setTextViewText(R.id.tv_notif_balance, balanceText)
-                            setTextViewText(R.id.tv_notif_total_plan, totalPlan)
-                            setProgressBar(R.id.pb_notif_quota, 100, quotaProgress, false)
-                            setTextViewText(R.id.tv_notif_battery, "$batteryLevel%")
-                            setTextViewText(R.id.tv_notif_charging, if (isCharging) "شحن سريع" else "على البطارية")
-                            setTextViewText(R.id.tv_notif_signal, "$signalBars/5")
-                            val quality = when {
-                                signalBars >= 4 -> "ممتازة جداً"
-                                signalBars >= 2 -> "جيدة"
-                                else -> "ضعيفة"
-                            }
-                            setTextViewText(R.id.tv_notif_signal_quality, quality)
-                            setTextViewText(R.id.tv_notif_devices, "$devicesCount أجهزة")
-
-                            val intent = Intent(this@MainActivity, MainActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            }
-                            val pendingIntent = PendingIntent.getActivity(
-                                this@MainActivity,
-                                0,
-                                intent,
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                            )
-                            setOnClickPendingIntent(R.id.notif_expanded_root, pendingIntent)
-                            setOnClickPendingIntent(R.id.btn_notif_refresh, pendingIntent)
-                            setOnClickPendingIntent(R.id.btn_notif_bill, pendingIntent)
-                            setOnClickPendingIntent(R.id.btn_notif_reboot, pendingIntent)
+                        // 💾 حفظ session_id في SharedPreferences حتى يتمكن WidgetActionReceiver من استخدامها
+                        if (!sessionId.isNullOrBlank()) {
+                            getSharedPreferences(NotificationHelper.PREFS_NAME, Context.MODE_PRIVATE)
+                                .edit()
+                                .putString(WidgetActionReceiver.SESSION_ID_KEY, sessionId)
+                                .apply()
                         }
 
-                        val collapsedView = RemoteViews(packageName, R.layout.notification_collapsed).apply {
-                            setImageViewResource(R.id.iv_notif_col_dot, if (isConnected) R.drawable.ic_dot_green else R.drawable.ic_dot_red)
-                            setTextViewText(R.id.tv_notif_col_balance, balanceText)
-                            setTextViewText(R.id.tv_notif_col_days, daysRemaining)
-                            setTextViewText(R.id.tv_notif_col_subtitle, "🔋 $batteryLevel%  •  📶 $signalBars/5  •  👥 $devicesCount")
+                        // 💾 حفظ آخر حالة للإشعار لإعادة إنشائه بعد إعادة تشغيل الجهاز
+                        NotificationHelper.saveNotifState(
+                            context       = applicationContext,
+                            isConnected   = isConnected,
+                            balanceText   = balanceText,
+                            daysRemaining = daysRemaining,
+                            batteryLevel  = batteryLevel,
+                            isCharging    = isCharging,
+                            signalBars    = signalBars,
+                            devicesCount  = devicesCount,
+                            lastUpdated   = lastUpdated,
+                            quotaProgress = quotaProgress,
+                            totalPlan     = totalPlan
+                        )
 
-                            val intent = Intent(this@MainActivity, MainActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                            }
-                            val pendingIntent = PendingIntent.getActivity(
-                                this@MainActivity,
-                                0,
-                                intent,
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                            )
-                            setOnClickPendingIntent(R.id.notif_collapsed_root, pendingIntent)
-                        }
-
-                        val notification = NotificationCompat.Builder(this, "quick_tools_persistent_channel")
-                            .setSmallIcon(R.drawable.ic_notification)
-                            .setCustomContentView(collapsedView)
-                            .setCustomBigContentView(expandedView)
-                            .setOngoing(true)
-                            .setOnlyAlertOnce(true)
-                            .setColorized(true)
-                            .setColor(0xFF0F172A.toInt())
-                            .setPriority(NotificationCompat.PRIORITY_LOW)
-                            .build()
-
-                        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                        manager.notify(8888, notification)
+                        // 🔔 عرض الإشعار عبر NotificationHelper (مع DecoratedCustomViewStyle وأزرار وظيفية)
+                        NotificationHelper.showNotification(
+                            context       = applicationContext,
+                            isConnected   = isConnected,
+                            balanceText   = balanceText,
+                            daysRemaining = daysRemaining,
+                            batteryLevel  = batteryLevel,
+                            isCharging    = isCharging,
+                            signalBars    = signalBars,
+                            devicesCount  = devicesCount,
+                            lastUpdated   = lastUpdated,
+                            quotaProgress = quotaProgress,
+                            totalPlan     = totalPlan
+                        )
                         result.success(true)
                     } catch (e: Exception) {
                         result.error("ERROR", e.message, null)
@@ -376,31 +366,23 @@ class MainActivity: FlutterFragmentActivity() {
                 }
                 "cancelCustomNotification" -> {
                     try {
-                        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                        manager.cancel(8888)
+                        NotificationHelper.cancelNotification(applicationContext)
                         result.success(true)
                     } catch (e: Exception) {
                         result.error("ERROR", e.message, null)
                     }
+                }
+                "getPendingAction" -> {
+                    val act = pendingAction
+                    pendingAction = null
+                    result.success(act)
                 }
                 else -> result.notImplemented()
             }
         }
     }
 
-    private fun createQuickNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "مراقبة المودم المستمرة"
-            val descriptionText = "عرض حي ودائم لحالة الرصيد والبطارية والاتصال"
-            val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel("quick_tools_persistent_channel", name, importance).apply {
-                description = descriptionText
-                setShowBadge(false)
-            }
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
+    // تم نقل createQuickNotificationChannel إلى NotificationHelper.createChannel()
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

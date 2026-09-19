@@ -34,6 +34,24 @@ class QuickToolsController extends GetxController {
     super.onInit();
     _loadSavedSettings();
     _setupReactiveListeners();
+    _checkPendingNativeActions();
+  }
+
+  void _checkPendingNativeActions() {
+    quickNotificationService.setActionListener(_handleNativeAction);
+    quickNotificationService.getPendingAction().then((action) {
+      if (action != null) {
+        _handleNativeAction(action);
+      }
+    });
+  }
+
+  void _handleNativeAction(String action) {
+    if (action == 'confirm_reboot') {
+      rebootModem();
+    } else if (action == 'bill') {
+      openBalancePage();
+    }
   }
 
   Future<void> _loadSavedSettings() async {
@@ -47,6 +65,7 @@ class QuickToolsController extends GetxController {
     if (Get.isRegistered<DashboardController>()) {
       final dashController = Get.find<DashboardController>();
       ever(dashController.dashboardData, (_) => updateLiveState());
+      ever(dashController.isDataConnected, (_) => updateLiveState());
     }
 
     // الاستماع لأي تحديث في شاشة الرصيد (البيانات والرصيد المتوقع)
@@ -138,7 +157,7 @@ class QuickToolsController extends GetxController {
     if (Get.isRegistered<DashboardController>()) {
       final dash = Get.find<DashboardController>();
       final data = dash.dashboardData.value;
-      if (data != null) {
+      if (data != null && dash.isDataConnected.value) {
         isConnected = true;
         batteryLevel = data.batteryCapacity;
         isCharging = data.isCharging;
@@ -148,6 +167,9 @@ class QuickToolsController extends GetxController {
         networkSpeed = dash.formatSpeed(data.rxSpeed);
         currentSessionUsageBytes = data.currentUsage;
         totalAccumulatedUsageBytes = data.totalUsage;
+      } else {
+        isConnected = false;
+        signalText = 'غير متصل';
       }
     }
 
