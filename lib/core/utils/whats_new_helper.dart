@@ -8,7 +8,7 @@ import '../theme/app_colors.dart';
 class WhatsNewHelper {
   static const String _prefKey = 'last_shown_whats_new_version';
 
-  static Future<void> checkAndShowWhatsNew() async {
+  static Future<void> checkAndShowWhatsNew({bool force = false}) async {
     final prefs = await SharedPreferences.getInstance();
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
@@ -16,10 +16,19 @@ class WhatsNewHelper {
     final lastShownVersion = prefs.getString(_prefKey);
 
     // If it's a new version, show the dialog
-    if (lastShownVersion != currentVersion) {
+    if (force || lastShownVersion != currentVersion) {
       await _showWhatsNewDialog(currentVersion);
       // Update the preference so it doesn't show again for this version
       await prefs.setString(_prefKey, currentVersion);
+    }
+  }
+
+  static Future<void> showWhatsNewDialogManual() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      await _showWhatsNewDialog(packageInfo.version);
+    } catch (_) {
+      await _showWhatsNewDialog('1.0.3');
     }
   }
 
@@ -98,65 +107,41 @@ class WhatsNewHelper {
               
               // Features List
               _buildFeatureItem(
-                icon: Icons.account_balance_wallet,
-                title: 'إصلاح الإستعلام عن الرصيد',
-                description: 'يمكن الان الإستعلام عن رصيدك دون اي مشاكل.',
-                textColor: textColor,
-                subTextColor: subTextColor,
-              ),
-              const SizedBox(height: 16),
-                _buildFeatureItem(
-                  icon: Icons.power_settings_new,
-                  title: 'ايقاف تشغيل المودم',
-                  description: 'يمكن الان ايقاف تشغيل المودم عن بًعد.',
-                  textColor: textColor,
-                  subTextColor: subTextColor,
-                ),
-                const SizedBox(height: 16),
-              _buildFeatureItem(
-                icon: Iconsax.mobile,
-                title: 'ميزة اين المودم',
-                description: 'قمنا ببناء محرك ذكي يرشدك لمكان المودم في حالة نسيان اين تم وضعه.',
+                icon: Iconsax.element_plus,
+                title: 'ويدجت الشاشة الرئيسية الزجاجية',
+                description: 'إضافة ويدجت تفاعلية فاخرة للشاشة الرئيسية بثلاثة أحجام (الشريطي 4×1، المربع 2×2، والمفصل 4×2) بتصميم زجاجي شبه شفاف يعرض الرصيد والبطارية وحالة المودم.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
               _buildFeatureItem(
-                icon: Iconsax.notification,
-                title: 'إدارة التنبيهات المتقدمة',
-                description: 'أضفنا نظام مراقبة ذكي للبطارية ورصيد البيانات، ليخبرك فوراً إذا انخفض شحنك أو رصيدك المتوقع وتاريخ انتهاءه.',
+                icon: Iconsax.notification_status,
+                title: 'إشعار تفاعلي سريع ودائم',
+                description: 'مراقبة حية ولحظية لمودم SAM4G من لوحة الإشعارات مع مؤشر اتصال فوري وعرض تفصيلي للرصيد المتبقي والاستهلاك.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
               _buildFeatureItem(
-                icon: Iconsax.monitor_mobbile,
-                title: 'تحسينات في الأداء',
-                description: 'تسجيل دخول أسرع واستقرار أكثر في الاتصال بالمودم وحفظ الجلسات.',
-                textColor: textColor,
-                subTextColor: subTextColor,
-              ),
-              const SizedBox(height: 16),
-                _buildFeatureItem(
-                  icon: Icons.devices_other_sharp,
-                  title: 'ادارة أسرع للأجهزة',
-                  description: 'يمكنك الآن إدارة الأجهزة المتصلة بالمودم تلقي الاشعارات للاجهزة الجديدة بشكل أسرع وأكثر سلاسة، يمكنك جعل الجهاز (موثوق/غير موثوق)، ايضا حظر وتحديد السرعة).',
-                  textColor: textColor,
-                  subTextColor: subTextColor,
-                ),
-                const SizedBox(height: 16),
-              _buildFeatureItem(
-                icon: Iconsax.radar,
-                title: 'إنذار نسيان المودم',
-                description: ' إنذار فقدان المودم لضمان عدم نسيان مودمك.',
+                icon: Iconsax.refresh_circle,
+                title: 'إعادة تشغيل فورية دون فتح التطبيق',
+                description: 'يمكنك الآن إعادة تشغيل المودم مباشرة من الويدجت أو لوحة الإشعارات عبر نافذة تأكيد عائمة ومستقلة.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
               _buildFeatureItem(
-                icon: Iconsax.brush_2,
-                title: 'تصميم أنيق وجذاب',
-                description: 'لمسات فنية جديدة لنجعل تجربة استخدامك أجمل وأكثر انسيابية.',
+                icon: Iconsax.shield_tick,
+                title: 'استقرار تام للجلسات وتسجيل الدخول',
+                description: 'حل جذري لمشكلة انتهاء الجلسة المفاجئ عند بدء التشغيل مع تحديث لحظي ذكي عند الاتصال بالمودم.',
+                textColor: textColor,
+                subTextColor: subTextColor,
+              ),
+              const SizedBox(height: 16),
+              _buildFeatureItem(
+                icon: Iconsax.wallet_3,
+                title: 'إصلاح الاستعلام عن الرصيد',
+                description: 'تحسين شامل لخدمة استعلام الرصيد مع دعم تصحيح صيغة الأرقام تلقائياً وإمكانية إدخال رقم الخط وحفظه يدوياً.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),

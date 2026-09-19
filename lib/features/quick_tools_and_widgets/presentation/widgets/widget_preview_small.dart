@@ -1,7 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../domain/entities/quick_tools_state_entity.dart';
 
-/// ويدجت مربعة (2x2) متطابقة 100% مع الصورة المرفقة دون أي اختلاف مع التوهج الاحترافي
+/// ويدجت مربعة (2x2) بتصميم زجاجي فاخر (Frosted Glass Card)
 class WidgetPreviewSmall extends StatelessWidget {
   final QuickToolsStateEntity state;
 
@@ -11,39 +12,42 @@ class WidgetPreviewSmall extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.ltr,
-      child: Container(
-        width: 270,
-        height: 275,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0C1424),
-              Color(0xFF080D1A),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(
-            color: const Color(0xFF1B3252),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF38BDF8).withValues(alpha: 0.14),
-              blurRadius: 28,
-              spreadRadius: 1,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            width: 270,
+            height: 275,
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A).withValues(alpha: 0.55),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.12),
+                  Colors.white.withValues(alpha: 0.04),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.20),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF38BDF8).withValues(alpha: 0.12),
+                  blurRadius: 28,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ],
             ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.6),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
-          child: Stack(
+            child: Stack(
             children: [
               // إضاءة محيطية علوية ناعمة (Ambient Top Glow)
               Positioned(
@@ -135,10 +139,10 @@ class WidgetPreviewSmall extends StatelessWidget {
                               width: 34,
                               height: 34,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF132037),
+                                color: Colors.white.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: const Color(0xFF1D3557),
+                                  color: Colors.white.withValues(alpha: 0.20),
                                   width: 1.2,
                                 ),
                               ),
@@ -283,11 +287,11 @@ class WidgetPreviewSmall extends StatelessWidget {
                       height: 42,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10192A),
+                        color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(21),
                         border: Border.all(
-                          color: const Color(0xFF1A2B44),
-                          width: 1.2,
+                          color: Colors.white.withValues(alpha: 0.16),
+                          width: 1.0,
                         ),
                       ),
                       child: Row(
@@ -340,7 +344,7 @@ class WidgetPreviewSmall extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Color(0xFFF8FAFC),
                                 ),
                               ),
                               const SizedBox(width: 5),
@@ -357,8 +361,9 @@ class WidgetPreviewSmall extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   /// أعمدة الإشارة الخمسة المتوهجة
   Widget _buildSignalBars(int bars) {

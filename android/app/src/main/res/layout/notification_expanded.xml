@@ -54,34 +54,18 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
-                    <LinearLayout
+                    <ImageView
+                        android:id="@+id/iv_notif_status_dot"
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@drawable/ic_dot_green" />
+
+                    <TextView
+                        android:id="@+id/tv_notif_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:background="@drawable/bg_notif_badge_green"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingStart="6dp"
-                        android:paddingTop="1dp"
-                        android:paddingEnd="6dp"
-                        android:paddingBottom="1dp">
-
-                        <ImageView
-                            android:id="@+id/iv_notif_status_dot"
-                            android:layout_width="5dp"
-                            android:layout_height="5dp"
-                            android:src="@drawable/ic_dot_green" />
-
-                        <TextView
-                            android:id="@+id/tv_notif_status"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="3dp"
-                            android:text="متصل"
-                            android:textColor="#10B981"
-                            android:textSize="9sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -381,7 +365,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="مأمون WPA2"
+                android:text="متصلة"
                 android:textColor="#94A3B8"
                 android:textSize="9sp" />
         </LinearLayout>

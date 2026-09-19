@@ -136,45 +136,22 @@ class ModernNotificationCardPreview extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 6),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
+                                width: 7,
+                                height: 7,
                                 decoration: BoxDecoration(
-                                  color: statusColor.withValues(alpha: 0.14),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: statusColor.withValues(alpha: 0.35),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: statusColor,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: statusColor.withValues(alpha: 0.8),
-                                            blurRadius: 6,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      statusText,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                        color: statusColor,
-                                      ),
+                                  color: state.isConnected
+                                      ? const Color(0xFF10B981)
+                                      : const Color(0xFFEF4444),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: (state.isConnected
+                                              ? const Color(0xFF10B981)
+                                              : const Color(0xFFEF4444))
+                                          .withValues(alpha: 0.8),
+                                      blurRadius: 4,
                                     ),
                                   ],
                                 ),
@@ -459,7 +436,7 @@ class ModernNotificationCardPreview extends StatelessWidget {
                         icon: Icons.devices_rounded,
                         iconColor: const Color(0xFFE2E8F0),
                         value: '${state.connectedDevicesCount}',
-                        subtitle: 'مأمون WPA2',
+                        subtitle: 'متصلة',
                         subtitleColor: Colors.grey.shade400,
                       ),
                     ),

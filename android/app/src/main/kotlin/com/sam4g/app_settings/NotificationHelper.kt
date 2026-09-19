@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.view.View
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 
@@ -148,7 +149,7 @@ object NotificationHelper {
         // ── العرض الموسّع ──────────────────────────────────────
         val expandedView = RemoteViews(context.packageName, R.layout.notification_expanded).apply {
             setTextViewText(R.id.tv_notif_title,       "مودم SAM4G")
-            setTextViewText(R.id.tv_notif_status,      if (isConnected) "متصل" else "غير متصل")
+            setViewVisibility(R.id.tv_notif_status,    View.GONE)
             setTextViewText(R.id.tv_notif_status_badge,if (isConnected) "متصل" else "غير متصل")
             setTextColor(R.id.tv_notif_status_badge,
                 android.graphics.Color.parseColor(if (isConnected) "#34D399" else "#EF4444"))

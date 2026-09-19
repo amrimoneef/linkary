@@ -11,28 +11,41 @@ class WidgetPreviewDetailed extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor = state.isConnected ? const Color(0xFF10B981) : const Color(0xFFEF4444);
 
-    return Container(
-      width: double.infinity,
-      height: 180,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A).withValues(alpha: 0.85),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.18),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          width: double.infinity,
+          height: 180,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.55),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.12),
+                Colors.white.withValues(alpha: 0.04),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.20),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF38BDF8).withValues(alpha: 0.10),
+                blurRadius: 22,
+                spreadRadius: 1,
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.35),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
