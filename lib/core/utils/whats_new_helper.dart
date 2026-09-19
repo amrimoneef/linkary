@@ -108,8 +108,8 @@ class WhatsNewHelper {
               // Features List
               _buildFeatureItem(
                 icon: Iconsax.element_plus,
-                title: 'ويدجت الشاشة الرئيسية الزجاجية',
-                description: 'إضافة ويدجت تفاعلية فاخرة للشاشة الرئيسية بثلاثة أحجام (الشريطي 4×1، المربع 2×2، والمفصل 4×2) بتصميم زجاجي شبه شفاف يعرض الرصيد والبطارية وحالة المودم.',
+                title: 'ويدجت الشاشة الرئيسية',
+                description: 'إضافة ويدجت تفاعلية فاخرة للشاشة الرئيسية بثلاثة أحجام (الشريطي 4×1، المربع 2×2، والمفصل 4×2) بتصميم شبه شفاف يعرض الرصيد والبطارية وحالة المودم. يمكنك اضافتها من الإعدادت او من الشاشة الرئيسية لهاتفك',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
@@ -141,7 +141,7 @@ class WhatsNewHelper {
               _buildFeatureItem(
                 icon: Iconsax.wallet_3,
                 title: 'إصلاح الاستعلام عن الرصيد',
-                description: 'تحسين شامل لخدمة استعلام الرصيد مع دعم تصحيح صيغة الأرقام تلقائياً وإمكانية إدخال رقم الخط وحفظه يدوياً.',
+                description: 'حل جذري لخدمة استعلام الرصيد مع دعم تصحيح صيغة الأرقام تلقائياً.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
