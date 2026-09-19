@@ -7,6 +7,7 @@ class BalanceTrackingData {
   final bool alert5GBFired;
   final bool alert1GBFired;
   final String? expiryDate;
+  final String? packageName;
 
   BalanceTrackingData({
     required this.lastFetchedBalanceBytes,
@@ -14,6 +15,7 @@ class BalanceTrackingData {
     required this.alert5GBFired,
     required this.alert1GBFired,
     this.expiryDate,
+    this.packageName,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +25,7 @@ class BalanceTrackingData {
       'alert5GBFired': alert5GBFired,
       'alert1GBFired': alert1GBFired,
       'expiryDate': expiryDate,
+      'packageName': packageName,
     };
   }
 
@@ -33,6 +36,7 @@ class BalanceTrackingData {
       alert5GBFired: json['alert5GBFired'] as bool? ?? false,
       alert1GBFired: json['alert1GBFired'] as bool? ?? false,
       expiryDate: json['expiryDate'] as String?,
+      packageName: json['packageName'] as String?,
     );
   }
 }

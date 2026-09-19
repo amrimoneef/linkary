@@ -4,7 +4,7 @@ description: "Linkary Simplify your connection, Master your network."
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.2+11
+version: 1.0.3+12
 
 environment:
   sdk: ^3.11.1
@@ -48,6 +48,7 @@ dependencies:
   cached_network_image: ^3.4.1
   permission_handler: ^13.0.1
   in_app_update: ^5.0.0
+  home_widget: ^0.10.0
 
 
 dev_dependencies:

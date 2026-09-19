@@ -21,6 +21,7 @@ import '../../../settings/presentation/pages/admin_settings_page.dart';
 import '../../../settings/presentation/pages/lcd_settings_page.dart';
 import '../../../connected_devices/presentation/pages/connected_devices_page.dart';
 import '../../../modem_finder/presentation/pages/modem_finder_settings_page.dart';
+import '../../../quick_tools_and_widgets/presentation/pages/widgets_settings_page.dart';
 import '../../../../core/widgets/expandable_power_menu.dart';
 import 'battery_settings_page.dart';
 
@@ -266,6 +267,15 @@ class AllSettingsPage extends StatelessWidget {
           icon: Iconsax.user_octagon,
           gradientColors: const [Color(0xFFA889FD), Color(0xFF7C4DFF)],
           onTap: () => Get.to(() => const AdminSettingsPage()),
+        ),
+
+        // 7.7 الأدوات السريعة والويدجت
+        _buildSettingCard(
+          title: 'الأدوات السريعة والويدجت',
+          subtitle: 'شريط الإشعارات التفاعلي وويدجت الشاشة الرئيسية',
+          icon: Iconsax.category_2,
+          gradientColors: const [Color(0xFF38BDF8), Color(0xFF0284C7)],
+          onTap: () => Get.to(() => const WidgetsSettingsPage()),
         ),
 
         // 8. إدارة التنبيهات

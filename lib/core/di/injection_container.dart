@@ -83,6 +83,11 @@ import '../../features/bill/infrastructure/data_sources/bill_api_data_source.dar
 import '../../features/bill/infrastructure/services/bill_config_service.dart';
 import '../../features/bill/infrastructure/repositories_impl/bill_repository_impl.dart';
 import '../../features/bill/presentation/controllers/bill_controller.dart';
+import '../../features/quick_tools_and_widgets/domain/repositories/quick_tools_repository.dart';
+import '../../features/quick_tools_and_widgets/infrastructure/repositories_impl/quick_tools_repository_impl.dart';
+import '../../features/quick_tools_and_widgets/infrastructure/services/home_widget_sync_service.dart';
+import '../../features/quick_tools_and_widgets/infrastructure/services/quick_notification_service.dart';
+import '../../features/quick_tools_and_widgets/presentation/controllers/quick_tools_controller.dart';
 
 import '../../features/voice_assistant/infrastructure/services/speech_recognition_service.dart';
 import '../../features/voice_assistant/infrastructure/services/tts_service.dart';
@@ -367,6 +372,24 @@ Future<void> initDI() async {
       submitBillUseCase: Get.find<SubmitBillUseCase>(),
     ),
     fenix: true,
+  );
+
+  // ==========================================
+  // --- ميزة الأدوات السريعة والويدجت (Quick Tools & Widgets) ---
+  // ==========================================
+  Get.lazyPut<QuickToolsRepository>(
+    () => QuickToolsRepositoryImpl(sharedPreferences: Get.find<SharedPreferences>()),
+    fenix: true,
+  );
+  Get.lazyPut(() => HomeWidgetSyncService(), fenix: true);
+  Get.lazyPut(() => QuickNotificationService(), fenix: true);
+  Get.put(
+    QuickToolsController(
+      repository: Get.find<QuickToolsRepository>(),
+      homeWidgetSyncService: Get.find<HomeWidgetSyncService>(),
+      quickNotificationService: Get.find<QuickNotificationService>(),
+    ),
+    permanent: true,
   );
 
   // ==========================================

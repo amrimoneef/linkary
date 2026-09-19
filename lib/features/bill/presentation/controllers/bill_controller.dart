@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../../../../core/services/balance_tracking_service.dart';
 import '../../domain/entities/bill_entity.dart';
@@ -31,6 +30,7 @@ class BillController extends GetxController {
   // ─── متغيرات الرصيد المتوقع ───────────────────────────────
   final RxnInt expectedBalanceBytes = RxnInt();
   final isRouterResetDetected = false.obs;
+  final packageName = ''.obs;
   BalanceTrackingData? _balanceTrackingData;
 
   // ─── إعدادات الـ Cache والـ Rate-Limit ──────────────────────
@@ -100,7 +100,7 @@ class BillController extends GetxController {
   }
 
   /// عمر الـ Cache الحالي كنص مقروء
-  String _cacheAge() {
+  String get cacheAge {
     if (lastUpdated.value == null) return 'غير محدد';
     final diff = DateTime.now().difference(lastUpdated.value!);
     if (diff.inMinutes < 1) return '${diff.inSeconds} ثانية';
@@ -192,8 +192,10 @@ class BillController extends GetxController {
         errorMessage.value =
             'تجاوزت عدد مرات الاستعلام المسموح بها.\n'
             'سيتم السماح بالاستعلام مجدداً خلال ${_rateLimitCooldown.inMinutes} دقائق.';
-        if (kDebugMode) print(
-            '⏳ [BillController] Rate limit hit. Cooldown until: $_rateLimitUntil');
+        if (kDebugMode) {
+          print(
+              '⏳ [BillController] Rate limit hit. Cooldown until: $_rateLimitUntil');
+        }
       } else {
         errorMessage.value = msg;
       }
@@ -251,10 +253,19 @@ class BillController extends GetxController {
     }
   }
 
-  // ─── وظائف حساب الرصيد المتوقع ──────────────────────────────
+  BalanceTrackingData? get balanceTrackingData => _balanceTrackingData;
 
   Future<void> _initBalanceTracking() async {
     _balanceTrackingData = await BalanceTrackingService.getData();
+    if (_balanceTrackingData?.packageName != null && _balanceTrackingData!.packageName!.isNotEmpty) {
+      packageName.value = _balanceTrackingData!.packageName!;
+    }
+    if (Get.isRegistered<DashboardController>()) {
+      final dashData = Get.find<DashboardController>().dashboardData.value;
+      if (dashData != null) {
+        _updateExpectedBalance(dashData);
+      }
+    }
   }
 
   void _updateExpectedBalance(DashboardEntity? dashData) {
@@ -290,6 +301,7 @@ class BillController extends GetxController {
         alert5GBFired: true,
         alert1GBFired: _balanceTrackingData!.alert1GBFired,
         expiryDate: _balanceTrackingData!.expiryDate,
+        packageName: _balanceTrackingData!.packageName,
       );
       needsSave = true;
     } else if (remainingBytes <= oneGB && !_balanceTrackingData!.alert1GBFired) {
@@ -300,6 +312,7 @@ class BillController extends GetxController {
         alert5GBFired: true,
         alert1GBFired: true,
         expiryDate: _balanceTrackingData!.expiryDate,
+        packageName: _balanceTrackingData!.packageName,
       );
       needsSave = true;
     }
@@ -332,6 +345,23 @@ class BillController extends GetxController {
       }
     }
 
+    // البحث عن اسم الباقة الحالية وتخزينها
+    String? packageNameStr;
+    for (final entry in result.data.entries) {
+      final k = entry.key.trim();
+      if (k == 'الباقة' || k == 'اسم الباقة' || k.contains('باقة')) {
+        packageNameStr = entry.value
+            .replaceAll(RegExp(r'[_-\s]*DATA_ONLY[_-\s]*', caseSensitive: false), ' ')
+            .trim();
+        packageNameStr = packageNameStr.replaceAll(RegExp(r'\s+'), ' ').trim();
+        debugPrint('📦 [BillController] Extracted Package Name: $packageNameStr from key: $k');
+        break;
+      }
+    }
+    if (packageNameStr != null && packageNameStr.isNotEmpty) {
+      packageName.value = packageNameStr;
+    }
+
     // 2- إذا لم نجده كاسم صريح، نبحث عن أي "رصيد متاح" تحتوي قيمته على وحدات بايت
     if (balanceStr == null) {
       for (final key in result.data.keys) {
@@ -356,6 +386,7 @@ class BillController extends GetxController {
         alert5GBFired: false,
         alert1GBFired: false,
         expiryDate: expiryDateStr,
+        packageName: packageNameStr,
       );
       BalanceTrackingService.saveData(_balanceTrackingData!);
       _updateExpectedBalance(dashController.dashboardData.value);
