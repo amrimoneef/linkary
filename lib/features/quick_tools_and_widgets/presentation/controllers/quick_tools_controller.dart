@@ -24,6 +24,7 @@ class QuickToolsController extends GetxController {
   });
 
   final RxBool isNotificationEnabled = false.obs;
+  final RxBool isRefreshing = false.obs;
   final Rx<WidgetConfigEntity> widgetConfig = const WidgetConfigEntity().obs;
   final Rx<QuickToolsStateEntity> state = QuickToolsStateEntity(
     lastUpdated: DateTime.now(),
@@ -61,18 +62,30 @@ class QuickToolsController extends GetxController {
   }
 
   void _setupReactiveListeners() {
-    // الاستماع لأي تحديث في شاشة لوحة التحكم
+    // الاستماع لتحديثات لوحة التحكم مع تطبيق Debounce لتوفير البطارية ومنع التكرار المفرط
     if (Get.isRegistered<DashboardController>()) {
       final dashController = Get.find<DashboardController>();
-      ever(dashController.dashboardData, (_) => updateLiveState());
+      debounce(
+        dashController.dashboardData,
+        (_) => updateLiveState(),
+        time: const Duration(seconds: 2),
+      );
       ever(dashController.isDataConnected, (_) => updateLiveState());
     }
 
-    // الاستماع لأي تحديث في شاشة الرصيد (البيانات والرصيد المتوقع)
+    // الاستماع لتحديثات شاشة الرصيد مع تطبيق Debounce
     if (Get.isRegistered<BillController>()) {
       final billController = Get.find<BillController>();
-      ever(billController.billData, (_) => updateLiveState());
-      ever(billController.expectedBalanceBytes, (_) => updateLiveState());
+      debounce(
+        billController.billData,
+        (_) => updateLiveState(),
+        time: const Duration(seconds: 2),
+      );
+      debounce(
+        billController.expectedBalanceBytes,
+        (_) => updateLiveState(),
+        time: const Duration(seconds: 2),
+      );
     }
   }
 
@@ -346,11 +359,17 @@ class QuickToolsController extends GetxController {
         }
       }
     } catch (_) {}
-    return rawDate;
+
+    final trimmed = rawDate.trim();
+    if (trimmed.isEmpty) return '--';
+    final firstPart = trimmed.split(' ').first;
+    return firstPart.isNotEmpty ? firstPart : '--';
   }
 
   /// تحديث شامل لكافة مؤشرات المودم والرصيد
   Future<void> refreshAll() async {
+    if (isRefreshing.value) return;
+    isRefreshing.value = true;
     try {
       if (Get.isRegistered<DashboardController>()) {
         await Get.find<DashboardController>().fetchData();
@@ -370,6 +389,17 @@ class QuickToolsController extends GetxController {
       );
     } catch (e) {
       await updateLiveState();
+      Get.snackbar(
+        'خطأ في التحديث',
+        'تعذّر الاتصال بالمودم، يرجى التأكد من اتصالك بشبكة المودم.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade900,
+        colorText: Colors.white,
+        icon: const Icon(Icons.error_outline, color: Colors.white),
+        duration: const Duration(seconds: 3),
+      );
+    } finally {
+      isRefreshing.value = false;
     }
   }
 

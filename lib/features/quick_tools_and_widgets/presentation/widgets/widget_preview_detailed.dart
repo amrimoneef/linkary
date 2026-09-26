@@ -243,7 +243,7 @@ class WidgetPreviewDetailed extends StatelessWidget {
                     const SizedBox(width: 8),
                     _buildPreviewBtn(
                       'التطبيق',
-                      Icons.account_balance_wallet_rounded,
+                      Icons.open_in_new_rounded,
                       const Color(0xFFE2E8F0),
                     ),
                     const SizedBox(width: 8),

@@ -30,88 +30,65 @@ class HomeWidgetSyncService {
     required WidgetConfigEntity config,
   }) async {
     try {
-      // 1. حفظ البيانات الأساسية المشتركة
-      await HomeWidget.saveWidgetData<bool>('is_connected', state.isConnected);
-      await HomeWidget.saveWidgetData<String>('balance_text', state.balanceText);
-      await HomeWidget.saveWidgetData<String>('days_remaining', state.daysRemaining);
-      await HomeWidget.saveWidgetData<int>(
-        'battery_level',
-        state.batteryLevel,
-      );
-      await HomeWidget.saveWidgetData<bool>('is_charging', state.isCharging);
-      await HomeWidget.saveWidgetData<int>('signal_bars', state.signalBars);
-      await HomeWidget.saveWidgetData<String>('signal_text', state.signalText);
-      await HomeWidget.saveWidgetData<int>(
-        'devices_count',
-        state.connectedDevicesCount,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'network_speed',
-        state.networkSpeed,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'last_updated_time',
-        state.lastUpdated12h,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'package_name',
-        state.cleanPackageName,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'balance_val',
-        state.balanceNumericValue,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'balance_unit',
-        state.balanceUnit,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'total_text',
-        state.accumulatedUsageText,
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'consumed_text',
-        state.currentSessionUsageText,
-      );
-      await HomeWidget.saveWidgetData<int>(
-        'quota_progress_int',
-        state.quotaProgressPercent,
-      );
-      await HomeWidget.saveWidgetData<String>('theme_mode', config.theme.name);
+      // 1. تجميع وحفظ البيانات الأساسية المشتركة دفعة واحدة (Batch writes)
+      final saveTasks = <Future<dynamic>>[
+        HomeWidget.saveWidgetData<bool>('is_connected', state.isConnected),
+        HomeWidget.saveWidgetData<String>('balance_text', state.balanceText),
+        HomeWidget.saveWidgetData<String>('days_remaining', state.daysRemaining),
+        HomeWidget.saveWidgetData<int>('battery_level', state.batteryLevel),
+        HomeWidget.saveWidgetData<bool>('is_charging', state.isCharging),
+        HomeWidget.saveWidgetData<int>('signal_bars', state.signalBars),
+        HomeWidget.saveWidgetData<String>('signal_text', state.signalText),
+        HomeWidget.saveWidgetData<int>('devices_count', state.connectedDevicesCount),
+        HomeWidget.saveWidgetData<String>('network_speed', state.networkSpeed),
+        HomeWidget.saveWidgetData<String>('last_updated_time', state.lastUpdated12h),
+        HomeWidget.saveWidgetData<String>('package_name', state.cleanPackageName),
+        HomeWidget.saveWidgetData<String>('balance_val', state.balanceNumericValue),
+        HomeWidget.saveWidgetData<String>('balance_unit', state.balanceUnit),
+        HomeWidget.saveWidgetData<String>('total_text', state.accumulatedUsageText),
+        HomeWidget.saveWidgetData<String>('consumed_text', state.currentSessionUsageText),
+        HomeWidget.saveWidgetData<int>('quota_progress_int', state.quotaProgressPercent),
+        HomeWidget.saveWidgetData<String>('theme_mode', config.theme.name),
+        HomeWidget.saveWidgetData<int>('total_plan_bytes', state.totalPlanBytes),
+      ];
 
       // حفظ session_id لاستخدامه في إعادة تشغيل المودم من الويدجت بلا فتح التطبيق
       try {
         if (Get.isRegistered<AuthController>()) {
           final sid = Get.find<AuthController>().currentUser?.sessionId;
           if (sid != null && sid.isNotEmpty) {
-            await HomeWidget.saveWidgetData<String>('modem_session_id', sid);
+            saveTasks.add(HomeWidget.saveWidgetData<String>('modem_session_id', sid));
           }
         }
       } catch (_) {}
 
-      // حفظ بيانات تتبع الرصيد حتى يتمكن كود Kotlin في الويدجت من إعادة حساب الرصيد فوراً عند الضغط على زر التحديث
+      // حفظ بيانات تتبع الرصيد حتى يتمكن كود Kotlin في الويدجت من إعادة حساب الرصيد فوراً
       try {
         final tracking = await BalanceTrackingService.getData();
         if (tracking != null) {
-          await HomeWidget.saveWidgetData<int>('tracking_balance_bytes', tracking.lastFetchedBalanceBytes);
-          await HomeWidget.saveWidgetData<int>('tracking_initial_usage', tracking.initialRouterUsageBytes);
+          saveTasks.add(HomeWidget.saveWidgetData<int>('tracking_balance_bytes', tracking.lastFetchedBalanceBytes));
+          saveTasks.add(HomeWidget.saveWidgetData<int>('tracking_initial_usage', tracking.initialRouterUsageBytes));
         }
-        await HomeWidget.saveWidgetData<int>('total_plan_bytes', state.totalPlanBytes);
       } catch (_) {}
 
-      // 2. طلب تحديث كافة قوالب الويدجت النشطة
-      await HomeWidget.updateWidget(
-        name: smallWidgetProvider,
-        androidName: smallWidgetProvider,
-      );
-      await HomeWidget.updateWidget(
-        name: bannerWidgetProvider,
-        androidName: bannerWidgetProvider,
-      );
-      await HomeWidget.updateWidget(
-        name: detailedWidgetProvider,
-        androidName: detailedWidgetProvider,
-      );
+      // تنفيذ كافة عمليات الحفظ بالتوازي دفعة واحدة
+      await Future.wait(saveTasks);
+
+      // 2. طلب تحديث كافة قوالب الويدجت النشطة بالتوازي
+      await Future.wait([
+        HomeWidget.updateWidget(
+          name: smallWidgetProvider,
+          androidName: smallWidgetProvider,
+        ),
+        HomeWidget.updateWidget(
+          name: bannerWidgetProvider,
+          androidName: bannerWidgetProvider,
+        ),
+        HomeWidget.updateWidget(
+          name: detailedWidgetProvider,
+          androidName: detailedWidgetProvider,
+        ),
+      ]);
 
       if (kDebugMode) {
         print('✨ [HomeWidgetSyncService] Synced data to Android Home Widgets.');

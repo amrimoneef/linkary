@@ -261,7 +261,7 @@ class WidgetPreviewSmall extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${state.accumulatedUsageText} :الإجمالي',
+                                'الإجمالي: ${state.accumulatedUsageText}',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: Color(0xFF94A3B8),
@@ -269,7 +269,7 @@ class WidgetPreviewSmall extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '${state.currentSessionUsageText} :المستهلك',
+                                'المستهلك: ${state.currentSessionUsageText}',
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: Color(0xFF94A3B8),

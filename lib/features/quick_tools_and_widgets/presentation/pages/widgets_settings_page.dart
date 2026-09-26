@@ -32,6 +32,23 @@ class WidgetsSettingsPage extends GetView<QuickToolsController> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Get.back(),
         ),
+        actions: [
+          Obx(() => IconButton(
+            icon: controller.isRefreshing.value
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFF38BDF8),
+                    ),
+                  )
+                : const Icon(Icons.refresh_rounded, color: Color(0xFF38BDF8)),
+            onPressed: controller.isRefreshing.value ? null : () => controller.refreshAll(),
+            tooltip: 'تحديث بيانات الويدجت والمودم',
+          )),
+          const SizedBox(width: 4),
+        ],
       ),
       body: Obx(() {
         final state = controller.state.value;
