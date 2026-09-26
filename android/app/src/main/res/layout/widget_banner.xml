@@ -14,6 +14,7 @@
 
     <!-- 1. Left Section: 3 Compact Metric Rows -->
     <LinearLayout
+        android:id="@+id/layout_banner_metrics"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.9"
@@ -92,6 +93,7 @@
 
     <!-- 2. Center Section: Balance + Days Remaining + Mini Progress Bar -->
     <LinearLayout
+        android:id="@+id/layout_banner_connected"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1.1"
@@ -145,6 +147,35 @@
             android:max="100"
             android:progress="71"
             android:progressDrawable="@drawable/progress_bar_gradient" />
+    </LinearLayout>
+
+    <!-- 2b. Disconnected Center Section: Time-based Greeting + Prompt -->
+    <LinearLayout
+        android:id="@+id/layout_banner_disconnected"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2.0"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_banner_greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="مساء الخير"
+            android:textColor="#38BDF8"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_banner_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="يرجى الاتصال بمودم SAM4G"
+            android:textColor="#94A3B8"
+            android:textSize="10sp" />
     </LinearLayout>
 
     <!-- 3. Right Section: Title, Refresh, and Big Circular Wi-Fi Button -->

@@ -136,14 +136,18 @@
                 android:resource="@xml/widget_detailed_info" />
         </receiver>
 
-        <!-- مستقبل إجراءات الويدجت والإشعار الدائم (تحديث، إعادة تشغيل) -->
+        <!-- مستقبل إجراءات الويدجت والإشعار الدائم (تحديث، إعادة تشغيل، فتح الشاشة) -->
         <receiver
             android:name=".WidgetActionReceiver"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.sam4g.app_settings.WIDGET_REFRESH" />
+                <action android:name="com.sam4g.app_settings.PERIODIC_REFRESH" />
                 <action android:name="com.sam4g.app_settings.WIDGET_REBOOT" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
     </application>

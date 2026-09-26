@@ -27,6 +27,7 @@ import '../widgets/app_detail_infographic_widget.dart';
 import '../../../../core/widgets/custom_snackbar.dart';
 
 enum MonitorFilter { session, today, week, month }
+enum BlockedAppFilter { all, user, system }
 
 class AppMonitorController extends GetxController with WidgetsBindingObserver {
   final AppMonitorRepository repository;
@@ -91,6 +92,75 @@ class AppMonitorController extends GetxController with WidgetsBindingObserver {
   var allInstalledApps = <AppUsageEntity>[].obs;
   var isLoadingApps = false.obs;
 
+  // Firewall Search & Filter
+  var firewallSearchQuery = ''.obs;
+  var firewallFilter = BlockedAppFilter.all.obs;
+  final TextEditingController firewallSearchController = TextEditingController();
+
+  List<BlockedApp> get filteredBlockedApps {
+    var list = blockedApps.toList();
+
+    // 1. تصفية بالبحث (اسم التطبيق أو الحزمة)
+    if (firewallSearchQuery.value.trim().isNotEmpty) {
+      final query = firewallSearchQuery.value.trim().toLowerCase();
+      list = list.where((app) {
+        return app.appName.toLowerCase().contains(query) ||
+               app.packageName.toLowerCase().contains(query);
+      }).toList();
+    }
+
+    // 2. تصفية حسب نوع التطبيق (الكل / مستخدم / نظام)
+    if (firewallFilter.value == BlockedAppFilter.user) {
+      list = list.where((app) {
+        final installed = allInstalledApps.firstWhereOrNull((a) => a.packageName == app.packageName);
+        return installed == null || !installed.isSystemApp;
+      }).toList();
+    } else if (firewallFilter.value == BlockedAppFilter.system) {
+      list = list.where((app) {
+        final installed = allInstalledApps.firstWhereOrNull((a) => a.packageName == app.packageName);
+        return installed != null && installed.isSystemApp;
+      }).toList();
+    }
+
+    // 3. الترتيب من الأحدث إلى الأقدم
+    list.sort((a, b) => b.blockedAt.compareTo(a.blockedAt));
+    return list;
+  }
+
+  int get blockedUserAppsCount => blockedApps.where((app) {
+    final installed = allInstalledApps.firstWhereOrNull((a) => a.packageName == app.packageName);
+    return installed == null || !installed.isSystemApp;
+  }).length;
+
+  int get blockedSystemAppsCount => blockedApps.where((app) {
+    final installed = allInstalledApps.firstWhereOrNull((a) => a.packageName == app.packageName);
+    return installed != null && installed.isSystemApp;
+  }).length;
+
+  void updateFirewallSearch(String query) {
+    firewallSearchQuery.value = query;
+  }
+
+  void clearFirewallSearch() {
+    firewallSearchQuery.value = '';
+    firewallSearchController.clear();
+  }
+
+  void setFirewallFilter(BlockedAppFilter filter) {
+    firewallFilter.value = filter;
+  }
+
+  Future<void> unblockAllApps() async {
+    if (blockedApps.isEmpty) return;
+    blockedApps.clear();
+    await blockingRepository.saveBlockedApps(blockedApps);
+    if (isFirewallEnabled.value) {
+      await blockingRepository.stopFirewall();
+      isFirewallEnabled.value = false;
+      await blockingRepository.setFirewallEnabled(false);
+    }
+  }
+
   List<AppUsageEntity> get userApps => _filterList(allInstalledApps.where((a) => !a.isSystemApp).toList());
   List<AppUsageEntity> get systemApps => _filterList(allInstalledApps.where((a) => a.isSystemApp).toList());
 
@@ -123,6 +193,7 @@ class AppMonitorController extends GetxController with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     searchTextController.dispose();
     searchFocusNode.dispose();
+    firewallSearchController.dispose();
     super.onClose();
   }
 

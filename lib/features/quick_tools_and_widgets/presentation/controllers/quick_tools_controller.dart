@@ -247,8 +247,9 @@ class QuickToolsController extends GetxController {
     // تنظيف اسم الباقة بحذف DATA_ONLY
     packageName = _cleanPackageName(packageName);
 
-    // حساب الحجم الكلي للباقة بالبايت
-    final match = RegExp(r'(\d+(\.\d+)?)').firstMatch(packageName);
+    // حساب الحجم الكلي للباقة بالبايت (تجاهل 4G/5G/3G/LTE حتى لا يؤخذ رقم 4 كحجم للباقة)
+    final nameWithoutTech = packageName.replaceAll(RegExp(r'(4G|5G|3G|LTE)', caseSensitive: false), ' ');
+    final match = RegExp(r'(\d+(\.\d+)?)').firstMatch(nameWithoutTech);
     if (match != null) {
       final gb = double.tryParse(match.group(1)!) ?? 0.0;
       if (gb > 0) {
@@ -257,7 +258,7 @@ class QuickToolsController extends GetxController {
     }
     if (totalPlanBytes == 0 && expectedBytes != null && expectedBytes > 0) {
       final gb = expectedBytes / (1024 * 1024 * 1024);
-      totalPlanBytes = (gb > 40 ? 80 : 40) * 1024 * 1024 * 1024;
+      totalPlanBytes = (gb > 40 ? 80 : (gb > 25 ? 40 : (gb > 15 ? 25 : (gb > 10 ? 15 : 10)))) * 1024 * 1024 * 1024;
     }
 
     if (expectedBytes != null && expectedBytes > 0) {

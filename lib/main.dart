@@ -8,6 +8,7 @@ import 'core/services/app_security_service.dart';
 import 'core/services/battery_monitor_service.dart';
 import 'core/services/fcm_notification_service.dart';
 import 'features/connected_devices/infrastructure/services/background_device_monitor.dart';
+import 'features/quick_tools_and_widgets/infrastructure/services/widget_refresh_task.dart';
 import 'features/splash/presentation/pages/splash_page.dart';
 
 /// نقطة الدخول الموحدة لجميع مهام الخلفية (Workmanager)
@@ -21,6 +22,12 @@ void callbackDispatcher() {
       await BatteryMonitorService.checkExpiryAndNotify();
     } else if (task == backgroundDeviceMonitorTask) {
       await BackgroundDeviceMonitor.checkDevicesAndNotify();
+    } else if (task == widgetRefreshTask) {
+      // تحديث يدوي من زر التحديث — بلا rate-limit
+      await WidgetRefreshTask.run(isManual: true);
+    } else if (task == widgetScreenUnlockTask) {
+      // تحديث تلقائي عند فتح الشاشة — مع rate-limit 3 دقائق
+      await WidgetRefreshTask.run(isManual: false);
     }
     return Future.value(true);
   });

@@ -115,15 +115,16 @@ class QuickToolsStateEntity {
 
   /// حجم إجمالي الباقة بالجيجابايت
   double get totalPlanGigabytes {
-    if (totalPlanBytes > 0) {
-      return totalPlanBytes / (1024 * 1024 * 1024);
-    }
-    final match = RegExp(r'(\d+(\.\d+)?)').firstMatch(cleanPackageName);
+    final nameWithoutTech = cleanPackageName.replaceAll(RegExp(r'(4G|5G|3G|LTE)', caseSensitive: false), ' ');
+    final match = RegExp(r'(\d+(\.\d+)?)').firstMatch(nameWithoutTech);
     if (match != null) {
       final val = double.tryParse(match.group(1)!) ?? 0.0;
       if (val > 0) return val;
     }
-    return balanceNumericDouble > 40 ? 80.0 : 40.0;
+    if (totalPlanBytes > 0) {
+      return totalPlanBytes / (1024 * 1024 * 1024);
+    }
+    return balanceNumericDouble > 40 ? 80.0 : (balanceNumericDouble > 25 ? 40.0 : (balanceNumericDouble > 15 ? 25.0 : 15.0));
   }
 
   /// استهلاك الجلسة الحالية بتنسيق الوحدة أولاً (مثال: GB 1.2 أو MB 450)

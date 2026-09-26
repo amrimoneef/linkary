@@ -70,6 +70,7 @@
 
     <!-- Center content: Balance & Grid Stats -->
     <LinearLayout
+        android:id="@+id/layout_det_connected"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
@@ -192,6 +193,45 @@
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
+    </LinearLayout>
+
+    <!-- Disconnected Center: Greeting + Prompt -->
+    <LinearLayout
+        android:id="@+id/layout_det_disconnected"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_glass_pill"
+            android:padding="8dp"
+            android:src="@drawable/ic_widget_modem" />
+
+        <TextView
+            android:id="@+id/tv_det_greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="مساء الخير"
+            android:textColor="#38BDF8"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_det_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="يرجى الاتصال بمودم SAM4G"
+            android:textColor="#94A3B8"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <!-- Bottom Action Row -->

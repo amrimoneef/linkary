@@ -61,6 +61,13 @@ class BootReceiver : BroadcastReceiver() {
                 Log.e("LinkaryBoot", "Failed to restore notification: ${e.message}")
             }
         }
+
+        // ── 3. إعادة جدولة التحديث الدوري للويدجت كل 5 دقائق إن وُجد ───────
+        try {
+            WidgetActionReceiver.schedulePeriodicUpdate(context)
+        } catch (e: Exception) {
+            Log.e("LinkaryBoot", "Failed to schedule widget updates: ${e.message}")
+        }
     }
 
     private fun startServiceSafely(context: Context, intent: Intent) {

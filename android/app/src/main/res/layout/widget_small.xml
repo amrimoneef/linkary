@@ -75,6 +75,7 @@
 
     <!-- 2. Hero Center: Huge Balance + Days + Glowing Progress + Sub-labels -->
     <LinearLayout
+        android:id="@+id/layout_small_connected"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -157,6 +158,46 @@
                 android:textColor="#94A3B8"
                 android:textSize="9sp" />
         </RelativeLayout>
+    </LinearLayout>
+
+    <!-- 2b. Disconnected State: Time-based Greeting & Connect prompt -->
+    <LinearLayout
+        android:id="@+id/layout_small_disconnected"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_widget_modem_badge"
+            android:padding="7dp"
+            android:src="@drawable/ic_widget_modem" />
+
+        <TextView
+            android:id="@+id/tv_small_greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="مساء الخير"
+            android:textColor="#38BDF8"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_small_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="يرجى الاتصال بمودم SAM4G"
+            android:textColor="#94A3B8"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <!-- 3. Bottom Pill: Devices + 4G Signal + Battery in floating pill bar -->

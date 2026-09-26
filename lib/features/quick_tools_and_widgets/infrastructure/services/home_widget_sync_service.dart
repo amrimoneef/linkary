@@ -4,6 +4,7 @@ import 'package:home_widget/home_widget.dart';
 import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 import '../../domain/entities/quick_tools_state_entity.dart';
 import '../../domain/entities/widget_config_entity.dart';
+import '../../../../core/services/balance_tracking_service.dart';
 
 class HomeWidgetSyncService {
   static const String appGroupId = 'group.com.sam4g.app_settings';
@@ -86,6 +87,16 @@ class HomeWidgetSyncService {
             await HomeWidget.saveWidgetData<String>('modem_session_id', sid);
           }
         }
+      } catch (_) {}
+
+      // حفظ بيانات تتبع الرصيد حتى يتمكن كود Kotlin في الويدجت من إعادة حساب الرصيد فوراً عند الضغط على زر التحديث
+      try {
+        final tracking = await BalanceTrackingService.getData();
+        if (tracking != null) {
+          await HomeWidget.saveWidgetData<int>('tracking_balance_bytes', tracking.lastFetchedBalanceBytes);
+          await HomeWidget.saveWidgetData<int>('tracking_initial_usage', tracking.initialRouterUsageBytes);
+        }
+        await HomeWidget.saveWidgetData<int>('total_plan_bytes', state.totalPlanBytes);
       } catch (_) {}
 
       // 2. طلب تحديث كافة قوالب الويدجت النشطة
