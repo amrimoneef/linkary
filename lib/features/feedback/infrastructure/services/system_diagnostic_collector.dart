@@ -3,8 +3,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:linkary/core/network/session_manager.dart';
 import 'package:linkary/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:linkary/features/feedback/domain/entities/device_diagnostic_info.dart';
+import 'package:linkary/features/modem_auth/domain/repositories/auth_repository.dart';
+import 'package:linkary/features/modem_auth/presentation/controllers/auth_controller.dart';
 
 class SystemDiagnosticCollector {
   final DeviceInfoPlugin _deviceInfo;
@@ -58,12 +61,15 @@ class SystemDiagnosticCollector {
     String batteryLevel = 'غير متوفر';
     String signalStrength = 'غير متوفر';
 
+    bool isModemConnected = false;
+
     // Extract live modem data from DashboardController if active
     if (Get.isRegistered<DashboardController>()) {
       try {
         final dash = Get.find<DashboardController>();
         final data = dash.dashboardData.value;
         if (data != null) {
+          isModemConnected = true;
           if (data.batteryCapacity > 0) {
             batteryLevel = '${data.batteryCapacity}%';
           }
@@ -73,13 +79,59 @@ class SystemDiagnosticCollector {
           if (data.signalLevel >= 0) {
             signalStrength = '${data.signalLevel} / 5 (${data.rssi} dBm)';
           }
-          modemModel = 'Sam4G MiFi';
         }
         final eng = dash.engInfoData.value;
         if (eng != null && eng.band.isNotEmpty) {
           modemFirmware = 'Band: ${eng.band} (PCI: ${eng.pci})';
         }
       } catch (_) {}
+    }
+
+    // Dynamic resolution of the real modem model based on Serial Number (SN)
+    String? sn;
+    if (Get.isRegistered<AuthController>()) {
+      try {
+        final auth = Get.find<AuthController>();
+        sn = auth.currentSN.value;
+        if (sn == null || sn.trim().isEmpty) {
+          await auth.fetchSerialNumber();
+          sn = auth.currentSN.value;
+        }
+      } catch (_) {}
+    }
+
+    if (sn == null || sn.trim().isEmpty) {
+      try {
+        sn = await SessionManager.getLastSN();
+      } catch (_) {}
+    }
+
+    if (sn == null || sn.trim().isEmpty) {
+      if (Get.isRegistered<AuthRepository>()) {
+        try {
+          final authRepo = Get.find<AuthRepository>();
+          sn = await authRepo.getSerialNumber();
+          if (sn != null && sn.trim().isNotEmpty) {
+            await SessionManager.saveLastSN(sn);
+          }
+        } catch (_) {}
+      }
+    }
+
+    if (sn != null && sn.trim().isNotEmpty) {
+      var cleanSn = sn.trim();
+      if (cleanSn.toUpperCase().startsWith('SAM4G')) {
+        cleanSn = cleanSn.substring(5).trim();
+        if (cleanSn.startsWith('-') || cleanSn.startsWith('_')) {
+          cleanSn = cleanSn.substring(1).trim();
+        }
+      }
+      final modelPrefix = cleanSn.length >= 3
+          ? cleanSn.substring(0, 3).toUpperCase()
+          : cleanSn.toUpperCase();
+      modemModel = modelPrefix.isNotEmpty ? 'Sam4g $modelPrefix' : 'Sam4g';
+    } else if (isModemConnected) {
+      modemModel = 'Sam4g';
     }
 
     return DeviceDiagnosticInfo(

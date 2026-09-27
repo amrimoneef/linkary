@@ -124,7 +124,7 @@ class FeedbackPage extends StatelessWidget {
                           );
                         }
                       }),
-                      const SizedBox(height: 40),
+                      SizedBox(height: MediaQuery.of(context).padding.bottom + 40),
                     ]),
                   ),
                 ),
@@ -454,7 +454,7 @@ class FeedbackPage extends StatelessWidget {
           textColor: textColor,
           subTextColor: subTextColor,
           title: 'وسيلة التواصل (اختياري)',
-          subtitle: 'بريدك الإلكتروني أو معرف تيليجرام للتواصل معك عند توفر الميزة.',
+          subtitle: 'رقم .',
           icon: Iconsax.direct_send,
           gradientColors: const [Color(0xFFEC4899), Color(0xFFBE185D)],
           expandedContent: Padding(
@@ -542,15 +542,19 @@ class FeedbackPage extends StatelessWidget {
         const SizedBox(height: 14),
 
         // 🛡️ ملاحظة العمل دون اتصال
-        Center(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Iconsax.cloud_connection, size: 14, color: subTextColor),
               const SizedBox(width: 6),
-              Text(
-                'يعمل التطبيق حتى دون إنترنت، وسيتم حفظ اقتراحك محلياً للإرسال التلقائي.',
-                style: TextStyle(fontSize: 11, color: subTextColor),
+              Flexible(
+                child: Text(
+                  'يعمل التطبيق حتى دون إنترنت، وسيتم حفظ اقتراحك محلياً للإرسال التلقائي.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11, color: subTextColor),
+                ),
               ),
             ],
           ),
