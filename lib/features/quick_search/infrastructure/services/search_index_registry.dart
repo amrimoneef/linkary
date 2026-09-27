@@ -33,6 +33,7 @@ import 'package:linkary/features/device_management/presentation/pages/device_man
 import 'package:linkary/features/quick_setup/presentation/pages/quick_setup_page.dart';
 import 'package:linkary/features/signal_finder/presentation/pages/saved_locations_page.dart';
 import 'package:linkary/features/modem_finder/presentation/pages/modem_finder_settings_page.dart';
+import 'package:linkary/features/feedback/presentation/pages/feedback_page.dart';
 
 // Controllers & Services
 import 'package:linkary/features/connected_devices/presentation/controllers/connected_devices_controller.dart';
@@ -721,6 +722,21 @@ class SearchIndexRegistry {
           'version', 'about', 'تحديث', 'لينكاري'
         ],
         onTap: () => Get.to(() => const AboutPage()),
+      ),
+
+      // صندوق الاقتراحات والملاحظات
+      SearchItem(
+        id: 'screen_feedback_box',
+        title: 'صندوق الاقتراحات والملاحظات',
+        subtitle: 'تقديم اقتراح لميزة جديدة، إبلاغ عن مشكلة، أو إرسال تقييمك',
+        icon: Iconsax.message_favorite,
+        category: SearchCategory.settings,
+        priority: 9,
+        keywords: const [
+          'اقتراح', 'اقتراحات', 'ملاحظة', 'ملاحظات', 'شكوى', 'مشكلة', 'عطل',
+          'ميزة جديدة', 'فكرة', 'صندوق الاقتراحات', 'تقييم', 'رأي', 'feedback', 'bug', 'suggest'
+        ],
+        onTap: () => Get.to(() => const FeedbackPage()),
       ),
     ];
   }

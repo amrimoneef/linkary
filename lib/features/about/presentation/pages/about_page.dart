@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../../../core/services/app_update_service.dart';
 import '../../../../core/widgets/custom_snackbar.dart';
+import '../../../feedback/presentation/pages/feedback_page.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -163,7 +164,83 @@ class AboutPage extends StatelessWidget {
                       _buildQuickActionButton(icon: FontAwesomeIcons.youtube, label: 'يوتيوب', onTap: () => _openLink('https://www.youtube.com/@sam4gyemen')),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 25),
+
+                  // 💡 صندوق الاقتراحات والملاحظات
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                            : [Colors.white, const Color(0xFFF0F7FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: const Color(0xFF4A90E2).withValues(alpha: 0.3),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF4A90E2).withValues(alpha: isDark ? 0.2 : 0.08),
+                          blurRadius: 15,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => Get.to(() => const FeedbackPage()),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF38BDF8), Color(0xFF2563EB)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: const Icon(Iconsax.message_favorite, color: Colors.white, size: 24),
+                              ),
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'صندوق الاقتراحات والملاحظات',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'لديك فكرة لميزة جديدة أو واجهت مشكلة؟ شاركنا رأيك لنبني التطبيق معاً.',
+                                      style: TextStyle(fontSize: 12, color: subTextColor, height: 1.3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Icon(Icons.arrow_forward_ios_rounded, size: 16, color: subTextColor),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 35),
 
                   // 📋 بطاقة المعلومات (باستخدام GlassCard الخاص بك)
                   // Align(
@@ -254,40 +331,6 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  // عنصر القائمة داخل البطاقة الزجاجية
-  Widget _buildListTile(BuildContext context, {required dynamic icon, required String title, required String subtitle, required bool isDark}) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.primaryPurple.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: icon is FaIconData 
-              ? FaIcon(icon, color: AppColors.primaryPurple, size: 22)
-              : Icon(icon as IconData, color: AppColors.primaryPurple, size: 22),
-        ),
-        const SizedBox(width: 15),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(color: isDark ? Colors.white : const Color(0xFF111827), fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(color: isDark ? Colors.white54 : const Color(0xFF6B7280), fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Future<void> _openLink(String urlString) async {
     final Uri url = Uri.parse(urlString);

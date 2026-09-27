@@ -139,6 +139,13 @@ import '../../features/banners/infrastructure/repositories_impl/banners_reposito
 import '../../features/banners/domain/usecases/get_banners_usecase.dart';
 import '../../features/banners/presentation/controllers/banners_controller.dart';
 
+import '../../features/feedback/domain/repositories/feedback_repository.dart';
+import '../../features/feedback/infrastructure/datasources/feedback_local_data_source.dart';
+import '../../features/feedback/infrastructure/datasources/feedback_remote_data_source.dart';
+import '../../features/feedback/infrastructure/repositories_impl/feedback_repository_impl.dart';
+import '../../features/feedback/infrastructure/services/system_diagnostic_collector.dart';
+import '../../features/feedback/presentation/controllers/feedback_controller.dart';
+
 import '../../features/device_data_limit/domain/repositories/device_data_limit_repository.dart';
 import '../../features/device_data_limit/domain/usecases/get_device_data_limit_enable_usecase.dart';
 import '../../features/device_data_limit/domain/usecases/set_device_data_limit_enable_usecase.dart';
@@ -539,6 +546,30 @@ Future<void> initDI() async {
   Get.lazyPut(
     () => QuickSearchController(
       repository: Get.find<QuickSearchRepository>(),
+    ),
+    fenix: true,
+  );
+
+  // ==========================================
+  // --- ميزة صندوق الاقتراحات (Feedback Box) ---
+  // ==========================================
+  Get.lazyPut(() => SystemDiagnosticCollector(), fenix: true);
+  Get.lazyPut(() => FeedbackRemoteDataSource(), fenix: true);
+  Get.lazyPut(
+    () => FeedbackLocalDataSource(sharedPreferences: Get.find<SharedPreferences>()),
+    fenix: true,
+  );
+  Get.lazyPut<FeedbackRepository>(
+    () => FeedbackRepositoryImpl(
+      remoteDataSource: Get.find<FeedbackRemoteDataSource>(),
+      localDataSource: Get.find<FeedbackLocalDataSource>(),
+    ),
+    fenix: true,
+  );
+  Get.lazyPut(
+    () => FeedbackController(
+      repository: Get.find<FeedbackRepository>(),
+      diagnosticCollector: Get.find<SystemDiagnosticCollector>(),
     ),
     fenix: true,
   );

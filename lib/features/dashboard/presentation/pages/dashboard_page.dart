@@ -71,16 +71,16 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
 
+              // عرض العروض والاعلانات
+              const BannersCarouselWidget(),
+              const SizedBox(height: 10),
+            
               // 🔍 شريط البحث السريع الزجاجي الذكي
               Transform.translate(
                 offset: const Offset(0, -28),
                 child: const HeroSearchBar(),
               ),
-
-              // عرض العروض والاعلانات
-              const BannersCarouselWidget(),
-              const SizedBox(height: 10),
-            
+              
               // 🛠️ أدوات التحكم
               Transform.translate(
                 offset: const Offset(0, -20),

@@ -25,6 +25,7 @@ import '../../../quick_tools_and_widgets/presentation/pages/widgets_settings_pag
 import '../../../../core/widgets/expandable_power_menu.dart';
 import 'battery_settings_page.dart';
 import '../../../quick_search/presentation/pages/quick_search_page.dart';
+import '../../../feedback/presentation/pages/feedback_page.dart';
 
 class AllSettingsPage extends StatelessWidget {
   const AllSettingsPage({super.key});
@@ -310,9 +311,17 @@ class AllSettingsPage extends StatelessWidget {
           onTap: () => Get.to(() => const LcdSettingsPage()),
         ),
 
-        // 8. حول التطبيق
+        // 8. صندوق الاقتراحات والملاحظات
         _buildSettingCard(
+          title: 'الاقتراحات',
+          subtitle: 'شاركنا أفكارك وملاحظاتك',
+          icon: Iconsax.message_favorite,
+          gradientColors: const [Color(0xFF38BDF8), Color(0xFF2563EB)],
+          onTap: () => Get.to(() => const FeedbackPage()),
+        ),
 
+        // 9. حول التطبيق
+        _buildSettingCard(
           title: 'حول التطبيق',
           subtitle: 'معلومات التطبيق',
           icon: Iconsax.info_circle,
