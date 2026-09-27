@@ -152,6 +152,37 @@ class QuickToolsController extends GetxController {
     }
   }
 
+  /// طلب إضافة اختصار ستارة الإعدادات السريعة (Quick Settings Tile)
+  Future<void> addQuickSettingsTile() async {
+    final supported = await homeWidgetSyncService.isTileAddSupported();
+    if (supported) {
+      final success = await homeWidgetSyncService.requestAddQuickSettingsTile();
+      if (success) {
+        Get.snackbar(
+          'الإعدادات السريعة',
+          'تمت إضافة اختصار مودم SAM4G إلى ستارة الإشعارات بنجاح',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFF0F172A),
+          colorText: const Color(0xFF38BDF8),
+          icon: const Icon(Icons.check_circle, color: Color(0xFF38BDF8)),
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } else {
+      Get.defaultDialog(
+        title: 'إضافة اختصار الإعدادات السريعة',
+        titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        middleText:
+            'لإضافة اختصار المودم إلى ستارة الإشعارات:\n\n1. اسحب ستارة الإشعارات لأسفل مرتين.\n2. اضغط على أيقونة التعديل (القلم أو الثلاث نقاط).\n3. اسحب زر "رصيد SAM4G" إلى لوحة الإعدادات السريعة.',
+        middleTextStyle: const TextStyle(fontSize: 13, height: 1.5),
+        textConfirm: 'فهمت ذلك',
+        confirmTextColor: Colors.white,
+        buttonColor: const Color(0xFF38BDF8),
+        onConfirm: () => Get.back(),
+      );
+    }
+  }
+
   /// تحديث الحالة الحية ومزامنتها مع الإشعار والويدجت
   Future<void> updateLiveState() async {
     bool isConnected = false;

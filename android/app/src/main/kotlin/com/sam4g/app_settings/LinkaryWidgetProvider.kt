@@ -85,6 +85,9 @@ abstract class LinkaryBaseWidgetProvider : AppWidgetProvider() {
 
         // التأكد من استمرار جدولة التحديث كل 5 دقائق
         WidgetActionReceiver.schedulePeriodicUpdate(context)
+
+        // تحديث الـ Quick Settings Tile
+        LinkaryTileService.requestUpdate(context)
     }
 }
 

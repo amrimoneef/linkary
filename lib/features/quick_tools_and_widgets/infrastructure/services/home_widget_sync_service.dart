@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:home_widget/home_widget.dart';
 import '../../../modem_auth/presentation/controllers/auth_controller.dart';
@@ -111,5 +112,35 @@ class HomeWidgetSyncService {
       if (kDebugMode) print('❌ [HomeWidgetSyncService] pinWidget error: $e');
       return false;
     }
+  }
+
+  static const MethodChannel _tileChannel = MethodChannel('com.linkary/quick_settings_tile');
+
+  /// طلب إضافة الـ Quick Settings Tile إلى ستارة الإشعارات العلوية
+  Future<bool> requestAddQuickSettingsTile() async {
+    try {
+      final res = await _tileChannel.invokeMethod<bool>('requestAddTile');
+      return res ?? false;
+    } catch (e) {
+      if (kDebugMode) print('❌ [HomeWidgetSyncService] requestAddTile error: $e');
+      return false;
+    }
+  }
+
+  /// فحص هل إضافة الـ Tile مدعومة برمجياً بنظام أندرويد (Android 13+)
+  Future<bool> isTileAddSupported() async {
+    try {
+      final res = await _tileChannel.invokeMethod<bool>('isTileAddSupported');
+      return res ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// طلب تحديث الـ Quick Settings Tile فوراً
+  Future<void> updateQuickSettingsTile() async {
+    try {
+      await _tileChannel.invokeMethod<void>('updateTile');
+    } catch (_) {}
   }
 }

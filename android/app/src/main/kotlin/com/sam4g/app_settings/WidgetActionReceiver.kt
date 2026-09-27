@@ -797,6 +797,9 @@ class WidgetActionReceiver : BroadcastReceiver() {
                 manager.updateAppWidget(id, views)
             }
         }
+
+        // 4. تحديث الـ Quick Settings Tile في ستارة الإشعارات
+        LinkaryTileService.requestUpdate(context)
     }
 
     private fun handleReboot(context: Context) {

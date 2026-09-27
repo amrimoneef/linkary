@@ -11,6 +11,7 @@ import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context;
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -44,6 +45,7 @@ class MainActivity: FlutterFragmentActivity() {
     private val MONITOR_CHANNEL = "com.linkary.mifi/monitor"
     private val WIFI_RSSI_CHANNEL = "com.linkary/wifi_rssi"
     private val ANTI_LOSS_CHANNEL = "com.linkary/anti_loss"
+    private val QUICK_SETTINGS_TILE_CHANNEL = "com.linkary/quick_settings_tile"
     private val VPN_REQUEST_CODE = 1001
     private var vpnPendingResult: MethodChannel.Result? = null
     
@@ -301,6 +303,43 @@ class MainActivity: FlutterFragmentActivity() {
                     } catch (e: Exception) {
                         result.error("ERROR", e.message, null)
                     }
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, QUICK_SETTINGS_TILE_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "requestAddTile" -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        try {
+                            val statusBarManager = getSystemService(android.app.StatusBarManager::class.java)
+                            val component = ComponentName(this, LinkaryTileService::class.java)
+                            val icon = android.graphics.drawable.Icon.createWithResource(this, R.drawable.ic_qs_modem)
+                            statusBarManager.requestAddTileService(
+                                component,
+                                "رصيد SAM4G",
+                                icon,
+                                { runnable -> Handler(Looper.getMainLooper()).post(runnable) },
+                                { resultCode ->
+                                    Log.d("LinkaryTile", "Add tile result: $resultCode")
+                                    result.success(resultCode == android.app.StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED)
+                                }
+                            )
+                        } catch (e: Exception) {
+                            Log.w("LinkaryTile", "Error requesting tile add: ${e.message}")
+                            result.success(false)
+                        }
+                    } else {
+                        result.success(false)
+                    }
+                }
+                "isTileAddSupported" -> {
+                    result.success(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                }
+                "updateTile" -> {
+                    LinkaryTileService.requestUpdate(this)
+                    result.success(true)
                 }
                 else -> result.notImplemented()
             }

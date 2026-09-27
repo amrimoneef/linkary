@@ -150,6 +150,18 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+
+        <!-- Quick Settings Tile في ستارة الإشعارات العلوية -->
+        <service
+            android:name=".LinkaryTileService"
+            android:label="رصيد SAM4G"
+            android:icon="@drawable/ic_qs_modem"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
     </application>
 
     <!-- Required to query activities that can process text, see:

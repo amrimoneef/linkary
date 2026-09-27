@@ -154,11 +154,137 @@ class WidgetsSettingsPage extends GetView<QuickToolsController> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 32),
+
+              // ─── القسم الثالث: اختصار الإعدادات السريعة (Quick Settings Tile) ───
+              _buildSectionHeader(
+                icon: Icons.tune_rounded,
+                title: 'شريط الإعدادات السريعة (Quick Tile)',
+                badge: 'جديد',
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'زر مخصص في ستارة إشعارات أندرويد العلوية يتيح لك الاطلاع على الرصيد وتحديثه بلمسة واحدة:',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+              ),
+              const SizedBox(height: 16),
+              _buildQuickTileCard(context),
+
+              const SizedBox(height: 30),
             ],
           ),
         );
       }),
+    );
+  }
+
+  Widget _buildQuickTileCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.router_rounded, color: Colors.white, size: 26),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'اختصار رصيد SAM4G',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'يعرض الرصيد المتبقي مباشرة بجانب أزرار Wi-Fi والبلوتوث',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.03),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.touch_app_rounded, color: Color(0xFF38BDF8), size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'نقرة واحدة: تحديث البيانات فوراً في الخلفية.\nعند عدم الاتصال: فتح التطبيق تلقائياً.',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: Colors.grey.shade300,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => controller.addQuickSettingsTile(),
+              icon: const Icon(Icons.add_to_home_screen_rounded, size: 18),
+              label: const Text(
+                'إضافة إلى ستارة الإعدادات السريعة',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0284C7),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
