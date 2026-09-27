@@ -3,6 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/notifications/infrastructure/repositories/notifications_repository.dart';
 import '../../features/notifications/presentation/controllers/notifications_controller.dart';
+import '../../features/quick_search/domain/repositories/quick_search_repository.dart';
+import '../../features/quick_search/infrastructure/repositories_impl/quick_search_repository_impl.dart';
+import '../../features/quick_search/infrastructure/services/search_index_registry.dart';
+import '../../features/quick_search/presentation/controllers/quick_search_controller.dart';
 import '../../core/services/biometric_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../features/connected_devices/domain/repositories/connected_devices_repository.dart';
@@ -520,4 +524,22 @@ Future<void> initDI() async {
   );
   Get.lazyPut(() => GetBannersUseCase(repository: Get.find()), fenix: true);
   Get.put(BannersController(getBannersUseCase: Get.find()), permanent: true);
+
+  // ==========================================
+  // --- ميزة البحث السريع الشامل (Quick Search) ---
+  // ==========================================
+  Get.lazyPut(() => SearchIndexRegistry(), fenix: true);
+  Get.lazyPut<QuickSearchRepository>(
+    () => QuickSearchRepositoryImpl(
+      registry: Get.find<SearchIndexRegistry>(),
+      sharedPreferences: Get.find<SharedPreferences>(),
+    ),
+    fenix: true,
+  );
+  Get.lazyPut(
+    () => QuickSearchController(
+      repository: Get.find<QuickSearchRepository>(),
+    ),
+    fenix: true,
+  );
 }
