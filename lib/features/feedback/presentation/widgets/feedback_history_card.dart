@@ -145,52 +145,60 @@ class FeedbackHistoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            // Tags & Status
-            Row(
+            // Tags & Status (Wrapped to prevent any horizontal overflow on small screens)
+            Wrap(
+              spacing: 8,
+              runSpacing: 10,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                if (submission.includeDiagnostics) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    margin: const EdgeInsets.only(left: 6),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Iconsax.cpu, size: 12, color: subTextColor),
-                        const SizedBox(width: 4),
-                        Text(
-                          'بيانات المودم',
-                          style: TextStyle(fontSize: 10.5, color: subTextColor),
+                if (submission.includeDiagnostics || submission.attachmentPath != null)
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (submission.includeDiagnostics) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Iconsax.cpu, size: 12, color: subTextColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                'بيانات المودم',
+                                style: TextStyle(fontSize: 10.5, color: subTextColor),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                ],
-                if (submission.attachmentPath != null) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    margin: const EdgeInsets.only(left: 6),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Iconsax.gallery, size: 12, color: subTextColor),
-                        const SizedBox(width: 4),
-                        Text(
-                          'صورة مرفقة',
-                          style: TextStyle(fontSize: 10.5, color: subTextColor),
+                      if (submission.attachmentPath != null) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Iconsax.gallery, size: 12, color: subTextColor),
+                              const SizedBox(width: 4),
+                              Text(
+                                'صورة مرفقة',
+                                style: TextStyle(fontSize: 10.5, color: subTextColor),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                ],
-                const Spacer(),
                 if (isPending) ...[
                   InkWell(
                     onTap: () => controller.retrySubmission(submission),
