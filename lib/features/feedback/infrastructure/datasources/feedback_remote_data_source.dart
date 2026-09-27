@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../domain/entities/feedback_submission.dart';
@@ -89,10 +90,19 @@ class FeedbackRemoteDataSource {
       String errMsg = 'تعذر إرسال الاقتراح (رمز ${response.statusCode})';
       try {
         final bodyJson = jsonDecode(response.body) as Map<String, dynamic>;
-        if (bodyJson.containsKey('message')) {
+        if (bodyJson.containsKey('errors') && bodyJson['errors'] is Map) {
+          final errorsMap = bodyJson['errors'] as Map<String, dynamic>;
+          final firstVal = errorsMap.values.first;
+          if (firstVal is List && firstVal.isNotEmpty) {
+            errMsg = firstVal.first.toString();
+          } else if (firstVal is String) {
+            errMsg = firstVal;
+          }
+        } else if (bodyJson.containsKey('message')) {
           errMsg = bodyJson['message'] as String;
         }
       } catch (_) {}
+      debugPrint('❌ [FeedbackRemoteDataSource] Error (${response.statusCode}): $errMsg');
       throw HttpException(errMsg);
     }
   }

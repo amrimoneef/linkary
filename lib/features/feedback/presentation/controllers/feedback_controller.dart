@@ -233,15 +233,27 @@ class FeedbackController extends GetxController {
           ),
         ),
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('❌ [FeedbackController] submitFeedback failed: $e');
       // Saved in offline queue!
       await loadHistory();
       isSubmitting.value = false;
 
+      final isNetwork = e.toString().contains('SocketException') ||
+          e.toString().contains('TimeoutException') ||
+          e.toString().contains('HandshakeException');
+
+      final cleanMsg = e
+          .toString()
+          .replaceAll('Exception: ', '')
+          .replaceAll('HttpException: ', '');
+
       Get.rawSnackbar(
-        title: 'تم الحفظ محلياً (وضع عدم الاتصال)',
-        message: 'تم حفظ اقتراحك بأمان في التطبيق، وسيتم إرساله تلقائياً فور توفر الإنترنت.',
-        backgroundColor: Colors.blueGrey.shade800,
+        title: isNetwork ? 'تم الحفظ محلياً (وضع عدم الاتصال)' : 'تنبيه',
+        message: isNetwork
+            ? 'تم حفظ اقتراحك بأمان في التطبيق، وسيتم إرساله تلقائياً فور توفر الإنترنت.'
+            : cleanMsg,
+        backgroundColor: isNetwork ? Colors.blueGrey.shade800 : Colors.redAccent.shade700,
         duration: const Duration(seconds: 4),
         margin: const EdgeInsets.all(16),
         borderRadius: 12,
@@ -262,8 +274,13 @@ class FeedbackController extends GetxController {
         borderRadius: 12,
       );
     } catch (e) {
+      debugPrint('❌ [FeedbackController] retrySubmission failed: $e');
+      final cleanMsg = e
+          .toString()
+          .replaceAll('Exception: ', '')
+          .replaceAll('HttpException: ', '');
       Get.rawSnackbar(
-        message: 'تعذر الإرسال حالياً: لا يزال الاتصال غير متوفر',
+        message: 'تعذر إعادة الإرسال: $cleanMsg',
         backgroundColor: Colors.red.shade700,
         margin: const EdgeInsets.all(16),
         borderRadius: 12,

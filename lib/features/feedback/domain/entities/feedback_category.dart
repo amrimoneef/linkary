@@ -9,11 +9,11 @@ enum FeedbackCategory {
   String get id {
     switch (this) {
       case FeedbackCategory.featureRequest:
-        return 'feature_request';
+        return 'feature_suggestion';
       case FeedbackCategory.bugReport:
-        return 'bug_report';
+        return 'technical_issue';
       case FeedbackCategory.generalFeedback:
-        return 'general_feedback';
+        return 'general_inquiry';
     }
   }
 
@@ -63,10 +63,13 @@ enum FeedbackCategory {
 
   static FeedbackCategory fromId(String id) {
     switch (id) {
+      case 'feature_suggestion':
       case 'feature_request':
         return FeedbackCategory.featureRequest;
+      case 'technical_issue':
       case 'bug_report':
         return FeedbackCategory.bugReport;
+      case 'general_inquiry':
       case 'general_feedback':
       default:
         return FeedbackCategory.generalFeedback;

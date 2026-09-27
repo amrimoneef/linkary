@@ -11,13 +11,13 @@ void main() {
     });
 
     test('Each category should have appropriate Arabic labels and ids', () {
-      expect(FeedbackCategory.featureRequest.id, 'feature_request');
+      expect(FeedbackCategory.featureRequest.id, 'feature_suggestion');
       expect(FeedbackCategory.featureRequest.labelAr, 'اقتراح ميزة');
 
-      expect(FeedbackCategory.bugReport.id, 'bug_report');
+      expect(FeedbackCategory.bugReport.id, 'technical_issue');
       expect(FeedbackCategory.bugReport.labelAr, 'إبلاغ عن مشكلة');
 
-      expect(FeedbackCategory.generalFeedback.id, 'general_feedback');
+      expect(FeedbackCategory.generalFeedback.id, 'general_inquiry');
       expect(FeedbackCategory.generalFeedback.labelAr, 'تقييم ورأي عام');
     });
 
