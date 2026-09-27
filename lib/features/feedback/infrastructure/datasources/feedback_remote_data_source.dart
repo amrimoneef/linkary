@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import '../../domain/entities/feedback_submission.dart';
 
 class FeedbackRemoteDataSource {
-  static const String defaultEndpoint = 'https://sam4g.com/api/feedback/app-settings';
+  static const String defaultEndpoint = 'https://www.sam4g.com/api/feedback/app-settings';
   static const String _signatureSalt = 'linkary_mobile_feedback_secure_salt_2026';
 
   final http.Client client;

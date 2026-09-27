@@ -454,7 +454,7 @@ class FeedbackPage extends StatelessWidget {
           textColor: textColor,
           subTextColor: subTextColor,
           title: 'وسيلة التواصل (اختياري)',
-          subtitle: 'رقم .',
+          subtitle: 'رقم هاتفك للتواصل معك عند توفر الميزة.',
           icon: Iconsax.direct_send,
           gradientColors: const [Color(0xFFEC4899), Color(0xFFBE185D)],
           expandedContent: Padding(
@@ -473,7 +473,7 @@ class FeedbackPage extends StatelessWidget {
                 style: TextStyle(color: textColor, fontSize: 13.5),
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  hintText: 'بريد إلكتروني أو رقم هاتف أو حساب تيليجرام للتواصل',
+                  hintText: 'رقم هاتف للتواصل',
                   hintStyle: TextStyle(
                     fontSize: 12.5,
                     color: isDark ? Colors.white38 : Colors.grey.shade500,
