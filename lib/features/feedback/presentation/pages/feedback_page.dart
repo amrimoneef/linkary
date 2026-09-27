@@ -202,7 +202,7 @@ class FeedbackPage extends StatelessWidget {
                       Text(
                         pending > 0
                             ? '$pending ملاحظات محفوظة بانتظار الاتصال'
-                            : (total > 0 ? '$total مشاركات سابقة مسجلة' : 'شاركنا أفكارك واقتراحاتك لتطوير Linkary'),
+                            : (total > 0 ? '$total مشاركات سابقة مسجلة' : 'شاركنا أفكارك واقتراحاتك لتطوير التطبيق'),
                         style: TextStyle(color: subTextColor, fontSize: 12.5),
                       ),
                     ],
@@ -424,7 +424,9 @@ class FeedbackPage extends StatelessWidget {
                             ),
                             child: Column(
                               children: [
-                                _buildDiagRow('نوع الهاتف / النظام', '${diag.deviceModel} (${diag.osVersion})', isDark),
+                                _buildDiagRow('طراز الهاتف', diag.deviceModel, isDark),
+                                const Divider(height: 14, thickness: 0.5),
+                                _buildDiagRow('نوع النظام', diag.osVersion, isDark),
                                 const Divider(height: 14, thickness: 0.5),
                                 _buildDiagRow('إصدار التطبيق', diag.appVersion, isDark),
                                 const Divider(height: 14, thickness: 0.5),
