@@ -20,6 +20,8 @@ import '../../../settings/presentation/pages/wifi_settings_page.dart';
 import '../../../modem_finder/presentation/pages/modem_finder_page.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/signal_bars_widget.dart';
+import '../../../quick_search/presentation/widgets/hero_search_bar.dart';
+import '../../../quick_search/presentation/widgets/quick_search_modal_sheet.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({super.key});
@@ -67,6 +69,12 @@ class DashboardPage extends StatelessWidget {
                     child: _buildSpeedsCardsRow(context),
                   ),
                 ),
+              ),
+
+              // 🔍 شريط البحث السريع الزجاجي الذكي
+              Transform.translate(
+                offset: const Offset(0, -28),
+                child: const HeroSearchBar(),
               ),
 
               // عرض العروض والاعلانات
@@ -139,6 +147,10 @@ class DashboardPage extends StatelessWidget {
                     key: tutorialService.themeToggleKey,
                     icon: Icon(Get.isDarkMode ? Icons.light_mode : Icons.dark_mode, color: Colors.white, shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 3))]),
                     onPressed: () => Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark),
+                  ),
+                  IconButton(
+                    icon: const Icon(Iconsax.search_normal_1, color: Colors.white, shadows: [Shadow(color: Colors.black45, blurRadius: 20, offset: Offset(0, 3))]),
+                    onPressed: () => QuickSearchModalSheet.show(context),
                   ),
                   Stack(
                     children: [
