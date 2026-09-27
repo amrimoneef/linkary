@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import 'package:linkary/features/quick_search/presentation/pages/quick_search_page.dart';
 import 'package:linkary/features/quick_search/domain/entities/search_item.dart';
 import 'package:linkary/features/quick_search/presentation/controllers/quick_search_controller.dart';
 import 'package:linkary/features/quick_search/presentation/widgets/quick_confirm_dialog.dart';
@@ -15,13 +16,8 @@ class QuickSearchModalSheet extends StatefulWidget {
   const QuickSearchModalSheet({super.key, this.startListening = false});
 
   static Future<void> show(BuildContext context, {bool startListening = false}) {
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.65),
-      builder: (context) => QuickSearchModalSheet(startListening: startListening),
-    );
+    QuickSearchPage.open(context, startListening: startListening);
+    return Future.value();
   }
 
   @override

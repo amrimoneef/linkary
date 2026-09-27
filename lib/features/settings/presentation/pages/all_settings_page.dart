@@ -24,7 +24,7 @@ import '../../../modem_finder/presentation/pages/modem_finder_settings_page.dart
 import '../../../quick_tools_and_widgets/presentation/pages/widgets_settings_page.dart';
 import '../../../../core/widgets/expandable_power_menu.dart';
 import 'battery_settings_page.dart';
-import '../../../quick_search/presentation/widgets/quick_search_modal_sheet.dart';
+import '../../../quick_search/presentation/pages/quick_search_page.dart';
 
 class AllSettingsPage extends StatelessWidget {
   const AllSettingsPage({super.key});
@@ -110,13 +110,13 @@ class AllSettingsPage extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Iconsax.search_normal_1, color: Colors.white, shadows: [Shadow(color: Colors.black45, blurRadius: 20, offset: Offset(0, 3))]),
-                    onPressed: () => QuickSearchModalSheet.show(context),
+                    onPressed: () => QuickSearchPage.open(context),
                   ),
-                  IconButton(
-                    key: Get.find<TutorialService>().allSettingsHelpKey,
-                    icon: Icon(Icons.help_outline, color: Colors.white, shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 3))]),
-                    onPressed: () => Get.find<TutorialService>().showAllSettingsTutorial(context, force: true),
-                  ),
+                  // IconButton(
+                  //   key: Get.find<TutorialService>().allSettingsHelpKey,
+                  //   icon: Icon(Icons.help_outline, color: Colors.white, shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 3))]),
+                  //   onPressed: () => Get.find<TutorialService>().showAllSettingsTutorial(context, force: true),
+                  // ),
                   Image.asset(
                     'assets/images/الشعار ابيض.png',
                     height: 30,

@@ -10,7 +10,7 @@ import '../../../network_info/presentation/pages/network_info_page.dart';
 import '../../../settings/presentation/pages/all_settings_page.dart';
 import '../../../bill/presentation/pages/bill_page.dart';
 import '../../../voice_assistant/presentation/widgets/voice_fab.dart';
-import '../../../quick_search/presentation/widgets/quick_search_modal_sheet.dart';
+import '../../../quick_search/presentation/pages/quick_search_page.dart';
 import '../controllers/main_layout_controller.dart';
 
 class MainLayoutPage extends StatelessWidget {
@@ -85,7 +85,7 @@ class MainLayoutPage extends StatelessWidget {
                 behavior: HitTestBehavior.translucent,
                 onVerticalDragEnd: (details) {
                   if (details.primaryVelocity != null && details.primaryVelocity! < -220) {
-                    QuickSearchModalSheet.show(context);
+                    QuickSearchPage.open(context);
                   }
                 },
                 child: Container(

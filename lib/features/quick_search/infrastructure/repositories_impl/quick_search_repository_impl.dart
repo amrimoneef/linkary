@@ -64,19 +64,22 @@ class QuickSearchRepositoryImpl implements QuickSearchRepository {
       } else if (normalizedTitle.startsWith(normalizedQuery)) {
         score += 60;
       } else if (normalizedTitle.contains(normalizedQuery)) {
-        score += 40;
+        final titleWordCount = normalizedTitle.split(' ').where((w) => w.isNotEmpty).length;
+        score += 40 + (titleWordCount <= 3 ? 20 : 0);
       }
 
-      // 3. Keyword / Synonym matches
+      // 3. Keyword / Synonym matches (use highest matching keyword score)
+      int maxKeywordScore = 0;
       for (final keyword in normalizedKeywords) {
         if (keyword == normalizedQuery) {
-          score += 55;
+          if (maxKeywordScore < 55) maxKeywordScore = 55;
         } else if (keyword.startsWith(normalizedQuery)) {
-          score += 35;
+          if (maxKeywordScore < 35) maxKeywordScore = 35;
         } else if (keyword.contains(normalizedQuery)) {
-          score += 20;
+          if (maxKeywordScore < 20) maxKeywordScore = 20;
         }
       }
+      score += maxKeywordScore;
 
       // 4. Subtitle match
       if (normalizedSubtitle.contains(normalizedQuery)) {

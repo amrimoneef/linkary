@@ -21,7 +21,7 @@ import '../../../modem_finder/presentation/pages/modem_finder_page.dart';
 import '../controllers/dashboard_controller.dart';
 import '../widgets/signal_bars_widget.dart';
 import '../../../quick_search/presentation/widgets/hero_search_bar.dart';
-import '../../../quick_search/presentation/widgets/quick_search_modal_sheet.dart';
+import '../../../quick_search/presentation/pages/quick_search_page.dart';
 
 class DashboardPage extends StatelessWidget {
   DashboardPage({super.key});
@@ -150,7 +150,7 @@ class DashboardPage extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Iconsax.search_normal_1, color: Colors.white, shadows: [Shadow(color: Colors.black45, blurRadius: 20, offset: Offset(0, 3))]),
-                    onPressed: () => QuickSearchModalSheet.show(context),
+                    onPressed: () => QuickSearchPage.open(context),
                   ),
                   Stack(
                     children: [

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 
-import 'package:linkary/features/quick_search/presentation/widgets/quick_search_modal_sheet.dart';
+import 'package:linkary/features/quick_search/presentation/pages/quick_search_page.dart';
 
 class HeroSearchBar extends StatefulWidget {
   const HeroSearchBar({super.key});
@@ -55,7 +55,7 @@ class _HeroSearchBarState extends State<HeroSearchBar> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(22),
-              onTap: () => QuickSearchModalSheet.show(context),
+              onTap: () => QuickSearchPage.open(context),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
@@ -146,7 +146,7 @@ class _HeroSearchBarState extends State<HeroSearchBar> {
                     // 3. Microphone Action Button
                     GestureDetector(
                       onTap: () {
-                        QuickSearchModalSheet.show(context, startListening: true);
+                        QuickSearchPage.open(context, startListening: true);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(7),
