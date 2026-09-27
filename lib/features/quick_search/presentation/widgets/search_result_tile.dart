@@ -82,31 +82,31 @@ class SearchResultTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
             child: Row(
               children: [
                 // 1. Category Icon Box
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: categoryGradient,
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
                         color: categoryGradient.first.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Icon(item.icon, color: Colors.white, size: 22),
+                  child: Icon(item.icon, color: Colors.white, size: 19),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
 
                 // 2. Texts (Title & Subtitle with Badge)
                 Expanded(
@@ -123,14 +123,14 @@ class SearchResultTile extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: isDark ? Colors.white : const Color(0xFF1E293B),
-                                fontSize: 15,
+                                fontSize: 13.5,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                             decoration: BoxDecoration(
                               color: categoryBadgeColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
@@ -139,21 +139,21 @@ class SearchResultTile extends StatelessWidget {
                               item.category.labelAr,
                               style: TextStyle(
                                 color: categoryBadgeColor,
-                                fontSize: 10,
+                                fontSize: 9,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 3),
                       Text(
                         item.subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
                     ],
@@ -168,7 +168,7 @@ class SearchResultTile extends StatelessWidget {
                   const SizedBox(width: 8),
                   Icon(
                     Iconsax.arrow_left_2,
-                    size: 16,
+                    size: 14,
                     color: isDark ? Colors.white30 : const Color(0xFF94A3B8),
                   ),
                 ],

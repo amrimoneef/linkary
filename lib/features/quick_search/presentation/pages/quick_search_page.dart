@@ -88,7 +88,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
                       onPressed: () => Get.back(),
                     ),
                     Column(
@@ -97,7 +97,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                           'البحث السريع الشامل',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -105,7 +105,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                               '${controller.searchResults.length} خيار وأداة متاحة',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 11,
+                                fontSize: 10.5,
                               ),
                             )),
                       ],
@@ -114,17 +114,17 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                       icon: Icon(
                         isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                         color: Colors.white,
-                        size: 20,
+                        size: 18,
                       ),
                       onPressed: () => Get.changeThemeMode(isDark ? ThemeMode.light : ThemeMode.dark),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
                 // Search Bar Input
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: inputBgColor,
                     borderRadius: BorderRadius.circular(18),
@@ -145,9 +145,9 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                       const Icon(
                         Iconsax.search_normal_1,
                         color: Color(0xFF4A90E2),
-                        size: 22,
+                        size: 18,
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: controller.textEditingController,
@@ -156,19 +156,19 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                           textInputAction: TextInputAction.search,
                           style: TextStyle(
                             color: isDark ? Colors.white : const Color(0xFF1E293B),
-                            fontSize: 15,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.w600,
                           ),
                           decoration: InputDecoration(
                             hintText: 'ابحث عن إعداد، جهاز، أو أمر مباشر...',
                             hintStyle: TextStyle(
                               color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
-                              fontSize: 13.5,
+                              fontSize: 12.5,
                               fontWeight: FontWeight.normal,
                             ),
                             border: InputBorder.none,
                             isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 11),
                           ),
                         ),
                       ),
@@ -180,20 +180,20 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                         return GestureDetector(
                           onTap: controller.clearQuery,
                           child: Container(
-                            padding: const EdgeInsets.all(5),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color: isDark ? Colors.white12 : Colors.black12,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               Icons.close,
-                              size: 14,
+                              size: 12,
                               color: isDark ? Colors.white70 : Colors.black54,
                             ),
                           ),
                         );
                       }),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
 
                       // Voice Search Button with red glow when listening
                       Obx(() {
@@ -202,14 +202,14 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                           onTap: controller.startVoiceSearch,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 250),
-                            padding: const EdgeInsets.all(7),
+                            padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
                               color: isListening ? Colors.redAccent.withValues(alpha: 0.2) : const Color(0xFF4A90E2).withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               isListening ? Icons.mic : Iconsax.microphone_2,
-                              size: 18,
+                              size: 16,
                               color: isListening ? Colors.redAccent : const Color(0xFF4A90E2),
                             ),
                           ),
@@ -224,9 +224,9 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
 
           // 📊 2. Filter Chips Bar with Item Counts
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: SizedBox(
-              height: 40,
+              height: 34,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -240,7 +240,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                       onTap: () => controller.setCategory(cat),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4),
                         decoration: BoxDecoration(
                           gradient: isSelected
                               ? const LinearGradient(
@@ -252,7 +252,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                           color: isSelected
                               ? null
                               : (isDark ? const Color(0xFF16213E) : Colors.white),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: isSelected
                                 ? const Color(0xFF4A90E2)
@@ -262,7 +262,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                               ? [
                                   BoxShadow(
                                     color: const Color(0xFF4A90E2).withValues(alpha: 0.3),
-                                    blurRadius: 8,
+                                    blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   )
                                 ]
@@ -273,7 +273,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                             cat.labelAr,
                             style: TextStyle(
                               color: isSelected ? Colors.white : (isDark ? Colors.white70 : const Color(0xFF475569)),
-                              fontSize: 12.5,
+                              fontSize: 11.5,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                             ),
                           ),
@@ -329,11 +329,11 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
           'إجراءات فورية سريعة',
           style: TextStyle(
             color: isDark ? Colors.white70 : const Color(0xFF475569),
-            fontSize: 14,
+            fontSize: 12.5,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -346,7 +346,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                 onTap: () => _triggerActionById('action_copy_wifi_password'),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: _buildQuickActionButton(
                 context,
@@ -359,7 +359,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
@@ -372,7 +372,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                 onTap: () => _triggerActionById('speed_test'),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Expanded(
               child: _buildQuickActionButton(
                 context,
@@ -385,7 +385,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
 
         // 🕒 2. Recent Searches
         Obx(() {
@@ -402,7 +402,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                     'عمليات البحث الأخيرة',
                     style: TextStyle(
                       color: isDark ? Colors.white70 : const Color(0xFF475569),
-                      fontSize: 14,
+                      fontSize: 12.5,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -412,49 +412,49 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                       'مسح السجل',
                       style: TextStyle(
                         color: Color(0xFF4A90E2),
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 4),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: 6,
+                runSpacing: 6,
                 children: recents.map((query) {
                   return Container(
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF16213E) : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFCBD5E1),
                       ),
                     ),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       onTap: () => controller.selectRecentSearch(query),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Iconsax.clock, size: 14, color: Color(0xFF4A90E2)),
-                            const SizedBox(width: 6),
+                            const Icon(Iconsax.clock, size: 12, color: Color(0xFF4A90E2)),
+                            const SizedBox(width: 5),
                             Text(
                               query,
                               style: TextStyle(
                                 color: isDark ? Colors.white : const Color(0xFF1E293B),
-                                fontSize: 13,
+                                fontSize: 11.5,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 5),
                             GestureDetector(
                               onTap: () => controller.removeRecentSearch(query),
                               child: Icon(
                                 Icons.close,
-                                size: 13,
+                                size: 11,
                                 color: isDark ? Colors.white38 : const Color(0xFF94A3B8),
                               ),
                             ),
@@ -465,7 +465,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
             ],
           );
         }),
@@ -475,11 +475,11 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
           'أقسام مقترحة للوصول السريع',
           style: TextStyle(
             color: isDark ? Colors.white70 : const Color(0xFF475569),
-            fontSize: 14,
+            fontSize: 12.5,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         ...controller.searchResults.take(10).map((item) {
           return SearchResultTile(
             item: item,
@@ -502,14 +502,14 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF16213E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0),
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-            blurRadius: 8,
+            blurRadius: 6,
             offset: const Offset(0, 2),
           ),
         ],
@@ -517,21 +517,21 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6.5),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(icon, color: color, size: 20),
+                  child: Icon(icon, color: color, size: 16),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     title,
@@ -539,7 +539,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: isDark ? Colors.white : const Color(0xFF1E293B),
-                      fontSize: 13,
+                      fontSize: 11.5,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -560,43 +560,43 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 80,
-              height: 80,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 color: const Color(0xFF4A90E2).withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Iconsax.search_status,
-                size: 40,
+                size: 28,
                 color: Color(0xFF4A90E2),
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             Text(
               'لم نتمكن من العثور على "$query"',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? Colors.white : const Color(0xFF1E293B),
-                fontSize: 17,
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               'تأكد من كتابة الكلمة بشكل صحيح، أو اختر من الكلمات الأكثر استخداماً:',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                fontSize: 13,
+                fontSize: 11.5,
                 height: 1.4,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 6,
+              runSpacing: 6,
               alignment: WrapAlignment.center,
               children: [
                 'واي فاي',
@@ -609,7 +609,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
               ].map((s) {
                 return ActionChip(
                   label: Text(s),
-                  labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                  labelStyle: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
                   backgroundColor: isDark ? const Color(0xFF16213E) : Colors.white,
                   side: BorderSide(
                     color: isDark ? Colors.white24 : const Color(0xFFCBD5E1),
@@ -618,18 +618,18 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4A90E2),
-                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
-              icon: const Icon(Iconsax.microphone_2, color: Colors.white, size: 18),
+              icon: const Icon(Iconsax.microphone_2, color: Colors.white, size: 16),
               label: const Text(
                 'تحدث مع المساعد الصوتي',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.bold),
               ),
               onPressed: () {
                 Get.back();

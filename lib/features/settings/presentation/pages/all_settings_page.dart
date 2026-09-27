@@ -19,7 +19,7 @@ import '../../../parental_control/presentation/pages/parental_control_page.dart'
 import '../../../about/presentation/pages/about_page.dart';
 import '../../../settings/presentation/pages/admin_settings_page.dart';
 import '../../../settings/presentation/pages/lcd_settings_page.dart';
-import '../../../connected_devices/presentation/pages/connected_devices_page.dart';
+import '../../../device_management/presentation/pages/device_management_page.dart';
 import '../../../modem_finder/presentation/pages/modem_finder_settings_page.dart';
 import '../../../quick_tools_and_widgets/presentation/pages/widgets_settings_page.dart';
 import '../../../../core/widgets/expandable_power_menu.dart';
@@ -112,11 +112,11 @@ class AllSettingsPage extends StatelessWidget {
                     icon: const Icon(Iconsax.search_normal_1, color: Colors.white, shadows: [Shadow(color: Colors.black45, blurRadius: 20, offset: Offset(0, 3))]),
                     onPressed: () => QuickSearchPage.open(context),
                   ),
-                  // IconButton(
-                  //   key: Get.find<TutorialService>().allSettingsHelpKey,
-                  //   icon: Icon(Icons.help_outline, color: Colors.white, shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 3))]),
-                  //   onPressed: () => Get.find<TutorialService>().showAllSettingsTutorial(context, force: true),
-                  // ),
+                  IconButton(
+                    key: Get.find<TutorialService>().allSettingsHelpKey,
+                    icon: Icon(Icons.help_outline, color: Colors.white, shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 30, offset: const Offset(0, 3))]),
+                    onPressed: () => Get.find<TutorialService>().showAllSettingsTutorial(context, force: true),
+                  ),
                   Image.asset(
                     'assets/images/الشعار ابيض.png',
                     height: 30,
@@ -250,7 +250,7 @@ class AllSettingsPage extends StatelessWidget {
           subtitle: 'إدارة الأجهزة وتسميتها لسهولة التعرف عليها',
           icon: Iconsax.mobile,
           gradientColors: const [Color(0xFF8BCAEF), Color(0xFF45A2CF)],
-          onTap: () => Get.to(() => ConnectedDevicesPage()),
+          onTap: () => Get.to(() => const DeviceManagementPage()),
         ),
 
         // 5. التحكم الأبوي

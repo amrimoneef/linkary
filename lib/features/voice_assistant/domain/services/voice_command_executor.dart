@@ -18,7 +18,7 @@ import '../../../speed_test/presentation/pages/speed_test_page.dart';
 import '../../../parental_control/presentation/pages/parental_control_page.dart';
 import '../../../speed_limit/presentation/pages/speed_limit_page.dart';
 import '../../../data_usage/presentation/pages/data_usage_page.dart';
-import '../../../connected_devices/presentation/pages/connected_devices_page.dart';
+import '../../../device_management/presentation/pages/device_management_page.dart';
 import '../../../parental_control/presentation/controllers/parental_control_controller.dart';
 import '../../../speed_limit/presentation/controllers/speed_limit_controller.dart';
 
@@ -335,7 +335,7 @@ class VoiceCommandExecutor {
               Get.to(() => WifiSettingsPage());
               return ResponseBuilder.success(text: 'تم فتح شاشة الرصيد');
             case 'devices':
-              Get.to(() => ConnectedDevicesPage());
+              Get.to(() => const DeviceManagementPage());
               return ResponseBuilder.success(text: 'تم فتح قائمة الأجهزة المتصلة');
             case 'mac_filter':
               Get.to(() => MacFilterPage());

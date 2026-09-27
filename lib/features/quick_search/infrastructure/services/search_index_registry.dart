@@ -9,7 +9,7 @@ import 'package:linkary/features/quick_search/domain/entities/search_item.dart';
 
 // Pages
 import 'package:linkary/features/settings/presentation/pages/wifi_settings_page.dart';
-import 'package:linkary/features/connected_devices/presentation/pages/connected_devices_page.dart';
+
 import 'package:linkary/features/speed_limit/presentation/pages/speed_limit_page.dart';
 import 'package:linkary/features/data_usage/presentation/pages/data_usage_page.dart';
 import 'package:linkary/features/parental_control/presentation/pages/parental_control_page.dart';
@@ -337,19 +337,20 @@ class SearchIndexRegistry {
         onTap: () => Get.to(() => WifiSettingsPage()),
       ),
 
-      // 2. Connected Devices Page
+      // 2. Connected Devices Page -> Device Management
       SearchItem(
         id: 'connected_devices',
-        title: 'الأجهزة المتصلة',
-        subtitle: 'عرض وإدارة الأجهزة المتصلة بالمودم حالياً',
+        title: 'الأجهزة المتصلة (إدارة الأجهزة)',
+        subtitle: 'عرض وإدارة وحظر الأجهزة المتصلة بالمودم حالياً',
         icon: Iconsax.devices,
         category: SearchCategory.devices,
         priority: 14,
         keywords: const [
           'اجهزة', 'متصلة', 'هواتف', 'ip', 'mac', 'المتصلين',
-          'devices', 'clients', 'من متصل', 'كم جهاز', 'أجهزة'
+          'devices', 'clients', 'من متصل', 'كم جهاز', 'أجهزة',
+          'إدارة الأجهزة', 'ادارة الاجهزة'
         ],
-        onTap: () => Get.to(() => ConnectedDevicesPage()),
+        onTap: () => Get.to(() => const DeviceManagementPage()),
       ),
 
       // 3. Speed Limit
@@ -754,7 +755,7 @@ class SearchIndexRegistry {
                 if (displayName.isNotEmpty) displayName,
                 'جهاز', 'متصل', 'هاتف', 'كمبيوتر',
               ],
-              onTap: () => Get.to(() => ConnectedDevicesPage()),
+              onTap: () => Get.to(() => const DeviceManagementPage()),
               quickActionWidget: IconButton(
                 icon: const Icon(Iconsax.copy, size: 18),
                 tooltip: 'نسخ عنوان IP و MAC',
