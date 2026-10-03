@@ -40,7 +40,17 @@ class ParentalRuleEditorSheet {
     var endTime = initialEnd.obs;
     var selectedDays = initialDays.obs; 
 
-    final List<String> weekDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+    // خريطة الأيام مع قيم الـ Bit الخاصة بكل يوم في نظام المودم:
+    // الأحد = 0, الاثنين = 1, الثلاثاء = 2, الأربعاء = 3, الخميس = 4, الجمعة = 5, السبت = 6
+    final weekDays = const [
+      (name: 'السبت', bit: 6),
+      (name: 'الأحد', bit: 0),
+      (name: 'الاثنين', bit: 1),
+      (name: 'الثلاثاء', bit: 2),
+      (name: 'الأربعاء', bit: 3),
+      (name: 'الخميس', bit: 4),
+      (name: 'الجمعة', bit: 5),
+    ];
 
     Color bgColor = Get.isDarkMode ? const Color(0xFF0A0E21) : const Color(0xFFFAFAFC);
     Color cardColor = Get.isDarkMode ? const Color(0xFF16213E) : Colors.white;
@@ -142,10 +152,10 @@ class ParentalRuleEditorSheet {
                     const SizedBox(height: 10),
                     Obx(() => Wrap(
                       spacing: 10, runSpacing: 10,
-                      children: List.generate(7, (index) {
-                        bool isSel = selectedDays.contains(index);
+                      children: weekDays.map((day) {
+                        bool isSel = selectedDays.contains(day.bit);
                         return FilterChip(
-                          label: Text(weekDays[index], style: TextStyle(color: isSel ? Colors.white : textColor, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
+                          label: Text(day.name, style: TextStyle(color: isSel ? Colors.white : textColor, fontWeight: isSel ? FontWeight.bold : FontWeight.normal)),
                           selected: isSel,
                           showCheckmark: false,
                           selectedColor: glowColor,
@@ -153,11 +163,14 @@ class ParentalRuleEditorSheet {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: BorderSide(color: isSel ? glowColor : Colors.grey.withOpacity(0.2))),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           onSelected: (bool selected) {
-                            if (selected) selectedDays.add(index);
-                            else selectedDays.remove(index);
+                            if (selected) {
+                              selectedDays.add(day.bit);
+                            } else {
+                              selectedDays.remove(day.bit);
+                            }
                           },
                         );
-                      }),
+                      }).toList(),
                     )),
                     const SizedBox(height: 30),
                   ],

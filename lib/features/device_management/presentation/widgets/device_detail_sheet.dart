@@ -312,7 +312,7 @@ class _DeviceDetailSheetState extends State<DeviceDetailSheet> {
                           int sTime = (start.hour * 60) + start.minute;
                           int eTime = (end.hour * 60) + end.minute;
                           int mask = 0;
-                          for (int day in days) mask += (1 << day);
+                          for (int day in days) mask |= (1 << day);
                           if(mask == 0) mask = 127;
                           
                           draftParentalRule = ParentalDevice(mac: widget.device.mac, name: widget.device.name, timeSlots: [

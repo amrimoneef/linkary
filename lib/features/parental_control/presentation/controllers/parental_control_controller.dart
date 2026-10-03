@@ -95,7 +95,7 @@ class ParentalControlController extends GetxController {
   int calculateRepeatMode(List<int> selectedDays) {
     int mask = 0;
     for (int day in selectedDays) {
-      mask += (1 << day);
+      mask |= (1 << day);
     }
     return mask == 0 ? 127 : mask;
   }

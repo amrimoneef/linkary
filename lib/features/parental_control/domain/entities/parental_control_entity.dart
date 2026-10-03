@@ -19,11 +19,30 @@ class TimeSlot {
     return '${formatMinutes(startTime)} - ${formatMinutes(endTime)}';
   }
 
-  // 🚀 دالة لفك تشفير الأيام من الرقم 127
+  // 🚀 دالة لفك تشفير الأيام من الـ Bitmask
   String get activeDays {
-    if (repeatMode == 127) return 'طوال أيام الأسبوع';
-    if (repeatMode == 62) return 'أيام العمل'; // (مثال افتراضي يعتمد على المودم)
-    return 'أيام محددة';
+    if (repeatMode == 127 || repeatMode == 0) return 'طوال أيام الأسبوع';
+    if (repeatMode == 62) return 'أيام العمل (الإثنين - الجمعة)';
+
+    const dayMap = {
+      6: 'السبت',
+      0: 'الأحد',
+      1: 'الاثنين',
+      2: 'الثلاثاء',
+      3: 'الأربعاء',
+      4: 'الخميس',
+      5: 'الجمعة',
+    };
+
+    // الترتيب الطبيعي للأسبوع بالعربية: السبت أولاً
+    const arabicWeekOrder = [6, 0, 1, 2, 3, 4, 5];
+    final active = arabicWeekOrder
+        .where((bit) => (repeatMode & (1 << bit)) != 0)
+        .map((bit) => dayMap[bit]!)
+        .toList();
+
+    if (active.isEmpty) return 'طوال أيام الأسبوع';
+    return active.join('، ');
   }
 }
 
