@@ -47,7 +47,7 @@ class DeviceDataLimitController extends GetxController {
   }
 
   Future<void> fetchData({bool silent = false}) async {
-    isLoading.value = true;
+    if (!silent) isLoading.value = true;
     try {
       isEnabled.value = await _getEnableUseCase();
       deviceLimits.value = await _getListUseCase();
@@ -74,7 +74,7 @@ class DeviceDataLimitController extends GetxController {
         }
       }
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 

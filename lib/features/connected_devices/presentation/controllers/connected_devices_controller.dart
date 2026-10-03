@@ -252,9 +252,9 @@ class ConnectedDevicesController extends GetxController {
   bool isDevicePending(String mac) => pendingMacs.contains(mac);
 
   // ─── جلب الأجهزة المتصلة ───
-  Future<void> fetchDevices() async {
-    isLoading.value = true;
-    errorMessage.value = '';
+  Future<void> fetchDevices({bool silent = false}) async {
+    if (!silent) isLoading.value = true;
+    if (!silent) errorMessage.value = '';
 
     try {
       myDeviceIp.value = await _getCurrentDeviceIp() ?? '';
@@ -288,9 +288,11 @@ class ConnectedDevicesController extends GetxController {
       }
     } catch (e) {
       if (SessionHelper.handleSessionError(e)) return;
-      errorMessage.value = e.toString().replaceAll('Exception:', '').trim();
+      if (!silent) {
+        errorMessage.value = e.toString().replaceAll('Exception:', '').trim();
+      }
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 

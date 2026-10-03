@@ -9,8 +9,24 @@ import '../widgets/managed_device_card.dart';
 import '../widgets/master_toggles_section.dart';
 import '../widgets/stats_summary_card.dart';
 
-class DeviceManagementPage extends GetView<DeviceManagementController> {
+class DeviceManagementPage extends StatefulWidget {
   const DeviceManagementPage({Key? key}) : super(key: key);
+
+  @override
+  State<DeviceManagementPage> createState() => _DeviceManagementPageState();
+}
+
+class _DeviceManagementPageState extends State<DeviceManagementPage> {
+  final DeviceManagementController controller = Get.find<DeviceManagementController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchAllData(silent: true);
+      Get.find<TutorialService>().showDeviceManagementTutorial(context);
+    });
+  }
 
   Color get bgColor => Get.isDarkMode ? const Color(0xFF0A0E21) : const Color(0xFFFAFAFC);
   Color get cardColor => Get.isDarkMode ? const Color(0xFF16213E) : Colors.white;
@@ -22,10 +38,6 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.find<TutorialService>().showDeviceManagementTutorial(context);
-    });
 
     return Scaffold(
       body: Stack(
@@ -50,8 +62,15 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
             ),
           ),
           SafeArea(
-            child: CustomScrollView(
-              slivers: [
+            child: RefreshIndicator(
+              onRefresh: () => controller.fetchAllData(),
+              color: glowColor,
+              backgroundColor: cardColor,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                slivers: [
 
                 SliverToBoxAdapter(
                   child: Padding(
@@ -214,9 +233,10 @@ class DeviceManagementPage extends GetView<DeviceManagementController> {
               ],
             ),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
   }
 
   void _showGuideBottomSheet(BuildContext context) {

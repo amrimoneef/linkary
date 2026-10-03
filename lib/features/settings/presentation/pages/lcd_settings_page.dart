@@ -4,8 +4,23 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:linkary/features/settings/presentation/controllers/admin_settings_controller.dart';
 
-class LcdSettingsPage extends GetView<AdminSettingsController> {
+class LcdSettingsPage extends StatefulWidget {
   const LcdSettingsPage({super.key});
+
+  @override
+  State<LcdSettingsPage> createState() => _LcdSettingsPageState();
+}
+
+class _LcdSettingsPageState extends State<LcdSettingsPage> {
+  final AdminSettingsController controller = Get.find<AdminSettingsController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchAdminSettings(silent: true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +55,15 @@ class LcdSettingsPage extends GetView<AdminSettingsController> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+        return RefreshIndicator(
+          onRefresh: () => controller.fetchAdminSettings(),
+          color: const Color(0xFF4A90E2),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionHeader(context, 'حماية الشاشة', Iconsax.lock),
@@ -138,7 +159,7 @@ class LcdSettingsPage extends GetView<AdminSettingsController> {
               const SizedBox(height: 20),
             ],
           ),
-        );
+        ));
       }),
     );
   }

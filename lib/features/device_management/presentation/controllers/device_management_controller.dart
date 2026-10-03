@@ -20,19 +20,19 @@ class DeviceManagementController extends GetxController {
     fetchAllData();
   }
 
-  Future<void> fetchAllData() async {
-    isLoading.value = true;
+  Future<void> fetchAllData({bool silent = false}) async {
+    if (!silent) isLoading.value = true;
     try {
       // Fetch all data sequentially to prevent router overload (Connection reset by peer)
       await parentalCtrl.fetchData(silent: true);
-      await speedCtrl.fetchData();
+      await speedCtrl.fetchData(silent: true);
       await dataLimitCtrl.fetchData(silent: true);
-      await devicesCtrl.fetchDevices();
+      await devicesCtrl.fetchDevices(silent: true);
       _buildManagedDevices();
     } catch (e) {
       // Errors should be handled by individual controllers (SessionHelper, etc.)
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 

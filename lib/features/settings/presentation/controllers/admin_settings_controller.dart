@@ -44,8 +44,8 @@ class AdminSettingsController extends GetxController {
     fetchAdminSettings();
   }
 
-  Future<void> fetchAdminSettings() async {
-    isAdminInfoLoading.value = true;
+  Future<void> fetchAdminSettings({bool silent = false}) async {
+    if (!silent) isAdminInfoLoading.value = true;
     try {
       final settings = await getAdminSettingsUseCase.execute();
       adminSettings.value = settings;
@@ -76,9 +76,11 @@ class AdminSettingsController extends GetxController {
 
     } catch (e) {
       if (SessionHelper.handleSessionError(e)) return;
-      CustomSnackbar.showError('خطأ', 'فشل في جلب إعدادات المسؤول: $e');
+      if (!silent) {
+        CustomSnackbar.showError('خطأ', 'فشل في جلب إعدادات المسؤول: $e');
+      }
     } finally {
-      isAdminInfoLoading.value = false;
+      if (!silent) isAdminInfoLoading.value = false;
     }
   }
 

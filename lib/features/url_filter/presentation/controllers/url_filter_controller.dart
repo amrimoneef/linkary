@@ -23,17 +23,19 @@ class UrlFilterController extends GetxController {
     fetchData();
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({bool silent = false}) async {
     try {
-      isLoading(true);
-      errorMessage('');
+      if (!silent) isLoading(true);
+      if (!silent) errorMessage('');
       final data = await getUseCase();
       filterMode.value = data.mode;
       blackItems.assignAll(data.blackItems);
     } catch (e) {
-      errorMessage('حدث خطأ أثناء جلب البيانات: $e');
+      if (!silent) {
+        errorMessage('حدث خطأ أثناء جلب البيانات: $e');
+      }
     } finally {
-      isLoading(false);
+      if (!silent) isLoading(false);
     }
   }
 

@@ -33,7 +33,7 @@ class ParentalControlController extends GetxController {
   }
 
   Future<void> fetchData({bool silent = false}) async {
-    isLoading.value = true;
+    if (!silent) isLoading.value = true;
     try {
       isEnabled.value = await getStatusUseCase.execute();
       final results = await getListUseCase.execute();
@@ -75,7 +75,7 @@ class ParentalControlController extends GetxController {
       }
       debugPrint('Parental Control Fetch: $e');
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 

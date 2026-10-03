@@ -5,10 +5,23 @@ import '../controllers/speed_limit_controller.dart';
 import '../../../connected_devices/presentation/controllers/connected_devices_controller.dart';
 import '../widgets/speed_rule_editor_sheet.dart';
 
-class SpeedLimitPage extends StatelessWidget {
-  SpeedLimitPage({super.key});
+class SpeedLimitPage extends StatefulWidget {
+  const SpeedLimitPage({super.key});
 
+  @override
+  State<SpeedLimitPage> createState() => _SpeedLimitPageState();
+}
+
+class _SpeedLimitPageState extends State<SpeedLimitPage> {
   final SpeedLimitController controller = Get.find<SpeedLimitController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchData(silent: true);
+    });
+  }
 
   // 🎨 الألوان الديناميكية (الهوية الجديدة النظيفة)
   Color get bgColor => Get.isDarkMode ? const Color(0xFF0A0E21) : const Color(0xFFFAFAFC);
@@ -48,11 +61,14 @@ class SpeedLimitPage extends StatelessWidget {
             SafeArea(
               child: controller.isLoading.value
                   ? Center(child: CircularProgressIndicator(color: glowColor))
-                  : SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  : RefreshIndicator(
+                      onRefresh: () => controller.fetchData(),
+                      color: glowColor,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -123,7 +139,8 @@ class SpeedLimitPage extends StatelessWidget {
                 ),
               ),
             ),
-          ],
+          ),
+        ],
         ),
       );
     });

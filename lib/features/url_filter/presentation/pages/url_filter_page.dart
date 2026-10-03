@@ -6,12 +6,26 @@ import '../../../../core/widgets/glass_card.dart';
 import '../controllers/url_filter_controller.dart';
 import '../widgets/add_url_dialog.dart';
 
-class UrlFilterPage extends StatelessWidget {
+class UrlFilterPage extends StatefulWidget {
   const UrlFilterPage({Key? key}) : super(key: key);
 
   @override
+  State<UrlFilterPage> createState() => _UrlFilterPageState();
+}
+
+class _UrlFilterPageState extends State<UrlFilterPage> {
+  final UrlFilterController controller = Get.find<UrlFilterController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchData(silent: true);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.find<UrlFilterController>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = isDark ? const Color(0xFF070B19) : const Color(0xFFF4F7FC);
 
@@ -66,10 +80,13 @@ class UrlFilterPage extends StatelessWidget {
 
         final isEnabled = controller.filterMode.value == 'blacklist';
 
-        return Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        return RefreshIndicator(
+          onRefresh: () => controller.fetchData(),
+          color: AppColors.primaryBlue,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -170,26 +187,39 @@ class UrlFilterPage extends StatelessWidget {
                   Expanded(
                     child: !isEnabled 
                       ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Iconsax.shield_search, size: 80, color: Colors.grey.withValues(alpha: 0.3)),
-                              const SizedBox(height: 16),
-                              Text(
-                                'الميزة معطلة حالياً',
-                                style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontSize: 16),
-                              ),
-                            ],
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics(),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Iconsax.shield_search, size: 80, color: Colors.grey.withValues(alpha: 0.3)),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'الميزة معطلة حالياً',
+                                  style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontSize: 16),
+                                ),
+                              ],
+                            ),
                           ),
                         )
                       : controller.blackItems.isEmpty
                         ? Center(
-                            child: Text(
-                              'القائمة فارغة. أضف مواقع لحظرها.',
-                              style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontSize: 16),
+                            child: SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: BouncingScrollPhysics(),
+                              ),
+                              child: Text(
+                                'القائمة فارغة. أضف مواقع لحظرها.',
+                                style: TextStyle(color: isDark ? Colors.white54 : Colors.black54, fontSize: 16),
+                              ),
                             ),
                           )
                         : ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics(),
+                            ),
                             padding: const EdgeInsets.only(bottom: 20),
                             itemCount: controller.blackItems.length,
                             separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -255,7 +285,7 @@ class UrlFilterPage extends StatelessWidget {
                 ),
               ),
           ],
-        );
+        ));
       }),
     );
   }

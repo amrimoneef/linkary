@@ -338,14 +338,24 @@ class DashboardPage extends StatelessWidget {
                 Container(
                   key: tutorialService.connectedDevicesKey,
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
+                  decoration: BoxDecoration(
+                    color: Colors.white, 
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      )
+                    ]
+                  ),
                   child: Row(
                     children: [
-                      Icon(Icons.devices, color: Color(0xB2538EFA), size: 16),
+                      Icon(Icons.devices, color: Color.fromARGB(177, 1, 16, 42), size: 16),
                       const SizedBox(width: 5),
                       Obx(() => TextButton(
                         onPressed: () => Get.to(() => const DeviceManagementPage()),
-                        child: Text('${controller.connectedDevicesCount.value} ${controller.connectedDevicesCount.value == 1 ? "جهاز" : "أجهزة"}', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                        child: Text('${controller.connectedDevicesCount.value} ${controller.connectedDevicesCount.value == 1 ? "جهاز" : "أجهزة"}', style: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.bold)),
                       ))
                     ],
                   ),

@@ -3,17 +3,30 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import '../controllers/data_usage_controller.dart';
 
-class DataUsagePage extends StatelessWidget {
-  DataUsagePage({super.key});
+class DataUsagePage extends StatefulWidget {
+  const DataUsagePage({super.key});
 
+  @override
+  State<DataUsagePage> createState() => _DataUsagePageState();
+}
+
+class _DataUsagePageState extends State<DataUsagePage> {
   final DataUsageController controller = Get.find<DataUsageController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchData(silent: true);
+    });
+  }
 
   // 🎨 الألوان الديناميكية (الهوية الموحدة)
   Color get bgColor => Get.isDarkMode ? const Color(0xFF0A0E21) : const Color(0xFFFAFAFC);
   Color get cardColor => Get.isDarkMode ? const Color(0xFF16213E) : Colors.white;
   Color get textColor => Get.isDarkMode ? Colors.white : const Color(0xFF111827);
   Color get subTextColor => Get.isDarkMode ? Colors.white54 : const Color(0xFF6B7280);
-Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0xFF92C0F6);
+  Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0xFF92C0F6);
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +59,13 @@ Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0x
             SafeArea(
               child: controller.isLoading.value
                   ? Center(child: CircularProgressIndicator(color: glowColor))
-                  : SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  : RefreshIndicator(
+                      onRefresh: () => controller.fetchData(),
+                      color: glowColor,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -196,7 +212,8 @@ Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0x
                 ),
               ),
             ),
-          ],
+          ),
+        ],
         ),
       );
     });

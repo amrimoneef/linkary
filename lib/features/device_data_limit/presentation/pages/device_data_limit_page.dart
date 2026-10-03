@@ -7,8 +7,23 @@ import '../../../connected_devices/presentation/controllers/connected_devices_co
 import '../../domain/entities/device_data_limit.dart';
 import '../widgets/data_rule_editor_sheet.dart';
 
-class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
+class DeviceDataLimitPage extends StatefulWidget {
   const DeviceDataLimitPage({super.key});
+
+  @override
+  State<DeviceDataLimitPage> createState() => _DeviceDataLimitPageState();
+}
+
+class _DeviceDataLimitPageState extends State<DeviceDataLimitPage> {
+  final DeviceDataLimitController controller = Get.find<DeviceDataLimitController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchData(silent: true);
+    });
+  }
 
   // 🎨 الألوان الديناميكية (الهوية الجديدة النظيفة)
   Color get bgColor => Get.isDarkMode ? const Color(0xFF0A0E21) : const Color(0xFFFAFAFC);
@@ -49,11 +64,14 @@ class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
             SafeArea(
               child: controller.isLoading.value && controller.deviceLimits.isEmpty
                   ? Center(child: CircularProgressIndicator(color: glowColor))
-                  : SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  : RefreshIndicator(
+                      onRefresh: () => controller.fetchData(),
+                      color: glowColor,
+                      child: SingleChildScrollView(
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -119,7 +137,8 @@ class DeviceDataLimitPage extends GetView<DeviceDataLimitController> {
                 ),
               ),
             ),
-          ],
+          ),
+        ],
         ),
       );
     });

@@ -44,8 +44,8 @@ class WifiSettingsController extends GetxController {
     fetchSettings();
   }
 
-  Future<void> fetchSettings() async {
-    isLoading.value = true;
+  Future<void> fetchSettings({bool silent = false}) async {
+    if (!silent) isLoading.value = true;
     try {
       final result = await getWifiSettingsUseCase.execute();
 
@@ -63,7 +63,7 @@ class WifiSettingsController extends GetxController {
       if (SessionHelper.handleSessionError(e)) return;
       errorMessage.value = e.toString().replaceAll('Exception:', '');
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 

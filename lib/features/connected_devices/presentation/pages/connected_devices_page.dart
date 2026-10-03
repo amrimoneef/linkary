@@ -7,11 +7,24 @@ import '../../../device_management/presentation/widgets/device_detail_sheet.dart
 import '../../../device_management/presentation/models/managed_device.dart';
 import '../../../device_data_limit/presentation/pages/device_data_limit_page.dart';
 
-class ConnectedDevicesPage extends StatelessWidget {
-  ConnectedDevicesPage({super.key});
+class ConnectedDevicesPage extends StatefulWidget {
+  const ConnectedDevicesPage({super.key});
 
+  @override
+  State<ConnectedDevicesPage> createState() => _ConnectedDevicesPageState();
+}
+
+class _ConnectedDevicesPageState extends State<ConnectedDevicesPage> {
   final ConnectedDevicesController controller =
       Get.find<ConnectedDevicesController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchDevices(silent: true);
+    });
+  }
 
   // 🎨 الألوان الديناميكية (الهوية الموحدة للتطبيق)
   Color get bgColor =>

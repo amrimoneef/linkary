@@ -51,8 +51,8 @@ class SpeedLimitController extends GetxController {
     fetchData();
   }
 
-  Future<void> fetchData() async {
-    isLoading.value = true;
+  Future<void> fetchData({bool silent = false}) async {
+    if (!silent) isLoading.value = true;
     try {
       final result = await getUseCase.execute();
       isEnabled.value = result.isEnabled;
@@ -64,7 +64,7 @@ class SpeedLimitController extends GetxController {
       if (SessionHelper.handleSessionError(e)) return;
       errorMessage.value = e.toString().replaceAll('Exception:', '');
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 

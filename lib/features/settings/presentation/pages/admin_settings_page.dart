@@ -4,8 +4,23 @@ import 'package:iconsax/iconsax.dart';
 import 'package:linkary/features/settings/presentation/controllers/admin_settings_controller.dart';
 import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 
-class AdminSettingsPage extends GetView<AdminSettingsController> {
+class AdminSettingsPage extends StatefulWidget {
   const AdminSettingsPage({super.key});
+
+  @override
+  State<AdminSettingsPage> createState() => _AdminSettingsPageState();
+}
+
+class _AdminSettingsPageState extends State<AdminSettingsPage> {
+  final AdminSettingsController controller = Get.find<AdminSettingsController>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchAdminSettings(silent: true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +53,15 @@ class AdminSettingsPage extends GetView<AdminSettingsController> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
+        return RefreshIndicator(
+          onRefresh: () => controller.fetchAdminSettings(),
+          color: const Color(0xFF4A90E2),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionHeader(context, 'حساب المسؤول', Iconsax.user_edit),
@@ -129,7 +150,7 @@ class AdminSettingsPage extends GetView<AdminSettingsController> {
               const SizedBox(height: 20),
             ],
           ),
-        );
+        ));
       }),
     );
   }

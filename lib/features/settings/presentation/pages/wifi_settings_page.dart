@@ -4,10 +4,24 @@ import 'package:iconsax/iconsax.dart';
 import '../../../../core/utils/validators.dart';
 import '../controllers/wifi_settings_controller.dart';
 
-class WifiSettingsPage extends StatelessWidget {
-  WifiSettingsPage({super.key});
+class WifiSettingsPage extends StatefulWidget {
+  const WifiSettingsPage({super.key});
 
+  @override
+  State<WifiSettingsPage> createState() => _WifiSettingsPageState();
+}
+
+class _WifiSettingsPageState extends State<WifiSettingsPage> {
   final WifiSettingsController controller = Get.find<WifiSettingsController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // جلب أحدث الإعدادات من المودم تلقائياً عند الدخول للشاشة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchSettings(silent: true);
+    });
+  }
 
   // 🎨 الألوان الديناميكية (نظيفة جداً لتطابق الصورة)
   Color get bgColor => Get.isDarkMode ? const Color(0xFF0A0E21) : const Color(0xFFFAFAFC);
@@ -16,7 +30,7 @@ class WifiSettingsPage extends StatelessWidget {
   Color get subTextColor => Get.isDarkMode ? Colors.white54 : const Color(0xFF6B7280);
 
   // لون التدرج الدائري في الزاوية (بنفسجي ناعم)
-Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0xFF92C0F6);
+  Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0xFF92C0F6);
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +63,14 @@ Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0x
             SafeArea(
               child: Form(
                 key: controller.formKey,
-                child: SingleChildScrollView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: RefreshIndicator(
+                  onRefresh: () => controller.fetchSettings(),
+                  color: glowColor,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -174,8 +192,9 @@ Color get glowColor => Get.isDarkMode ? const Color(0xFF4A90E2) : const Color(0x
                 ),
               ),
             ),
-            ),
-          ],
+          ),
+        ),
+      ],
         ),
       );
     });
