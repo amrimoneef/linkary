@@ -22,6 +22,8 @@ class QuickSearchPage extends StatefulWidget {
     );
   }
 
+  static bool isOpen = false;
+
   @override
   State<QuickSearchPage> createState() => _QuickSearchPageState();
 }
@@ -32,6 +34,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
   @override
   void initState() {
     super.initState();
+    QuickSearchPage.isOpen = true;
     controller = Get.find<QuickSearchController>();
 
     if (widget.startListening) {
@@ -39,6 +42,12 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
         controller.startVoiceSearch();
       });
     }
+  }
+
+  @override
+  void dispose() {
+    QuickSearchPage.isOpen = false;
+    super.dispose();
   }
 
   List<Color> headerGradient(bool isDark) => isDark

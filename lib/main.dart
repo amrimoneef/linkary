@@ -9,6 +9,7 @@ import 'core/services/battery_monitor_service.dart';
 import 'core/services/fcm_notification_service.dart';
 import 'features/connected_devices/infrastructure/services/background_device_monitor.dart';
 import 'features/quick_tools_and_widgets/infrastructure/services/widget_refresh_task.dart';
+import 'features/quick_search/presentation/widgets/global_search_gesture_wrapper.dart';
 import 'features/splash/presentation/pages/splash_page.dart';
 
 /// نقطة الدخول الموحدة لجميع مهام الخلفية (Workmanager)
@@ -73,6 +74,12 @@ class ModemApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       
+      builder: (context, child) {
+        return GlobalSearchGestureWrapper(
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+
       home: SplashPage(),
     );
   }

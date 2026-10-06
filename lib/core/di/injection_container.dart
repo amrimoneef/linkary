@@ -7,6 +7,7 @@ import '../../features/quick_search/domain/repositories/quick_search_repository.
 import '../../features/quick_search/infrastructure/repositories_impl/quick_search_repository_impl.dart';
 import '../../features/quick_search/infrastructure/services/search_index_registry.dart';
 import '../../features/quick_search/presentation/controllers/quick_search_controller.dart';
+import '../../features/quick_search/presentation/controllers/global_search_notch_controller.dart';
 import '../../core/services/biometric_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../features/connected_devices/domain/repositories/connected_devices_repository.dart';
@@ -547,6 +548,10 @@ Future<void> initDI() async {
     () => QuickSearchController(
       repository: Get.find<QuickSearchRepository>(),
     ),
+    fenix: true,
+  );
+  Get.lazyPut(
+    () => GlobalSearchNotchController(),
     fenix: true,
   );
 

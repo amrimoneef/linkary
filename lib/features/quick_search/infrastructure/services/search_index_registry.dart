@@ -16,7 +16,6 @@ import 'package:linkary/features/parental_control/presentation/pages/parental_co
 import 'package:linkary/features/mac_filter/presentation/pages/mac_filter_page.dart';
 import 'package:linkary/features/url_filter/presentation/pages/url_filter_page.dart';
 import 'package:linkary/features/device_data_limit/presentation/pages/device_data_limit_page.dart';
-import 'package:linkary/features/bill/presentation/pages/bill_page.dart';
 import 'package:linkary/features/settings/presentation/pages/battery_settings_page.dart';
 import 'package:linkary/features/settings/presentation/pages/lcd_settings_page.dart';
 import 'package:linkary/features/settings/presentation/pages/admin_settings_page.dart';
@@ -26,7 +25,6 @@ import 'package:linkary/features/notifications/presentation/pages/notifications_
 import 'package:linkary/features/speed_test/presentation/pages/speed_test_page.dart';
 import 'package:linkary/features/signal_finder/presentation/pages/signal_finder_page.dart';
 import 'package:linkary/features/modem_finder/presentation/pages/modem_finder_page.dart';
-import 'package:linkary/features/network_info/presentation/pages/network_info_page.dart';
 import 'package:linkary/features/mifi_app_monitor/presentation/pages/app_monitor_screen.dart';
 import 'package:linkary/features/mifi_app_monitor/presentation/pages/firewall_management_screen.dart';
 import 'package:linkary/features/device_management/presentation/pages/device_management_page.dart';
@@ -42,8 +40,25 @@ import 'package:linkary/features/settings/presentation/controllers/wifi_settings
 import 'package:linkary/features/dashboard/presentation/controllers/dashboard_controller.dart';
 import 'package:linkary/features/modem_finder/presentation/controllers/modem_finder_controller.dart';
 import 'package:linkary/core/services/tutorial_service.dart';
+import 'package:linkary/features/main_layout/presentation/controllers/main_layout_controller.dart';
+import 'package:linkary/features/main_layout/presentation/pages/main_layout_page.dart';
 
 class SearchIndexRegistry {
+  /// التنقل الذكي لشاشات التبويب الرئيسية (البار السفلي) دون كسر هيكل التطبيق أو إخفاء العناصر
+  static void navigateToMainTab(int index) {
+    if (Get.isRegistered<MainLayoutController>()) {
+      Get.find<MainLayoutController>().changePage(index);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Get.key.currentState != null && Get.key.currentState!.canPop()) {
+          Get.until((route) => route.isFirst);
+        }
+      });
+    } else {
+      Get.offAll(() => MainLayoutPage());
+      Get.find<MainLayoutController>().changePage(index);
+    }
+  }
+
   /// Returns the static index of all settings, tools, and screens in Linkary
   List<SearchItem> getStaticItems() {
     return [
@@ -60,8 +75,16 @@ class SearchIndexRegistry {
         category: SearchCategory.quickActions,
         priority: 12,
         keywords: const [
-          'نسخ', 'باسورد', 'كلمة السر', 'واي فاي', 'wifi',
-          'رمز', 'كود', 'نسخ الباسورد', 'copy password', 'رمز الشبكة'
+          'نسخ',
+          'باسورد',
+          'كلمة السر',
+          'واي فاي',
+          'wifi',
+          'رمز',
+          'كود',
+          'نسخ الباسورد',
+          'copy password',
+          'رمز الشبكة',
         ],
         onTap: () {
           String pass = '';
@@ -96,8 +119,16 @@ class SearchIndexRegistry {
         category: SearchCategory.quickActions,
         priority: 11,
         keywords: const [
-          'qr', 'باركود', 'كود', 'مشاركة', 'واي فاي',
-          'رمز qr', 'مسح', 'اتصال سريع', 'share wifi', 'مشاركة الواي فاي'
+          'qr',
+          'باركود',
+          'كود',
+          'مشاركة',
+          'واي فاي',
+          'رمز qr',
+          'مسح',
+          'اتصال سريع',
+          'share wifi',
+          'مشاركة الواي فاي',
         ],
         onTap: () {
           String ssid = 'Linkary_4G';
@@ -110,29 +141,56 @@ class SearchIndexRegistry {
           final qrData = 'WIFI:T:WPA;S:$ssid;P:$pass;;';
           Get.dialog(
             Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('اتصال سريع بشبكة الواي فاي', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'اتصال سريع بشبكة الواي فاي',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text('امسح الرمز بكاميرا الهاتف للاتصال بشبكة ($ssid)', textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                    Text(
+                      'امسح الرمز بكاميرا الهاتف للاتصال بشبكة ($ssid)',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
                     const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                      child: QrImageView(data: qrData, size: 200, version: QrVersions.auto),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: QrImageView(
+                        data: qrData,
+                        size: 200,
+                        version: QrVersions.auto,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF4A90E2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onPressed: () => Get.back(),
-                      child: const Text('إغلاق', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'إغلاق',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -151,16 +209,29 @@ class SearchIndexRegistry {
         category: SearchCategory.quickActions,
         priority: 12,
         keywords: const [
-          'ثيم', 'ليلي', 'نهاري', 'دارك', 'لايت', 'مظلم',
-          'وضع ليلي', 'داكن', 'theme', 'dark mode', 'light mode'
+          'ثيم',
+          'ليلي',
+          'نهاري',
+          'دارك',
+          'لايت',
+          'مظلم',
+          'وضع ليلي',
+          'داكن',
+          'theme',
+          'dark mode',
+          'light mode',
         ],
         onTap: () {
           final isCurrentlyDark = Get.context != null
               ? Theme.of(Get.context!).brightness == Brightness.dark
               : Get.isDarkMode;
-          Get.changeThemeMode(isCurrentlyDark ? ThemeMode.light : ThemeMode.dark);
+          Get.changeThemeMode(
+            isCurrentlyDark ? ThemeMode.light : ThemeMode.dark,
+          );
           Get.rawSnackbar(
-            message: isCurrentlyDark ? 'تم التبديل إلى الوضع النهاري' : 'تم التبديل إلى الوضع الليلي',
+            message: isCurrentlyDark
+                ? 'تم التبديل إلى الوضع النهاري'
+                : 'تم التبديل إلى الوضع الليلي',
             duration: const Duration(seconds: 2),
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(16),
@@ -178,7 +249,14 @@ class SearchIndexRegistry {
         category: SearchCategory.quickActions,
         priority: 11,
         keywords: const [
-          'ip', '192.168', 'عنوان', 'راوتر', 'بوابة', 'مودم', 'gateway', 'نسخ ip'
+          'ip',
+          '192.168',
+          'عنوان',
+          'راوتر',
+          'بوابة',
+          'مودم',
+          'gateway',
+          'نسخ ip',
         ],
         onTap: () {
           Clipboard.setData(const ClipboardData(text: '192.168.8.1'));
@@ -201,7 +279,12 @@ class SearchIndexRegistry {
         category: SearchCategory.quickActions,
         priority: 10,
         keywords: const [
-          'تحديث', 'ريفرش', 'جلب البيانات', 'فحص', 'الان', 'refresh'
+          'تحديث',
+          'ريفرش',
+          'جلب البيانات',
+          'فحص',
+          'الان',
+          'refresh',
         ],
         onTap: () {
           if (Get.isRegistered<DashboardController>()) {
@@ -225,11 +308,18 @@ class SearchIndexRegistry {
         icon: Iconsax.refresh,
         category: SearchCategory.quickActions,
         isDestructive: true,
-        confirmationMessage: 'هل أنت متأكد من رغبتك في إعادة تشغيل الراوتر الآن؟ سيتم فصل الاتصال لثوانٍ معدودة.',
+        confirmationMessage:
+            'هل أنت متأكد من رغبتك في إعادة تشغيل الراوتر الآن؟ سيتم فصل الاتصال لثوانٍ معدودة.',
         priority: 10,
         keywords: const [
-          'اعادة تشغيل', 'ريستارت', 'reboot', 'restart',
-          'راوتر', 'اطفاء وتشغيل', 'إعادة تشغيل', 'تنشيط الراوتر'
+          'اعادة تشغيل',
+          'ريستارت',
+          'reboot',
+          'restart',
+          'راوتر',
+          'اطفاء وتشغيل',
+          'إعادة تشغيل',
+          'تنشيط الراوتر',
         ],
         onTap: () {
           if (Get.isRegistered<AuthController>()) {
@@ -246,11 +336,17 @@ class SearchIndexRegistry {
         icon: Icons.power_settings_new_rounded,
         category: SearchCategory.quickActions,
         isDestructive: true,
-        confirmationMessage: 'هل أنت متأكد من رغبتك في إيقاف تشغيل المودم؟ سيتطلب تشغيله مجدداً الضغط اليدوي على زر الباور.',
+        confirmationMessage:
+            'هل أنت متأكد من رغبتك في إيقاف تشغيل المودم؟ سيتطلب تشغيله مجدداً الضغط اليدوي على زر الباور.',
         priority: 9,
         keywords: const [
-          'ايقاف', 'اغلاق', 'اطفاء', 'shutdown',
-          'power off', 'باور', 'ايقاف تشغيل'
+          'ايقاف',
+          'اغلاق',
+          'اطفاء',
+          'shutdown',
+          'power off',
+          'باور',
+          'ايقاف تشغيل',
         ],
         onTap: () {
           if (Get.isRegistered<AuthController>()) {
@@ -268,7 +364,13 @@ class SearchIndexRegistry {
         category: SearchCategory.quickActions,
         priority: 9,
         keywords: const [
-          'رنين', 'صوت', 'نغمة', 'ايجاد الراوتر', 'مفقود', 'ring', 'alert'
+          'رنين',
+          'صوت',
+          'نغمة',
+          'ايجاد الراوتر',
+          'مفقود',
+          'ring',
+          'alert',
         ],
         onTap: () {
           Get.to(() => const ModemFinderPage());
@@ -286,10 +388,16 @@ class SearchIndexRegistry {
         icon: Iconsax.danger,
         category: SearchCategory.quickActions,
         isDestructive: true,
-        confirmationMessage: 'تحذير شديد: هذا الإجراء سيمسح جميع الإعدادات وكلمات المرور الخاصة بالراوتر ويعيدها لضبط المصنع!',
+        confirmationMessage:
+            'تحذير شديد: هذا الإجراء سيمسح جميع الإعدادات وكلمات المرور الخاصة بالراوتر ويعيدها لضبط المصنع!',
         priority: 6,
         keywords: const [
-          'ضبط مصنع', 'فورمات', 'ريست', 'reset', 'factory reset', 'مسح'
+          'ضبط مصنع',
+          'فورمات',
+          'ريست',
+          'reset',
+          'factory reset',
+          'مسح',
         ],
         onTap: () {
           if (Get.isRegistered<AuthController>()) {
@@ -306,11 +414,10 @@ class SearchIndexRegistry {
         icon: Iconsax.logout,
         category: SearchCategory.quickActions,
         isDestructive: true,
-        confirmationMessage: 'هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة تحكم المودم؟',
+        confirmationMessage:
+            'هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة تحكم المودم؟',
         priority: 7,
-        keywords: const [
-          'خروج', 'تسجيل خروج', 'logout', 'قفل', 'انهاء'
-        ],
+        keywords: const ['خروج', 'تسجيل خروج', 'logout', 'قفل', 'انهاء'],
         onTap: () {
           if (Get.isRegistered<AuthController>()) {
             Get.find<AuthController>().logout();
@@ -322,6 +429,48 @@ class SearchIndexRegistry {
       // 2. إعدادات المودم وشبكة الواي فاي (Settings)
       // ═══════════════════════════════════════════════════════════════
 
+      // الانتقال إلى الصفحة الرئيسية (تبويب الرئيسية في البار السفلي)
+      SearchItem(
+        id: 'dashboard_main',
+        title: 'الصفحة الرئيسية (لوحة التحكم)',
+        subtitle: 'مراقبة سرعة النت، استهلاك البيانات، وحالة المودم المباشرة',
+        icon: Iconsax.home_15,
+        category: SearchCategory.quickActions,
+        priority: 15,
+        keywords: const [
+          'الرئيسية',
+          'لوحة التحكم',
+          'داشبورد',
+          'home',
+          'dashboard',
+          'مودم',
+          'صفحة البداية',
+          'سرعة النت',
+        ],
+        onTap: () => navigateToMainTab(1),
+      ),
+
+      // شاشة الإعدادات العامة (تبويب الإعدادات في البار السفلي)
+      SearchItem(
+        id: 'all_settings_main',
+        title: 'شاشة الإعدادات العامة',
+        subtitle: 'استعراض والوصول لكافة إعدادات المودم والنظام والتطبيق',
+        icon: Iconsax.setting_2,
+        category: SearchCategory.settings,
+        priority: 14,
+        keywords: const [
+          'اعدادات',
+          'إعدادات',
+          'الضبط',
+          'settings',
+          'عامة',
+          'خيارات',
+          'تفضيلات',
+          'كل الاعدادات',
+        ],
+        onTap: () => navigateToMainTab(0),
+      ),
+
       // 1. Wi-Fi Settings
       SearchItem(
         id: 'wifi_settings',
@@ -331,9 +480,20 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 15,
         keywords: const [
-          'wifi', 'واي فاي', 'باسورد', 'كلمة السر', 'اسم الشبكة',
-          'ssid', 'الشبكة', 'password', 'كلمة المرور', 'وايرلس',
-          'تردد', '5ghz', '2.4ghz', 'رمز الشبكة'
+          'wifi',
+          'واي فاي',
+          'باسورد',
+          'كلمة السر',
+          'اسم الشبكة',
+          'ssid',
+          'الشبكة',
+          'password',
+          'كلمة المرور',
+          'وايرلس',
+          'تردد',
+          '5ghz',
+          '2.4ghz',
+          'رمز الشبكة',
         ],
         onTap: () => Get.to(() => WifiSettingsPage()),
       ),
@@ -347,9 +507,19 @@ class SearchIndexRegistry {
         category: SearchCategory.devices,
         priority: 14,
         keywords: const [
-          'اجهزة', 'متصلة', 'هواتف', 'ip', 'mac', 'المتصلين',
-          'devices', 'clients', 'من متصل', 'كم جهاز', 'أجهزة',
-          'إدارة الأجهزة', 'ادارة الاجهزة'
+          'اجهزة',
+          'متصلة',
+          'هواتف',
+          'ip',
+          'mac',
+          'المتصلين',
+          'devices',
+          'clients',
+          'من متصل',
+          'كم جهاز',
+          'أجهزة',
+          'إدارة الأجهزة',
+          'ادارة الاجهزة',
         ],
         onTap: () => Get.to(() => const DeviceManagementPage()),
       ),
@@ -363,8 +533,14 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 11,
         keywords: const [
-          'تحديد السرعة', 'سرعة', 'limit', 'باندويث',
-          'bandwidth', 'throttle', 'تخفيض السرعة', 'تحديد سرعه'
+          'تحديد السرعة',
+          'سرعة',
+          'limit',
+          'باندويث',
+          'bandwidth',
+          'throttle',
+          'تخفيض السرعة',
+          'تحديد سرعه',
         ],
         onTap: () => Get.to(() => SpeedLimitPage()),
       ),
@@ -378,8 +554,16 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 12,
         keywords: const [
-          'استهلاك', 'باقة', 'بيانات', 'رصيد', 'جيجا',
-          'usage', 'data', 'quota', 'النت المتبقي', 'كم باقي'
+          'استهلاك',
+          'باقة',
+          'بيانات',
+          'رصيد',
+          'جيجا',
+          'usage',
+          'data',
+          'quota',
+          'النت المتبقي',
+          'كم باقي',
         ],
         onTap: () => Get.to(() => DataUsagePage()),
       ),
@@ -393,8 +577,16 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 10,
         keywords: const [
-          'رقابة ابوية', 'رقابة', 'حظر', 'وقت', 'مواقع',
-          'parental', 'filter', 'time', 'جدول', 'توقيت'
+          'رقابة ابوية',
+          'رقابة',
+          'حظر',
+          'وقت',
+          'مواقع',
+          'parental',
+          'filter',
+          'time',
+          'جدول',
+          'توقيت',
         ],
         onTap: () => Get.to(() => ParentalControlPage()),
       ),
@@ -408,8 +600,15 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 11,
         keywords: const [
-          'ماك ادرس', 'حظر', 'تبليك', 'mac', 'blacklist',
-          'whitelist', 'عنوان', 'طرد', 'بلوك'
+          'ماك ادرس',
+          'حظر',
+          'تبليك',
+          'mac',
+          'blacklist',
+          'whitelist',
+          'عنوان',
+          'طرد',
+          'بلوك',
         ],
         onTap: () => Get.to(() => MacFilterPage()),
       ),
@@ -423,8 +622,15 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 10,
         keywords: const [
-          'حجب المواقع', 'روابط', 'فلترة', 'url', 'website',
-          'block', 'موقع', 'دومين', 'حظر رابط'
+          'حجب المواقع',
+          'روابط',
+          'فلترة',
+          'url',
+          'website',
+          'block',
+          'موقع',
+          'دومين',
+          'حظر رابط',
         ],
         onTap: () => Get.to(() => const UrlFilterPage()),
       ),
@@ -438,8 +644,12 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 9,
         keywords: const [
-          'تحديد بيانات الاجهزة', 'استهلاك الاجهزة', 'ليمت',
-          'device limit', 'سقف البيانات', 'تحديد استهلاك'
+          'تحديد بيانات الاجهزة',
+          'استهلاك الاجهزة',
+          'ليمت',
+          'device limit',
+          'سقف البيانات',
+          'تحديد استهلاك',
         ],
         onTap: () => Get.to(() => const DeviceDataLimitPage()),
       ),
@@ -453,13 +663,17 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 9,
         keywords: const [
-          'ادارة الاجهزة', 'راوترات', 'مودمات', 'device management',
-          'اجهزة الراوتر', 'تبديل المودم'
+          'ادارة الاجهزة',
+          'راوترات',
+          'مودمات',
+          'device management',
+          'اجهزة الراوتر',
+          'تبديل المودم',
         ],
         onTap: () => Get.to(() => const DeviceManagementPage()),
       ),
 
-      // 10. Bill & Recharge
+      // 10. Bill (تبويب الرصيد والفاتورة في البار السفلي)
       SearchItem(
         id: 'bill',
         title: 'الفاتورة وتجديد الباقة',
@@ -468,10 +682,17 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 11,
         keywords: const [
-          'فاتورة', 'شحن', 'سداد', 'رصيد', 'دفع',
-          'bill', 'recharge', 'payment', 'تجديد'
+          'فاتورة',
+          'شحن',
+          'سداد',
+          'رصيد',
+          'دفع',
+          'bill',
+          'recharge',
+          'payment',
+          'تجديد',
         ],
-        onTap: () => Get.to(() => BillPage()),
+        onTap: () => navigateToMainTab(3),
       ),
 
       // 11. Battery Settings
@@ -483,8 +704,13 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 8,
         keywords: const [
-          'بطارية', 'شحن', 'توفير الطاقة', 'battery',
-          'power saving', 'حفظ الطاقة', 'استهلاك البطارية'
+          'بطارية',
+          'شحن',
+          'توفير الطاقة',
+          'battery',
+          'power saving',
+          'حفظ الطاقة',
+          'استهلاك البطارية',
         ],
         onTap: () => Get.to(() => const BatterySettingsPage()),
       ),
@@ -498,8 +724,14 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 8,
         keywords: const [
-          'شاشة', 'اضاءة', 'سكون', 'lcd', 'display',
-          'screen', 'timeout', 'شاشه الراوتر'
+          'شاشة',
+          'اضاءة',
+          'سكون',
+          'lcd',
+          'display',
+          'screen',
+          'timeout',
+          'شاشه الراوتر',
         ],
         onTap: () => Get.to(() => const LcdSettingsPage()),
       ),
@@ -513,8 +745,14 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 9,
         keywords: const [
-          'كلمة سر المودم', 'ادمن', 'تسجيل الدخول', 'admin',
-          'password', 'login', 'باسورد المودم', 'لوحة التحكم'
+          'كلمة سر المودم',
+          'ادمن',
+          'تسجيل الدخول',
+          'admin',
+          'password',
+          'login',
+          'باسورد المودم',
+          'لوحة التحكم',
         ],
         onTap: () => Get.to(() => const AdminSettingsPage()),
       ),
@@ -528,7 +766,11 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 7,
         keywords: const [
-          'اعدادات الفايندر', 'معايرة', 'حساسية', 'صوت الفايندر', 'finder settings'
+          'اعدادات الفايندر',
+          'معايرة',
+          'حساسية',
+          'صوت الفايندر',
+          'finder settings',
         ],
         onTap: () => Get.to(() => const ModemFinderSettingsPage()),
       ),
@@ -537,20 +779,34 @@ class SearchIndexRegistry {
       // 3. الأدوات الذكية والمتقدمة (Smart Tools)
       // ═══════════════════════════════════════════════════════════════
 
-      // 1. Network Info & Band Locking
+      // 1. Network Info & Band Locking (تبويب الشبكة في البار السفلي)
       SearchItem(
         id: 'network_info',
         title: 'معلومات الشبكة والترددات (Network Info)',
-        subtitle: 'تفاصيل برج الاتصال، الترددات (Bands)، وقوة الإشارة (RSRP/SINR)',
+        subtitle:
+            'تفاصيل برج الاتصال، الترددات (Bands)، وقوة الإشارة (RSRP/SINR)',
         icon: Iconsax.chart_1,
         category: SearchCategory.smartTools,
         priority: 14,
         keywords: const [
-          'شبكة', 'برج', 'تردد', 'ترددات', 'band', 'cell id',
-          'rsrp', 'sinr', 'cqi', 'pci', 'تغطية', '4g', '5g',
-          'معلومات الشبكة', 'قفل التردد', 'band lock'
+          'شبكة',
+          'برج',
+          'تردد',
+          'ترددات',
+          'band',
+          'cell id',
+          'rsrp',
+          'sinr',
+          'cqi',
+          'pci',
+          'تغطية',
+          '4g',
+          '5g',
+          'معلومات الشبكة',
+          'قفل التردد',
+          'band lock',
         ],
-        onTap: () => Get.to(() => NetworkInfoPage()),
+        onTap: () => navigateToMainTab(2),
       ),
 
       // 2. Speed Test
@@ -562,8 +818,16 @@ class SearchIndexRegistry {
         category: SearchCategory.smartTools,
         priority: 13,
         keywords: const [
-          'سرعة', 'قياس', 'نت', 'اختبار', 'فحص',
-          'speed', 'fast', 'download', 'upload', 'ping'
+          'سرعة',
+          'قياس',
+          'نت',
+          'اختبار',
+          'فحص',
+          'speed',
+          'fast',
+          'download',
+          'upload',
+          'ping',
         ],
         onTap: () => Get.to(() => const SpeedTestPage()),
       ),
@@ -577,8 +841,17 @@ class SearchIndexRegistry {
         category: SearchCategory.smartTools,
         priority: 12,
         keywords: const [
-          'اشارة', 'ابراج', 'شبكة', 'افضل مكان', 'تغطية',
-          'signal', '4g', '5g', 'rssi', 'rsrp', 'مكان التغطية'
+          'اشارة',
+          'ابراج',
+          'شبكة',
+          'افضل مكان',
+          'تغطية',
+          'signal',
+          '4g',
+          '5g',
+          'rssi',
+          'rsrp',
+          'مكان التغطية',
         ],
         onTap: () => Get.to(() => const SignalFinderPage()),
       ),
@@ -592,7 +865,11 @@ class SearchIndexRegistry {
         category: SearchCategory.smartTools,
         priority: 8,
         keywords: const [
-          'اماكن محفوظة', 'مواقع', 'تغطية سابقة', 'مكان الراوتر', 'saved locations'
+          'اماكن محفوظة',
+          'مواقع',
+          'تغطية سابقة',
+          'مكان الراوتر',
+          'saved locations',
         ],
         onTap: () => Get.to(() => const SavedLocationsPage()),
       ),
@@ -606,8 +883,14 @@ class SearchIndexRegistry {
         category: SearchCategory.smartTools,
         priority: 11,
         keywords: const [
-          'البحث عن الراوتر', 'اين المودم', 'فايندر', 'finder',
-          'locate', 'ضائع', 'رنين الراوتر', 'مكان المودم'
+          'البحث عن الراوتر',
+          'اين المودم',
+          'فايندر',
+          'finder',
+          'locate',
+          'ضائع',
+          'رنين الراوتر',
+          'مكان المودم',
         ],
         onTap: () => Get.to(() => const ModemFinderPage()),
       ),
@@ -621,25 +904,45 @@ class SearchIndexRegistry {
         category: SearchCategory.smartTools,
         priority: 10,
         keywords: const [
-          'تطبيقات', 'مراقب', 'برامج', 'استهلاك التطبيقات',
-          'ترافيك', 'traffic', 'apps', 'سحب النت'
+          'تطبيقات',
+          'مراقب',
+          'برامج',
+          'استهلاك التطبيقات',
+          'ترافيك',
+          'traffic',
+          'apps',
+          'سحب النت',
         ],
         onTap: () => Get.to(() => AppMonitorScreen()),
       ),
 
-      // 7. Firewall Management Screen
+      // 7. Smart Alerts Screen
       SearchItem(
-        id: 'firewall_management',
-        title: 'الجدار الناري وحظر التطبيقات (Firewall)',
-        subtitle: 'منع تطبيقات محددة من استخدام إنترنت المودم',
-        icon: Iconsax.shield_security,
+        id: 'smart_alerts_management',
+        title: 'إدارة التنبيهات الذكية (Smart Alerts)',
+        subtitle:
+            'تنبيهات انخفاض البطارية، اقتراب نفاد الرصيد، واتصال الأجهزة الجديدة',
+        icon: Iconsax.notification_bing,
         category: SearchCategory.smartTools,
         priority: 10,
         keywords: const [
-          'جدار ناري', 'حظر تطبيقات', 'firewall', 'منع برنامج',
-          'حجب برامج', 'سيكيورتي', 'حماية'
+          'تنبيهات',
+          'إشعارات',
+          'تنبيه',
+          'إشعار',
+          'بطارية',
+          'رصيد',
+          'باقة',
+          'أجهزة جديدة',
+          'انتهاء الباقة',
+          'تنبيه ذكي',
+          'إدارة التنبيهات',
+          'alerts',
+          'notifications',
+          'battery alert',
+          'quota alert',
         ],
-        onTap: () => Get.to(() => const FirewallManagementScreen()),
+        onTap: () => Get.to(() => const BatterySettingsPage()),
       ),
 
       // ═══════════════════════════════════════════════════════════════
@@ -655,7 +958,12 @@ class SearchIndexRegistry {
         category: SearchCategory.tools,
         priority: 9,
         keywords: const [
-          'اعداد سريع', 'تهيئة', 'تثبيت', 'معالج', 'quick setup', 'اول مرة'
+          'اعداد سريع',
+          'تهيئة',
+          'تثبيت',
+          'معالج',
+          'quick setup',
+          'اول مرة',
         ],
         onTap: () => Get.to(() => QuickSetupPage()),
       ),
@@ -669,8 +977,14 @@ class SearchIndexRegistry {
         category: SearchCategory.tools,
         priority: 8,
         keywords: const [
-          'ودجات', 'اختصارات', 'شريط اشعارات', 'widgets',
-          'quick tools', 'tiles', 'ودجت', 'اختصار'
+          'ودجات',
+          'اختصارات',
+          'شريط اشعارات',
+          'widgets',
+          'quick tools',
+          'tiles',
+          'ودجت',
+          'اختصار',
         ],
         onTap: () => Get.to(() => const WidgetsSettingsPage()),
       ),
@@ -684,8 +998,12 @@ class SearchIndexRegistry {
         category: SearchCategory.tools,
         priority: 8,
         keywords: const [
-          'اشعارات', 'تنبيهات', 'notifications', 'alerts',
-          'رسائل', 'تحذيرات'
+          'اشعارات',
+          'تنبيهات',
+          'notifications',
+          'alerts',
+          'رسائل',
+          'تحذيرات',
         ],
         onTap: () => Get.to(() => NotificationsPage()),
       ),
@@ -699,12 +1017,22 @@ class SearchIndexRegistry {
         category: SearchCategory.tools,
         priority: 7,
         keywords: const [
-          'شرح', 'تعليم', 'جولة', 'دليل', 'كيف استخدم', 'tutorial', 'help', 'مساعدة'
+          'شرح',
+          'تعليم',
+          'جولة',
+          'دليل',
+          'كيف استخدم',
+          'tutorial',
+          'help',
+          'مساعدة',
         ],
         onTap: () {
           final context = Get.context;
           if (context != null && Get.isRegistered<TutorialService>()) {
-            Get.find<TutorialService>().showDashboardTutorial(context, force: true);
+            Get.find<TutorialService>().showDashboardTutorial(
+              context,
+              force: true,
+            );
           }
         },
       ),
@@ -718,8 +1046,14 @@ class SearchIndexRegistry {
         category: SearchCategory.tools,
         priority: 5,
         keywords: const [
-          'عن التطبيق', 'حول', 'اصدار', 'مطور',
-          'version', 'about', 'تحديث', 'لينكاري'
+          'عن التطبيق',
+          'حول',
+          'اصدار',
+          'مطور',
+          'version',
+          'about',
+          'تحديث',
+          'لينكاري',
         ],
         onTap: () => Get.to(() => const AboutPage()),
       ),
@@ -733,8 +1067,21 @@ class SearchIndexRegistry {
         category: SearchCategory.settings,
         priority: 9,
         keywords: const [
-          'اقتراح', 'اقتراحات', 'ملاحظة', 'ملاحظات', 'شكوى', 'مشكلة', 'عطل',
-          'ميزة جديدة', 'فكرة', 'صندوق الاقتراحات', 'تقييم', 'رأي', 'feedback', 'bug', 'suggest'
+          'اقتراح',
+          'اقتراحات',
+          'ملاحظة',
+          'ملاحظات',
+          'شكوى',
+          'مشكلة',
+          'عطل',
+          'ميزة جديدة',
+          'فكرة',
+          'صندوق الاقتراحات',
+          'تقييم',
+          'رأي',
+          'feedback',
+          'bug',
+          'suggest',
         ],
         onTap: () => Get.to(() => const FeedbackPage()),
       ),
@@ -759,7 +1106,9 @@ class SearchIndexRegistry {
           dynamicItems.add(
             SearchItem(
               id: 'device_${device.mac}',
-              title: displayName.isNotEmpty ? displayName : 'جهاز متصل (${device.ip})',
+              title: displayName.isNotEmpty
+                  ? displayName
+                  : 'جهاز متصل (${device.ip})',
               subtitle: 'IP: ${device.ip}  •  MAC: ${device.mac}',
               icon: isWifi ? Iconsax.wifi : Icons.cable_rounded,
               category: SearchCategory.devices,
@@ -769,14 +1118,19 @@ class SearchIndexRegistry {
                 device.ip,
                 device.mac,
                 if (displayName.isNotEmpty) displayName,
-                'جهاز', 'متصل', 'هاتف', 'كمبيوتر',
+                'جهاز',
+                'متصل',
+                'هاتف',
+                'كمبيوتر',
               ],
               onTap: () => Get.to(() => const DeviceManagementPage()),
               quickActionWidget: IconButton(
                 icon: const Icon(Iconsax.copy, size: 18),
                 tooltip: 'نسخ عنوان IP و MAC',
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(text: '${device.ip} (${device.mac})'));
+                  Clipboard.setData(
+                    ClipboardData(text: '${device.ip} (${device.mac})'),
+                  );
                   Get.rawSnackbar(
                     message: 'تم نسخ بيانات الجهاز (${device.ip})',
                     duration: const Duration(seconds: 2),
