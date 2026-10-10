@@ -34,6 +34,8 @@ class MainLayoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomSafeInset = MediaQuery.of(context).viewPadding.bottom;
+
     return Obx(() {
       return PopScope(
         canPop: false,
@@ -77,7 +79,7 @@ class MainLayoutPage extends StatelessWidget {
 
             // 🌟 البار السفلي الديناميكي
             Positioned(
-              bottom: 25, // ارتفاع البار عن أسفل الشاشة
+              bottom: bottomSafeInset + 16,
               left: 20,
               right: 20,
               child: Container(
@@ -88,7 +90,7 @@ class MainLayoutPage extends StatelessWidget {
 
             // ✨ الزر العائم للمساعد الصوتي
             Positioned(
-              bottom: 110,
+              bottom: bottomSafeInset + 100,
               right: 20,
               child: Container(
                 key: tutorialService.voiceAssistantKey,

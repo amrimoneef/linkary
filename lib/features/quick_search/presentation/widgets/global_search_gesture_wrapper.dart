@@ -82,6 +82,8 @@ class _GlobalSearchGestureWrapperState extends State<GlobalSearchGestureWrapper>
 
   void _onPointerDown(PointerDownEvent event) {
     if (!_isEligible(context)) return;
+    if (event.position.dx > 70.0) return;
+
     _startPos = event.position;
     _activePointerId = event.pointer;
     _isTrackingDrag = false;
@@ -96,7 +98,7 @@ class _GlobalSearchGestureWrapperState extends State<GlobalSearchGestureWrapper>
     if (!_isTrackingDrag) {
       // Detect deliberate swipe from Left to Right:
       // dx > 18px and predominantly horizontal (dx > dy.abs() * 1.3)
-      if (dx > 18.0 && dx > dy.abs() * 1.3) {
+      if (dx > 45.0 && dx > dy.abs() * 1.8) {
         _isTrackingDrag = true;
         _springController.stop();
         _hasVibrated = false;

@@ -222,6 +222,34 @@ class ParentalRuleEditorSheet {
                         icon: Icon(Iconsax.tick_circle, color: isReady ? Colors.white : Colors.white54),
                         label: Text(deviceToEdit == null ? 'حفظ القاعدة' : 'تحديث القاعدة', style: TextStyle(color: isReady ? Colors.white : Colors.white54, fontSize: 16, fontWeight: FontWeight.bold)),
                         onPressed: isReady ? () {
+                          final sMinutes = (startTime.value.hour * 60) + startTime.value.minute;
+                          final eMinutes = (endTime.value.hour * 60) + endTime.value.minute;
+
+                          if (sMinutes >= eMinutes) {
+                            Get.dialog(
+                              AlertDialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                title: const Text(
+                                  'تنبيه',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                content: const Text(
+                                  'يجب ان يكون وقت الانتهاء اكبر من وقت البدء',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(fontSize: 14, height: 1.5),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Get.back(),
+                                    child: const Text('حسنا', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return;
+                          }
+
                           if (selectedDays.isEmpty) selectedDays.addAll([0,1,2,3,4,5,6]); 
                           if (onSaveDraft != null) {
                             onSaveDraft(startTime.value, endTime.value, selectedDays.toList());

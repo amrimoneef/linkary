@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../controllers/connected_devices_controller.dart';
 import '../../../../core/widgets/custom_snackbar.dart';
 import '../../../device_management/presentation/widgets/device_detail_sheet.dart';
@@ -314,14 +315,14 @@ class _ConnectedDevicesPageState extends State<ConnectedDevicesPage> {
         } else if (direction == DismissDirection.endToStart) {
           // Swipe Left -> Device Management
           Get.bottomSheet(
-            DeviceDetailSheet(
+            AppBottomSheet.safeContent(child: DeviceDetailSheet(
               device: ManagedDevice(
                 mac: device.mac,
                 name: displayName,
                 ip: device.ip,
                 type: device.type,
               )
-            ),
+            )),
             isScrollControlled: true,
           );
         }
@@ -849,7 +850,7 @@ class _ConnectedDevicesPageState extends State<ConnectedDevicesPage> {
     final displayName = controller.getDisplayName(device);
 
     Get.bottomSheet(
-      Container(
+      AppBottomSheet.safeContent(child: Container(
         padding: const EdgeInsets.all(25),
         decoration: BoxDecoration(
           color: Get.isDarkMode ? const Color(0xFF16213E) : Colors.white,
@@ -942,7 +943,7 @@ class _ConnectedDevicesPageState extends State<ConnectedDevicesPage> {
             ),
           ],
         ),
-      ),
+      )),
       isScrollControlled: true,
     );
   }

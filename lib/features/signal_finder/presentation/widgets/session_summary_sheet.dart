@@ -59,13 +59,14 @@ class SessionSummarySheet extends StatelessWidget {
     
     final averageScore = historyPoints.isEmpty ? 0.0 : sumScore / historyPoints.length;
     final bestRank = _getRank(bestScore);
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
       ),
-      padding: const EdgeInsets.fromLTRB(25, 12, 25, 25), // Adjusted padding for handle
+      padding: EdgeInsets.fromLTRB(25, 12, 25, 20 + (bottomInset > 0 ? bottomInset : 12)),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,

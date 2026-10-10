@@ -5,7 +5,7 @@ import '../../../../core/widgets/glass_card.dart';
 import '../../domain/entities/feedback_submission.dart';
 import '../controllers/feedback_controller.dart';
 
-class FeedbackHistoryCard extends StatelessWidget {
+class FeedbackHistoryCard extends StatefulWidget {
   final FeedbackSubmission submission;
   final FeedbackController controller;
 
@@ -15,22 +15,40 @@ class FeedbackHistoryCard extends StatelessWidget {
     required this.controller,
   });
 
+  @override
+  State<FeedbackHistoryCard> createState() => _FeedbackHistoryCardState();
+}
+
+class _FeedbackHistoryCardState extends State<FeedbackHistoryCard> {
+  bool _isExpanded = false;
+
   String _formatDateTime(DateTime dt) {
     final y = dt.year;
     final m = dt.month.toString().padLeft(2, '0');
     final d = dt.day.toString().padLeft(2, '0');
-    final hr = dt.hour.toString().padLeft(2, '0');
+
+    int hour12 = dt.hour % 12;
+    if (hour12 == 0) hour12 = 12;
+    final hr = hour12.toString().padLeft(2, '0');
     final min = dt.minute.toString().padLeft(2, '0');
-    return '$y/$m/$d $hr:$min';
+    final period = dt.hour >= 12 ? 'م' : 'ص';
+
+    return '$y/$m/$d $hr:$min $period';
   }
 
   @override
   Widget build(BuildContext context) {
+    final submission = widget.submission;
+    final controller = widget.controller;
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? const Color(0xFF16213E) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF0F172A);
     final subTextColor = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final accentColor = const Color(0xFF4A90E2);
     final isPending = submission.status == FeedbackStatus.pendingOffline;
+
+    final isLongText = submission.description.length > 100 || submission.description.contains('\n');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -132,18 +150,66 @@ class FeedbackHistoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
 
-            // Description
-            Text(
-              submission.description,
-              style: TextStyle(
-                fontSize: 12.5,
-                height: 1.45,
-                color: isDark ? Colors.white70 : Colors.black87,
+            // Description with Animated CrossFade for smooth expand/collapse
+            AnimatedCrossFade(
+              firstChild: Text(
+                submission.description,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  height: 1.45,
+                  color: isDark ? Colors.white70 : Colors.black87,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
+              secondChild: Text(
+                submission.description,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  height: 1.45,
+                  color: isDark ? Colors.white70 : Colors.black87,
+                ),
+              ),
+              crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 200),
             ),
-            const SizedBox(height: 14),
+
+            // Show More / Show Less Button
+            if (isLongText) ...[
+              const SizedBox(height: 4),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _isExpanded ? 'عرض أقل' : 'عرض المزيد',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: accentColor,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        _isExpanded ? Iconsax.arrow_up_2 : Iconsax.arrow_down_1,
+                        size: 14,
+                        color: accentColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 12),
 
             // Tags & Status (Wrapped to prevent any horizontal overflow on small screens)
             Wrap(

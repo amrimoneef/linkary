@@ -101,11 +101,39 @@ class ParentalControlController extends GetxController {
   }
 
   Future<void> saveRule(String mac, TimeOfDay start, TimeOfDay end, List<int> days) async {
-    Get.back();
+    int sTime = timeOfDayToMinutes(start);
+    int eTime = timeOfDayToMinutes(end);
+
+    if (sTime >= eTime) {
+      Get.dialog(
+        AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text(
+            'تنبيه',
+            textAlign: TextAlign.right,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'يجب ان يكون وقت الانتهاء اكبر من وقت البدء',
+            textAlign: TextAlign.right,
+            style: TextStyle(fontSize: 14, height: 1.5),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('حسنا', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (Get.isBottomSheetOpen == true) {
+      Get.back();
+    }
     isLoading.value = true;
     try {
-      int sTime = timeOfDayToMinutes(start);
-      int eTime = timeOfDayToMinutes(end);
       int mode = calculateRepeatMode(days);
 
       final success = await saveRuleUseCase.execute(mac, sTime, eTime, mode, 0);

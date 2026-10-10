@@ -177,8 +177,8 @@ class FeedbackController extends GetxController {
       contactInfo: contactController.text.trim().isNotEmpty
           ? contactController.text.trim()
           : null,
-      includeDiagnostics: includeDiagnostics.value,
-      diagnosticInfo: includeDiagnostics.value ? diagnosticInfo.value : null,
+      includeDiagnostics: true,
+      diagnosticInfo: diagnosticInfo.value,
       attachmentPath: selectedImage.value?.path,
       createdAt: DateTime.now(),
       status: FeedbackStatus.pendingOffline,

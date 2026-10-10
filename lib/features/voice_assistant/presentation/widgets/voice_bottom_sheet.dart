@@ -21,9 +21,13 @@ class VoiceAssistantBottomSheet extends GetView<VoiceAssistantController> {
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
             color: bgColor,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            child: SafeArea(
+              top: false,
+              bottom: true,
+              maintainBottomViewPadding: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 // ─── مقبض السحب ───
                 const SizedBox(height: 12),
                 Container(
@@ -49,7 +53,8 @@ class VoiceAssistantBottomSheet extends GetView<VoiceAssistantController> {
                     state: state,
                   );
                 }),
-              ],
+                ],
+              ),
             ),
           ),
         ),

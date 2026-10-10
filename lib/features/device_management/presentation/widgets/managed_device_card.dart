@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import '../../../../core/widgets/app_bottom_sheet.dart';
 import '../../../connected_devices/domain/entities/connected_device_entity.dart';
 import '../../../connected_devices/presentation/controllers/connected_devices_controller.dart';
 import '../models/managed_device.dart';
@@ -312,7 +313,7 @@ class ManagedDeviceCard extends StatelessWidget {
   void _showTrustDialog(BuildContext context, ConnectedDevicesController controller, String displayName) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     Get.bottomSheet(
-      Container(
+      AppBottomSheet.safeContent(child: Container(
         padding: const EdgeInsets.all(25),
         decoration: BoxDecoration(color: isDark ? const Color(0xFF16213E) : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(30))),
         child: Column(
@@ -343,14 +344,14 @@ class ManagedDeviceCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
   void _showUntrustDialog(BuildContext context, ConnectedDevicesController controller, String displayName) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     Get.bottomSheet(
-      Container(
+      AppBottomSheet.safeContent(child: Container(
         padding: const EdgeInsets.all(25),
         decoration: BoxDecoration(color: isDark ? const Color(0xFF16213E) : Colors.white, borderRadius: const BorderRadius.vertical(top: Radius.circular(30))),
         child: Column(
@@ -381,7 +382,7 @@ class ManagedDeviceCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -390,7 +391,7 @@ class ManagedDeviceCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     Get.bottomSheet(
-      Container(
+      AppBottomSheet.safeContent(child: Container(
         padding: EdgeInsets.only(left: 25, right: 25, top: 25, bottom: MediaQuery.of(context).viewInsets.bottom + 25),
         decoration: BoxDecoration(color: isDark ? const Color(0xFF0D1321) : const Color(0xFFF3F4F6), borderRadius: const BorderRadius.vertical(top: Radius.circular(35))),
         child: Column(
@@ -458,7 +459,7 @@ class ManagedDeviceCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      )),
       isScrollControlled: true,
     );
   }
