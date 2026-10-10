@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'device_notification_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:linkary/core/network/session_manager.dart';
@@ -95,23 +95,20 @@ class BackgroundDeviceMonitor {
           pendingMacs = await SessionManager.getPendingMacs();
         }
 
-        // 6. البحث عن أجهزة غير موثّقة
+        List<String> ignoredMacs = await SessionManager.getIgnoredMacs(sn);
+        if (ignoredMacs.isEmpty) {
+          ignoredMacs = await SessionManager.getIgnoredMacs();
+        }
+
+        // 6. البحث عن أجهزة غير موثّقة وغير متجاهلة
         final untrustedMacs = currentMacs.where((mac) =>
-          !knownMacs.contains(mac)
+          !knownMacs.contains(mac) && !ignoredMacs.contains(mac)
         ).toList();
 
         debugPrint('📱 [BG Device Monitor] Found ${currentMacs.length} total, ${untrustedMacs.length} untrusted devices');
 
-        // 7. إرسال إشعارات وتحديث القائمة المعلقة
+        // 7. إرسال إشعارات تفاعلية وتحديث القائمة المعلقة
         if (untrustedMacs.isNotEmpty) {
-          final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-          const AndroidInitializationSettings initAndroid =
-              AndroidInitializationSettings('@drawable/ic_notification');
-          const InitializationSettings initSettings =
-              InitializationSettings(android: initAndroid);
-          await flutterLocalNotificationsPlugin.initialize(settings: initSettings);
-
           for (var mac in untrustedMacs) {
             if (!pendingMacs.contains(mac)) {
               await SessionManager.addPendingMac(mac, sn);
@@ -124,27 +121,11 @@ class BackgroundDeviceMonitor {
             );
             final deviceName = (deviceInfo['host_name'] ?? deviceInfo['name'] ?? 'غير معروف').toString();
 
-            // ID ثابت لكل جهاز بناءً على الـ MAC الخاص به ليحل محل الإشعار السابق لنفس الجهاز
-            final int deviceNotificationId = mac.hashCode.abs() % 100000;
-            
-            const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-              'new_device_alerts_v2',
-              'إشعارات الأجهزة الجديدة',
-              channelDescription: 'تنبيهات عند اتصال جهاز جديد بالمودم',
-              importance: Importance.max,
-              priority: Priority.high,
-              showWhen: true,
-              playSound: true,
-              enableVibration: true,
-            );
-            const NotificationDetails platformDetails =
-                NotificationDetails(android: androidDetails);
-
-            await flutterLocalNotificationsPlugin.show(
-              id: deviceNotificationId,
-              title: 'جهاز متصل جديد!',
-              body: 'تم اكتشاف جهاز $deviceName متصل بشبكتك',
-              notificationDetails: platformDetails,
+            // إرسال إشعار تفاعلي مزود بأزرار (حظر، توثيق، تجاهل) دون الدخول للتطبيق
+            await DeviceNotificationService.showDeviceAlert(
+              mac: mac,
+              deviceName: deviceName,
+              sn: sn,
             );
           }
         }
