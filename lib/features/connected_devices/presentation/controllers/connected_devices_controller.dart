@@ -7,7 +7,7 @@ import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 import '../../../speed_limit/presentation/controllers/speed_limit_controller.dart';
 import '../../domain/entities/connected_device_entity.dart';
 import '../../domain/usecases/get_connected_devices_usecase.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../infrastructure/services/device_notification_service.dart';
 import '../../../../core/utils/session_helper.dart';
 import '../../../../core/services/device_names_service.dart';
 import '../../../../core/services/battery_monitor_service.dart';
@@ -175,6 +175,13 @@ class ConnectedDevicesController extends GetxController {
             await SessionManager.addPendingMac(device.mac, sn);
             await SessionManager.addPendingMac(device.mac);
             hasNewDevices = true;
+
+            // إرسال إشعار تفاعلي مزود بأزرار (حظر، توثيق، تجاهل)
+            await DeviceNotificationService.showDeviceAlert(
+              mac: device.mac,
+              deviceName: getDisplayName(device),
+              sn: sn,
+            );
           }
         }
         
@@ -367,6 +374,14 @@ class ConnectedDevicesController extends GetxController {
       final success = await saveMacUseCase.execute('deny', currentFilter.allowList, newDenyList);
       
       if (success) {
+        final sn = Get.find<AuthController>().currentSN.value;
+        await SessionManager.removePendingMac(mac, sn);
+        await SessionManager.removePendingMac(mac);
+        await SessionManager.untrustDevice(mac, sn);
+        await SessionManager.untrustDevice(mac);
+        await SessionManager.addBlockedMac(mac, sn);
+        await SessionManager.addBlockedMac(mac);
+
         CustomSnackbar.showSuccess('تم الحظر', 'تم حظر الجهاز وتطبيق القواعد بنجاح.');
         fetchDevices(); // تحديث القائمة فوراً
       } else {

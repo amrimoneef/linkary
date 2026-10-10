@@ -16,7 +16,6 @@ class SessionManager {
   static const _knownMacsKey = 'known_devices_macs';
   static const _bgDeviceMonitorEnabledKey = 'bg_device_monitor_enabled';
   static const _pendingMacsKey = 'pending_devices_macs';
-  static const _ignoredMacsKey = 'ignored_devices_macs';
   static const _blockedMacsKey = 'blocked_devices_macs';
   static const _lastSnKey = 'last_sn';
 
@@ -93,45 +92,6 @@ class SessionManager {
     await saveKnownMacs(known, sn);
   }
 
-  // ─── الأجهزة المتجاهلة (Ignored Devices) ───
-
-  /// حفظ قائمة الأجهزة المتجاهلة
-  static Future<void> saveIgnoredMacs(List<String> macs, [String? sn]) async {
-    await _storage.write(
-      key: _getKey(_ignoredMacsKey, sn),
-      value: macs.join(','),
-    );
-  }
-
-  /// استرجاع قائمة الأجهزة المتجاهلة
-  static Future<List<String>> getIgnoredMacs([String? sn]) async {
-    final val = await _storage.read(key: _getKey(_ignoredMacsKey, sn));
-    if (val == null || val.isEmpty) return [];
-    return val.split(',');
-  }
-
-  /// إضافة MAC لقائمة المتجاهلة (بدون تكرار)
-  static Future<void> addIgnoredMac(String mac, [String? sn]) async {
-    final current = await getIgnoredMacs(sn);
-    if (!current.contains(mac)) {
-      current.add(mac);
-      await saveIgnoredMacs(current, sn);
-    }
-  }
-
-  /// إزالة MAC من قائمة المتجاهلة
-  static Future<void> removeIgnoredMac(String mac, [String? sn]) async {
-    final current = await getIgnoredMacs(sn);
-    if (current.remove(mac)) {
-      await saveIgnoredMacs(current, sn);
-    }
-  }
-
-  /// هل الجهاز متجاهل؟
-  static Future<bool> isDeviceIgnored(String mac, [String? sn]) async {
-    final current = await getIgnoredMacs(sn);
-    return current.contains(mac);
-  }
 
   // ─── الأجهزة المحظورة (Blocked Devices) ───
 

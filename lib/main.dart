@@ -8,6 +8,8 @@ import 'core/services/app_security_service.dart';
 import 'core/services/battery_monitor_service.dart';
 import 'core/services/fcm_notification_service.dart';
 import 'features/connected_devices/infrastructure/services/background_device_monitor.dart';
+import 'features/connected_devices/infrastructure/services/device_notification_service.dart';
+import 'features/connected_devices/presentation/pages/connected_devices_page.dart';
 import 'features/quick_tools_and_widgets/infrastructure/services/widget_refresh_task.dart';
 import 'features/quick_search/presentation/widgets/global_search_gesture_wrapper.dart';
 import 'features/splash/presentation/pages/splash_page.dart';
@@ -22,6 +24,7 @@ void callbackDispatcher() {
       await BatteryMonitorService.checkQuotaAndNotify();
       await BatteryMonitorService.checkExpiryAndNotify();
     } else if (task == backgroundDeviceMonitorTask) {
+      await DeviceNotificationService.initialize();
       await BackgroundDeviceMonitor.checkDevicesAndNotify();
     } else if (task == widgetRefreshTask) {
       // تحديث يدوي من زر التحديث — بلا rate-limit
@@ -43,6 +46,13 @@ void main() async {
   
   // تهيئة خدمة مراقبة البطارية في الخلفية
   await BatteryMonitorService.initialize();
+
+  // 🔔 تهيئة خدمة الإشعارات التفاعلية للأجهزة المتصلة (حظر، توثيق، تجاهل)
+  await DeviceNotificationService.initialize(
+    onOpenConnectedDevices: () {
+      Get.to(() => const ConnectedDevicesPage());
+    },
+  );
 
   // تهيئة خدمة الإشعارات (Firebase Cloud Messaging) دون تعطيل بدء التطبيق
   FcmNotificationService().initialize();

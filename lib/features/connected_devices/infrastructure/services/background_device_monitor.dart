@@ -95,14 +95,9 @@ class BackgroundDeviceMonitor {
           pendingMacs = await SessionManager.getPendingMacs();
         }
 
-        List<String> ignoredMacs = await SessionManager.getIgnoredMacs(sn);
-        if (ignoredMacs.isEmpty) {
-          ignoredMacs = await SessionManager.getIgnoredMacs();
-        }
-
-        // 6. البحث عن أجهزة غير موثّقة وغير متجاهلة
+        // 6. البحث عن أجهزة غير موثّقة
         final untrustedMacs = currentMacs.where((mac) =>
-          !knownMacs.contains(mac) && !ignoredMacs.contains(mac)
+          !knownMacs.contains(mac)
         ).toList();
 
         debugPrint('📱 [BG Device Monitor] Found ${currentMacs.length} total, ${untrustedMacs.length} untrusted devices');

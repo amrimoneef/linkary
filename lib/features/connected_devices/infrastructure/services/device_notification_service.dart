@@ -344,8 +344,6 @@ class DeviceNotificationService {
       // 3. تحديث التخزين المحلي
       await SessionManager.removePendingMac(mac, activeSn);
       await SessionManager.removePendingMac(mac);
-      await SessionManager.removeIgnoredMac(mac, activeSn);
-      await SessionManager.removeIgnoredMac(mac);
       await SessionManager.untrustDevice(mac, activeSn);
       await SessionManager.untrustDevice(mac);
       await SessionManager.addBlockedMac(mac, activeSn);
@@ -383,8 +381,6 @@ class DeviceNotificationService {
 
       await SessionManager.trustDevice(mac, activeSn);
       await SessionManager.trustDevice(mac);
-      await SessionManager.removeIgnoredMac(mac, activeSn);
-      await SessionManager.removeIgnoredMac(mac);
       await SessionManager.removeBlockedMac(mac, activeSn);
       await SessionManager.removeBlockedMac(mac);
 
@@ -398,21 +394,14 @@ class DeviceNotificationService {
     }
   }
 
-  /// ✖️ تنفيذ إجراء التجاهل
+  /// ✖️ تنفيذ إجراء التجاهل (مسح الإشعار الحالي فقط من شريط الإشعارات)
   static Future<void> executeDismissDevice({
     required String mac,
     required String deviceName,
     String? sn,
   }) async {
     try {
-      final activeSn = (sn != null && sn.isNotEmpty) ? sn : await SessionManager.getLastSN();
-
-      await SessionManager.removePendingMac(mac, activeSn);
-      await SessionManager.removePendingMac(mac);
-      await SessionManager.addIgnoredMac(mac, activeSn);
-      await SessionManager.addIgnoredMac(mac);
-
-      // إلغاء الإشعار الحالي
+      // مسح الإشعار الحالي فقط دون التأثير على حالة الجهاز أو منع إشعاراته المستقبلية
       await _plugin.cancel(id: getNotificationId(mac));
     } catch (e) {
       debugPrint('❌ [DeviceNotificationService] Dismiss error: $e');

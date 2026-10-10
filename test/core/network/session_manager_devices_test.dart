@@ -1,33 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkary/core/network/session_manager.dart';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   FlutterSecureStorage.setMockInitialValues({});
 
-  group('SessionManager Ignored & Blocked MACs Tests', () {
-    test('ignoredMacs logic correctly adds, checks, and removes MAC', () async {
-      const testSn = 'TEST_SN_123';
-      const mac = 'AA:BB:CC:DD:EE:01';
-
-      // Ensure clean state
-      await SessionManager.removeIgnoredMac(mac, testSn);
-      expect(await SessionManager.isDeviceIgnored(mac, testSn), false);
-
-      // Add to ignored
-      await SessionManager.addIgnoredMac(mac, testSn);
-      expect(await SessionManager.isDeviceIgnored(mac, testSn), true);
-
-      final list = await SessionManager.getIgnoredMacs(testSn);
-      expect(list.contains(mac), true);
-
-      // Remove from ignored
-      await SessionManager.removeIgnoredMac(mac, testSn);
-      expect(await SessionManager.isDeviceIgnored(mac, testSn), false);
-    });
-
+  group('SessionManager Blocked MACs Tests', () {
     test('blockedMacs logic correctly saves and retrieves blocked MACs', () async {
       const testSn = 'TEST_SN_123';
       const mac = 'AA:BB:CC:DD:EE:02';
