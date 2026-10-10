@@ -16,6 +16,8 @@ class SessionManager {
   static const _knownMacsKey = 'known_devices_macs';
   static const _bgDeviceMonitorEnabledKey = 'bg_device_monitor_enabled';
   static const _pendingMacsKey = 'pending_devices_macs';
+  static const _ignoredMacsKey = 'ignored_devices_macs';
+  static const _blockedMacsKey = 'blocked_devices_macs';
   static const _lastSnKey = 'last_sn';
 
   /// حفظ الرقم التسلسلي الأخير لاستخدامه في مهام الخلفية
@@ -89,6 +91,86 @@ class SessionManager {
     final known = await getKnownMacs(sn);
     known.remove(mac);
     await saveKnownMacs(known, sn);
+  }
+
+  // ─── الأجهزة المتجاهلة (Ignored Devices) ───
+
+  /// حفظ قائمة الأجهزة المتجاهلة
+  static Future<void> saveIgnoredMacs(List<String> macs, [String? sn]) async {
+    await _storage.write(
+      key: _getKey(_ignoredMacsKey, sn),
+      value: macs.join(','),
+    );
+  }
+
+  /// استرجاع قائمة الأجهزة المتجاهلة
+  static Future<List<String>> getIgnoredMacs([String? sn]) async {
+    final val = await _storage.read(key: _getKey(_ignoredMacsKey, sn));
+    if (val == null || val.isEmpty) return [];
+    return val.split(',');
+  }
+
+  /// إضافة MAC لقائمة المتجاهلة (بدون تكرار)
+  static Future<void> addIgnoredMac(String mac, [String? sn]) async {
+    final current = await getIgnoredMacs(sn);
+    if (!current.contains(mac)) {
+      current.add(mac);
+      await saveIgnoredMacs(current, sn);
+    }
+  }
+
+  /// إزالة MAC من قائمة المتجاهلة
+  static Future<void> removeIgnoredMac(String mac, [String? sn]) async {
+    final current = await getIgnoredMacs(sn);
+    if (current.remove(mac)) {
+      await saveIgnoredMacs(current, sn);
+    }
+  }
+
+  /// هل الجهاز متجاهل؟
+  static Future<bool> isDeviceIgnored(String mac, [String? sn]) async {
+    final current = await getIgnoredMacs(sn);
+    return current.contains(mac);
+  }
+
+  // ─── الأجهزة المحظورة (Blocked Devices) ───
+
+  /// حفظ قائمة الأجهزة المحظورة
+  static Future<void> saveBlockedMacs(List<String> macs, [String? sn]) async {
+    await _storage.write(
+      key: _getKey(_blockedMacsKey, sn),
+      value: macs.join(','),
+    );
+  }
+
+  /// استرجاع قائمة الأجهزة المحظورة
+  static Future<List<String>> getBlockedMacs([String? sn]) async {
+    final val = await _storage.read(key: _getKey(_blockedMacsKey, sn));
+    if (val == null || val.isEmpty) return [];
+    return val.split(',');
+  }
+
+  /// إضافة MAC لقائمة المحظورة
+  static Future<void> addBlockedMac(String mac, [String? sn]) async {
+    final current = await getBlockedMacs(sn);
+    if (!current.contains(mac)) {
+      current.add(mac);
+      await saveBlockedMacs(current, sn);
+    }
+  }
+
+  /// إزالة MAC من قائمة المحظورة
+  static Future<void> removeBlockedMac(String mac, [String? sn]) async {
+    final current = await getBlockedMacs(sn);
+    if (current.remove(mac)) {
+      await saveBlockedMacs(current, sn);
+    }
+  }
+
+  /// هل الجهاز محظور؟
+  static Future<bool> isDeviceBlocked(String mac, [String? sn]) async {
+    final current = await getBlockedMacs(sn);
+    return current.contains(mac);
   }
 
   /// تفعيل/تعطيل إشعارات الأجهزة في الخلفية
