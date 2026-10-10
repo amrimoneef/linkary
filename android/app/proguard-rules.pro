@@ -5,6 +5,7 @@
 # 1. Main Application & Native Services
 -keep class com.sam4g.app_settings.MainActivity { *; }
 -keep class com.sam4g.app_settings.LinkaryFirewallService { *; }
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
 
 # 2. freeRASP - Runtime App Self Protection
 -keep class com.aheaditec.** { *; }

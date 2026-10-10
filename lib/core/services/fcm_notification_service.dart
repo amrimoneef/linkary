@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/notifications/domain/entities/notification_entity.dart';
 import '../../features/notifications/presentation/controllers/notifications_controller.dart';
+import '../../features/connected_devices/infrastructure/services/device_notification_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -135,9 +136,14 @@ class FcmNotificationService {
     await _localNotificationsPlugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
+        if (response.actionId != null && response.actionId!.isNotEmpty) {
+          DeviceNotificationService.onDeviceNotificationBackgroundAction(response);
+          return;
+        }
         // التعامل مع الضغط على الإشعار هنا
         debugPrint('🔔 Notification Clicked: ${response.payload}');
       },
+      onDidReceiveBackgroundNotificationResponse: deviceNotificationActionTapBackground,
     );
 
     // إنشاء قناة إشعارات خاصة للأندرويد للأهمية العالية

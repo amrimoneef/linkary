@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:get/get.dart';
 
 import '../../main.dart';
+import '../../features/connected_devices/infrastructure/services/device_notification_service.dart';
 
 const String batteryMonitorTask = "batteryMonitorTask";
 const String quotaExpiryMonitorTask = "quotaExpiryMonitorTask";
@@ -23,6 +24,7 @@ Future<void> _showNotification({required String title, required String body, int
   const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
   await flutterLocalNotificationsPlugin.initialize(
     settings: initializationSettings,
+    onDidReceiveBackgroundNotificationResponse: deviceNotificationActionTapBackground,
   );
 
   const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(

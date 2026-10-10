@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:linkary/features/connected_devices/infrastructure/services/device_notification_service.dart';
 
 class NotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -15,6 +16,8 @@ class NotificationService {
 
     await _flutterLocalNotificationsPlugin.initialize(
       settings: initializationSettings,
+      onDidReceiveBackgroundNotificationResponse:
+          deviceNotificationActionTapBackground,
     );
 
     // Request permission for Android 13+

@@ -6,6 +6,12 @@ import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
 import 'package:linkary/core/network/session_manager.dart';
 
+/// معالج خلفي عام ومستقل يتم استدعاؤه مباشرة من نظام أندرويد
+@pragma('vm:entry-point')
+void deviceNotificationActionTapBackground(NotificationResponse response) {
+  DeviceNotificationService.onDeviceNotificationBackgroundAction(response);
+}
+
 /// خدمة مركزية لإدارة إشعارات الأجهزة المتصلة وتنفيذ الإجراءات التفاعلية (حظر، توثيق، تجاهل)
 /// مباشرة من شريط الإشعارات بدون فتح التطبيق.
 class DeviceNotificationService {
@@ -83,7 +89,7 @@ class DeviceNotificationService {
     await _plugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: _onForegroundNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: onDeviceNotificationBackgroundAction,
+      onDidReceiveBackgroundNotificationResponse: deviceNotificationActionTapBackground,
     );
 
     // إنشاء قنوات الإشعارات على نظام أندرويد
@@ -184,7 +190,7 @@ class DeviceNotificationService {
     await _plugin.show(
       id: notifId,
       title: 'جهاز متصل جديد!',
-      body: 'تم اكتشاف جهاز $deviceName ($mac) متصل بشبكتك',
+      body: 'تم اكتشاف جهاز $deviceName متصل بشبكتك',
       notificationDetails: platformDetails,
       payload: payload,
     );
@@ -353,7 +359,7 @@ class DeviceNotificationService {
       await showFeedbackNotification(
         id: getNotificationId(mac) + 10,
         title: 'تم حظر الجهاز بنجاح 🚫',
-        body: 'تم حظر $deviceName ($mac) وفصله عن شبكة المودم دون فتح التطبيق.',
+        body: 'تم حظر $deviceName وفصله عن شبكة المودم.',
       );
 
       return true;
@@ -362,7 +368,7 @@ class DeviceNotificationService {
       await showFeedbackNotification(
         id: getNotificationId(mac) + 10,
         title: 'خطأ في حظر الجهاز',
-        body: 'تعذر إتمام حظر $deviceName ($mac). تحقق من اتصالك بالمودم.',
+        body: 'تعذر إتمام حظر $deviceName .تحقق من اتصالك بالمودم.',
       );
       return false;
     } finally {
@@ -387,7 +393,7 @@ class DeviceNotificationService {
       await showFeedbackNotification(
         id: getNotificationId(mac) + 10,
         title: 'تم توثيق الجهاز بنجاح ✅',
-        body: 'تمت إضافة $deviceName ($mac) إلى قائمة الأجهزة الموثوقة.',
+        body: 'تمت إضافة $deviceName إلى قائمة الأجهزة الموثوقة.',
       );
     } catch (e) {
       debugPrint('❌ [DeviceNotificationService] Trust error: $e');

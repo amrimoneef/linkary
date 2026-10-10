@@ -28,7 +28,7 @@ class WhatsNewHelper {
       final packageInfo = await PackageInfo.fromPlatform();
       await _showWhatsNewDialog(packageInfo.version);
     } catch (_) {
-      await _showWhatsNewDialog('1.0.3');
+      await _showWhatsNewDialog('1.0.4');
     }
   }
 
@@ -107,45 +107,37 @@ class WhatsNewHelper {
               
               // Features List
               _buildFeatureItem(
-                icon: Iconsax.element_plus,
-                title: 'ويدجت الشاشة الرئيسية',
-                description: 'إضافة ويدجت تفاعلية فاخرة للشاشة الرئيسية بثلاثة أحجام (الشريطي 4×1، المربع 2×2، والمفصل 4×2) بتصميم شبه شفاف يعرض الرصيد والبطارية وحالة المودم. يمكنك اضافتها من الإعدادت او من الشاشة الرئيسية لهاتفك',
+                icon: Iconsax.security_user,
+                title: 'إجراءات فورية لإشعارات الأجهزة',
+                description: 'تحكم فوري بالأجهزة المتصلة مباشرة من درج الإشعارات عبر إمكانية (حظر 🚫، توثيق ✅، أو تجاهل ✖️) بضغطة زر واحدة دون الحاجة للدخول إلى التطبيق.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
               _buildFeatureItem(
-                icon: Iconsax.notification_status,
-                title: 'إشعار تفاعلي سريع ودائم',
-                description: 'مراقبة حية ولحظية لمودم SAM4G من لوحة الإشعارات مع مؤشر اتصال فوري وعرض تفصيلي للرصيد المتبقي والاستهلاك.',
+                icon: Iconsax.search_status,
+                title: 'البحث السريع الذكي (Spotlight)',
+                description: 'محرك بحث متطور وفوري لكافة إعدادات وخصائص المودم باللغة العربية، مع إمكانية الوصول السريع له عبر إيماءة السحب لليمين من أي مكان في التطبيق.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
               _buildFeatureItem(
-                icon: Iconsax.refresh_circle,
-                title: 'إعادة تشغيل فورية دون فتح التطبيق',
-                description: 'يمكنك الآن إعادة تشغيل المودم مباشرة من الويدجت أو لوحة الإشعارات عبر نافذة تأكيد عائمة ومستقلة.',
+                icon: Iconsax.lock,
+                title: 'تحسين التحكم الأبوي وجدولة الإنترنت',
+                description: 'اصبحت الجدولة تدعم جميع الأيام بشكل مستقل.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
               _buildFeatureItem(
-                icon: Iconsax.shield_tick,
-                title: 'استقرار تام للجلسات وتسجيل الدخول',
-                description: 'حل جذري لمشكلة انتهاء الجلسة المفاجئ عند بدء التشغيل مع تحديث لحظي ذكي عند الاتصال بالمودم.',
+                icon: Iconsax.message_favorite,
+                title: 'صندوق المقترحات والدعم المباشر',
+                description: 'منظومة عصرية لإرسال ملاحظاتك ومقترحاتك مباشرة لفريق التطوير، مع توثيق تلقائي لطراز المودم وسجل آمن لمتابعة رسائلك السابقة.',
                 textColor: textColor,
                 subTextColor: subTextColor,
               ),
               const SizedBox(height: 16),
-              _buildFeatureItem(
-                icon: Iconsax.wallet_3,
-                title: 'إصلاح الاستعلام عن الرصيد',
-                description: 'حل جذري لخدمة استعلام الرصيد مع دعم تصحيح صيغة الأرقام تلقائياً.',
-                textColor: textColor,
-                subTextColor: subTextColor,
-              ),
-              const SizedBox(height: 32),
               
               // Action Button
               SizedBox(

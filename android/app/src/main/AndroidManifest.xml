@@ -151,6 +151,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- مستقبل إجراءات الإشعارات التفاعلية في الخلفية لحزمة flutter_local_notifications -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver"
+            android:exported="false" />
+
         <!-- Quick Settings Tile في ستارة الإشعارات العلوية -->
         <service
             android:name=".LinkaryTileService"

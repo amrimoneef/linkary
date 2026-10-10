@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import '../../domain/entities/quick_tools_state_entity.dart';
 import '../../../modem_auth/presentation/controllers/auth_controller.dart';
 
+import 'package:linkary/features/connected_devices/infrastructure/services/device_notification_service.dart';
+
 class QuickNotificationService {
   static const int notificationId = 8888;
   static const String channelId = 'quick_tools_persistent_channel';
@@ -30,6 +32,8 @@ class QuickNotificationService {
     await _notificationsPlugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationAction,
+      onDidReceiveBackgroundNotificationResponse:
+          deviceNotificationActionTapBackground,
     );
     _isInitialized = true;
   }
